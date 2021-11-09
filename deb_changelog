@@ -1,10 +1,11 @@
+#!/bin/sh
 PKGNAME=${1:-libu8};
 CODENAME=${2:-debian};
 VERSION=$3;
 BRANCH=${4:-current};
 STATUS=${5:-stable};
 URGENCY=${6:-medium};
-GITID=$7
+FULL_VERSION=${7:-${VERSION}}
 DATE=`date -R`;
 
 if [ -z "${STATUS}" ] || 
@@ -15,6 +16,12 @@ else
     STATUS="-${STATUS}";
 fi;
 
+if [ -z "${STATUS}" ]; then
+  STATUSADJ=normal;
+else
+  STATUSADJ="${STATUS}";
+fi
+	
 if [ -z "${BRANCH}" ] ||
    [ ${BRANCH} = "main" ] ||
    [ ${BRANCH} = "trunk" ] ||
@@ -31,9 +38,9 @@ fi;
 echo ${PKGNAME} \(${VERSION}-${CODENAME}${DBRANCH}\) ${CODENAME}${DBRANCH}${STATUS}\; urgency=${URGENCY}
 echo
 if [ -z ${DBRANCH} ]; then
-    echo "  * ${GITID} point release of ${PKGNAME} for ${CODENAME} (${STATUS})"
+    echo "  * ${GITID} ${STATUSADJ} point release of ${PKGNAME} for ${CODENAME} (${FULL_VERSION})"
 else
-    echo "  * ${GITID} point release of ${PKGNAME} (branch '${BRANCH}') for ${CODENAME} (${STATUS})"
+    echo "  * ${GITID} ${STATUSADJ} point release of ${PKGNAME} (branch '${BRANCH}') for ${CODENAME} (${FULL_VERSION})"
 fi;
 echo
 echo " -- Repository Manager <repoman@beingmeta.com>  ${DATE}"

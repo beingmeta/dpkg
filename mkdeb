@@ -1,9 +1,7 @@
 #!/bin/sh
 
-shopt -u expand_aliases
-
-DEFAULT_PKGNAME=$(cat state/PKGNAME 2> /dev/null | echo libu8)
-DEFAULT_DISTRO=$(cat state/DISTRO 2> /dev/null | echo debian)
+DEFAULT_PKGNAME=$(cat state/PKGNAME 2> /dev/null || echo libu8)
+DEFAULT_DISTRO=$(cat state/DISTRO 2> /dev/null || echo debian)
 export PKGNAME
 export DISTRO
 
@@ -29,7 +27,7 @@ export URGENCY=${URGENCY}
 if [ -z "${URGENCY}" ]; then
     if [ -f urgency ]; then
 	URGENCY=$(cat state/URGENCY);
-    else URGENCY=stable;
+    else URGENCY=medium;
     fi;
 else
     echo ${URGENCY} > state/URGENCY;
@@ -45,32 +43,40 @@ start_build() {
 }
 
 update_source() {
-    pkgname=${1:-${PKGNAME}}
+    local pkgname=${1:-${PKGNAME}}
     if [ ! -d ${pkgname}/.git ]; then
 	git clone $(cat sources/${pkgname}) ${pkgname};
     else ("cd" ${pkgname}; git pull);
     fi
     ("cd" ${pkgname}; 
+     u8_gitbranch > BRANCH; 
      u8_gitversion etc/base_version > VERSION; 
      u8_gitversion etc/base_version full > FULL_VERSION);
-}
-modify_source() {
-    pkgname=${1:-${PKGNAME}}
-    rm -rf ${pkgname}/debian
-    cp -r debinfo/${pgkname}/* ${pkgname}/debian;
-    version=$("cd" ${pkgname}; u8_gitversion etc/base_version 2>/dev/null);
-    branch=$("cd" ${pkgname}; u8_gitbranch 2>/dev/null);
-     ./make_changelog ${pkgname} ${DISTRO} ${version} ${branch} \
-		     ${STATUS} ${URGENCY} > ${pkgname}/debian/changelog;
+    ("cd" ${pkgname}; ./make_source_tar ../${pkgname}.tar);
 }
 
-build_package() {
-    pkgname=${1:-${PKGNAME}}
+debian_prepare() {
+    local pkgname=${1:-${PKGNAME}}
+    if [ -z "${DISTRO}" ]; then DISTRO=${DEFAULT_DISTRO}; fi
+    echo "pkgname= ${pkgname}";
+    rm -rf ${pkgname}/debian
+    echo "cp -r debinfo/${pkgname} ${pkgname}/debian"
+    cp -r debinfo/${pgkname} ${pkgname}/debian
+    version=$(cat ${pkgname}/VERSION);
+    branch=$(cat ${pkgname}/BRANCH);
+    full_version=$(cat ${pkgname}/FULL_VERSION 2>/dev/null||echo $version);
+     ./deb_changelog ${pkgname} ${DISTRO} ${version} ${branch} \
+		     "${STATUS}" "${URGENCY}" "${full_version}" \
+	 1> ${pkgname}/debian/changelog;
+}
+
+debian_build() {
+    local pkgname=${1:-${PKGNAME}}
     ("cd" ${pkgname}; dpkg-buildpackage -b -us -uc -sa -rfakeroot);
 }
 
 if [ $(basename "\\$0") = "mkdeb" ]; then
     update_source ${PKGNAME} && 
-	modify_source ${PKGNAME} && 
-	build_package ${PKGNAME};
+	debian_prepare ${PKGNAME} && 
+	debian_build ${PKGNAME};
 fi;
