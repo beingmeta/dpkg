@@ -1,0 +1,5 @@
+usr/include/libu8/*.h
+usr/lib/lib*.a
+usr/lib/lib*.so
+usr/share/pkgconfig/*
+usr/bin/u8_install_shared

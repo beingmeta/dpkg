@@ -1,0 +1,10 @@
+usr/lib/kno
+usr/lib
+usr/include/kno
+usr/share
+usr/share/kno
+usr/share/kno/modules
+usr/share/kno/modules/installed
+usr/share/kno/modules/installed/ofsm/dev
+usr/share/kno/modules/installed/ofsm/bench
+usr/share/kno/modules/installed/ofsm/misc

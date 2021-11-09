@@ -1,0 +1,76 @@
+#!/bin/sh
+
+shopt -u expand_aliases
+
+DEFAULT_PKGNAME=$(cat state/PKGNAME 2> /dev/null | echo libu8)
+DEFAULT_DISTRO=$(cat state/DISTRO 2> /dev/null | echo debian)
+export PKGNAME
+export DISTRO
+
+if [ $(basename "\\$0") = "mkdeb" ]; then
+    PKGNAME=${1:-${DEFAULT_PKGNAME}}
+    DISTRO=${2:-${DEFAULT_DISTRO}}
+fi
+    
+echo ${PKGNAME} > state/PKGNAME;
+echo ${DISTRO} > state/DISTRO;
+
+export STATUS=${STATUS}
+if [ -z "${STATUS}" ]; then
+    if [ -f status ]; then
+	STATUS=$(cat state/STATUS);
+    else STATUS=stable;
+    fi;
+else
+    echo ${STATUS} > state/STATUS;
+fi;
+
+export URGENCY=${URGENCY}
+if [ -z "${URGENCY}" ]; then
+    if [ -f urgency ]; then
+	URGENCY=$(cat state/URGENCY);
+    else URGENCY=stable;
+    fi;
+else
+    echo ${URGENCY} > state/URGENCY;
+fi;
+
+start_build() {
+    local pkgname=${1:${DEFAULT_PKGNAME}}
+    local distro=${2:${DEFAULT_DISTRO}}
+    echo ${pkgname} > state/PKGNAME
+    echo ${distro} > state/DISTRO
+    PKGNAME=${pkgname};
+    DISTRO=${distro};
+}
+
+update_source() {
+    pkgname=${1:-${PKGNAME}}
+    if [ ! -d ${pkgname}/.git ]; then
+	git clone $(cat sources/${pkgname}) ${pkgname};
+    else ("cd" ${pkgname}; git pull);
+    fi
+    ("cd" ${pkgname}; 
+     u8_gitversion etc/base_version > VERSION; 
+     u8_gitversion etc/base_version full > FULL_VERSION);
+}
+modify_source() {
+    pkgname=${1:-${PKGNAME}}
+    rm -rf ${pkgname}/debian
+    cp -r debinfo/${pgkname}/* ${pkgname}/debian;
+    version=$("cd" ${pkgname}; u8_gitversion etc/base_version 2>/dev/null);
+    branch=$("cd" ${pkgname}; u8_gitbranch 2>/dev/null);
+     ./make_changelog ${pkgname} ${DISTRO} ${version} ${branch} \
+		     ${STATUS} ${URGENCY} > ${pkgname}/debian/changelog;
+}
+
+build_package() {
+    pkgname=${1:-${PKGNAME}}
+    ("cd" ${pkgname}; dpkg-buildpackage -b -us -uc -sa -rfakeroot);
+}
+
+if [ $(basename "\\$0") = "mkdeb" ]; then
+    update_source ${PKGNAME} && 
+	modify_source ${PKGNAME} && 
+	build_package ${PKGNAME};
+fi;

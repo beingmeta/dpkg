@@ -1,0 +1,4 @@
+usr/share/kno/modules/installed/chopper/*.scm
+usr/share/kno/modules/installed/chopper/squad/*.scm
+usr/share/kno/modules/installed/chopper/bench/*.scm
+usr/share/kno/modules/installed/chopper/data/*

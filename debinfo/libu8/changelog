@@ -1,0 +1,414 @@
+libu8 (2.8.7-14) unstable; urgency=medium
+
+  * Version bump
+
+ -- Ken Haase <kh@beingmeta.com>  Fri, 18 Dec 2020 20:21:28 +0000
+
+libu8 (2.8.2-13) stable; urgency=medium
+
+  * Separate out dev scripts
+
+ -- Ken Haase <kh@beingmeta.com>  Mon, 20 Jul 2020 11:46:02 -0400
+
+libu8 (2.8.1-13) stable; urgency=medium
+
+  * New minor version number with new versioning system
+
+ -- Ken Haase <kh@beingmeta.com>  Mon, 20 Jul 2020 11:46:02 -0400
+
+libu8 (2.7.3-11) stable; urgency=medium
+
+  * Bumped release number
+
+ -- Ken Haase <kh@beingmeta.com>  Mon, 08 Jun 2020 11:27:35 -0400
+
+libu8 (2.7.1-10) unstable; urgency=medium
+
+  * Welcome 2.7
+
+ -- Ken Haase <kh@beingmeta.com>  Tue, 08 Feb 2020 12:33:48 +0000
+
+libu8 (2.6.8-10) unstable; urgency=medium
+
+  * Add pkgconfig install
+
+ -- Ken Haase <kh@beingmeta.com>  Tue, 07 Jan 2020 20:36:48 +0000
+
+libu8 (2.6.8-9) unstable; urgency=medium
+
+  * Bumped release number for fixes to u8contour
+
+ -- Ken Haase <kh@beingmeta.com>  Fri, 05 Jul 2019 15:07:13 +0000
+
+libu8 (2.6.7-9) stable; urgency=medium
+
+  * Updated rules to not use deprecated --with autotools-dev
+
+ -- Ken Haase <kh@beingmeta.com>  Sat, 08 Jun 2019 00:34:53 +0000
+
+libu8 (2.6.7-8) stable; urgency=medium
+
+  * Added libu8 executables starting with u8run
+
+ -- Ken Haase <kh@beingmeta.com>  Mon, 30 Oct 2017 10:46:41 -0400
+
+libu8 (2.6.6-7) stable; urgency=medium
+
+  * Added u8x_moment (elapsed double) and u8_thread (long long threadid)
+    to exceptions.
+  * Added libu8 executables starting with u8run
+
+ -- Ken Haase <kh@beingmeta.com>  Mon, 16 Oct 2017 11:34:31 -0400
+
+libu8 (2.6.5-6) stable; urgency=medium
+
+  * That was supposed to be stable
+
+ -- Ken Haase <kh@beingmeta.com>  Fri, 13 Oct 2017 23:14:57 +0000
+
+libu8 (2.6.5-5) unstable; urgency=medium
+
+  * Added u8_big_alloc functions
+
+ -- Ken Haase <kh@beingmeta.com>  Fri, 13 Oct 2017 22:49:56 +0000
+
+libu8 (2.6.4-4) stable; urgency=medium
+
+  * Made u8_graberrno into a macro to save the errno correctly
+
+ -- Ken Haase <kh@beingmeta.com>  Tue, 03 Oct 2017 13:10:16 +0000
+
+libu8 (2.6.3-3) stable; urgency=medium
+
+  * Updated libu8 release see the changelogs
+
+ -- Ken Haase <kh@beingmeta.com>  Sat, 10 Jun 2017 23:15:57 +0000
+
+libu8 (2.6.1-2) stable; urgency=medium
+
+  * New release to go with FramerD 4
+
+ -- Ken Haase <kh@beingmeta.com>  Thu, 16 Feb 2017 21:41:20 +0000
+
+libu8 (2.5.5-1) stable; urgency=medium
+
+  * Added stackbase functions to libu8, better rusage, errno handling, etc
+
+ -- Ken Haase <kh@beingmeta.com>  Wed, 08 Feb 2017 10:09:03 -0500
+
+libu8 (2.5.4-1) stable; urgency=medium
+
+  * Added improved contours and exception processing
+
+ -- Ken Haase <kh@beingmeta.com>  Sun, 30 Oct 2016 20:04:05 -0400
+
+libu8 (2.5.3-30) stable; urgency=low
+
+  * Am I stable now?
+
+ -- Ken Haase <kh@beingmeta.com>  Sat, 26 Mar 2016 16:29:05 -0400
+
+libu8 (2.5.3-29) unstable; urgency=low
+
+  * Updated build for new repo
+  * git patch version libu8-2.5.3-49-gc5650c9
+
+ -- Ken Haase <kh@beingmeta.com>  Sat, 26 Mar 2016 16:29:05 -0400
+
+libu8 (2.5.3-28) unstable; urgency=low
+
+  * Update debian/apt build/deploy process
+  * git patch version libu8-2.5.3-45-g6a16ad1
+
+ -- Ken Haase <kh@beingmeta.com>  Fri, 25 Mar 2016 16:04:14 +0000
+
+libu8 (2.5.3-27) unstable; urgency=low
+
+  * Fix RSA wrapper for older SSL versions
+  * git patch version libu8-2.5.3-41-gd00d1cc
+
+ -- Ken Haase <kh@beingmeta.com>  Wed, 23 Mar 2016 18:12:16 -0400
+
+libu8 (2.5.3-26) unstable; urgency=low
+
+  * Change CRYPTO_LOGLEVEL to debugging
+  * git patch version libu8-2.5.3-39-g9f72434
+
+ -- Ken Haase <kh@beingmeta.com>  Wed, 23 Mar 2016 14:31:10 -0400
+
+libu8 (2.5.3-25) unstable; urgency=low
+
+  * Improve dynamic contours and use with u8_raise
+  * git patch version libu8-2.5.3-36-gfedf08e
+
+ -- Ken Haase <kh@beingmeta.com>  Mon, 14 Mar 2016 18:04:49 -0400
+
+libu8 (2.5.3-24) unstable; urgency=low
+
+  * Fixes to hash and hmac functions, especially for OS X
+  * git patch version libu8-2.5.3-34-g092ec6c
+
+ -- Ken Haase <kh@beingmeta.com>  Fri, 04 Mar 2016 08:51:34 -0500
+
+libu8 (2.5.3-23) unstable; urgency=low
+
+  * Add additional hash and hmac functions
+  * Clean up asymmetric cryptography wrappers
+  * git patch version libu8-2.5.3-31-gc636e23
+
+ -- Ken Haase <kh@beingmeta.com>  Thu, 03 Mar 2016 16:08:03 -0500
+
+libu8 (2.5.3-22) unstable; urgency=medium
+
+  * Add RSA support to cryptofns
+  * Made OSX default to openssl to use RSA
+  * git patch version libu8-2.5.3-25-g42ca2cf (pre changelog)
+
+ -- Ken Haase <kh@beingmeta.com>  Mon, 29 Feb 2016 18:03:03 -0500
+
+libu8 (2.5.3-21) unstable; urgency=low
+
+  * Fix and extend base64 encoding
+  * Started adding RSA support
+  * git patch version libu8-2.5.3-18
+
+ -- Ken Haase <kh@beingmeta.com>  Sun, 14 Feb 2016 01:42:53 +0000
+
+libu8 (2.5.3-20) unstable; urgency=low
+
+  * Bump copyright dates, etc
+  * git patch version libu8-2.5.3-14
+
+ -- Ken Haase <kh@beingmeta.com>  Sun, 31 Jan 2016 01:26:09 +0000
+
+libu8 (2.5.3-19) unstable; urgency=low
+
+  * Fix some conversion/buffering issues with streamio
+  * Be careful in initializing exception objects
+  * git patch version libu8-2.5.3-12
+
+ -- Ken Haase <kh@beingmeta.com>  Sun, 24 Jan 2016 21:50:16 +0000
+
+libu8 (2.5.3-18) unstable; urgency=low
+
+  * Fixes to commoncrypto bindings and declarations
+  * git patch veresion libu8-2.5.3-6
+
+ -- Ken Haase <kh@beingmeta.com>  Sat, 23 Jan 2016 21:36:09 +0000
+
+libu8 (2.5.3-17) unstable; urgency=low
+
+  * Change u8_encrypt/u8_decrypt signatures to always include an initial
+    vector
+  * Cryptography functions cleanup, include CommonCrypto support on OS X
+  * git patch version libu8-2.5.3-1
+
+ -- Ken Haase <kh@beingmeta.com>  Mon, 18 Jan 2016 20:25:33 +0000
+
+libu8 (2.5.2-16) unstable; urgency=low
+
+  * Tweak appearance of session IDs
+  * git patch version libu8-2.5.2-12
+
+ -- Ken Haase <kh@beingmeta.com>  Sun, 20 Dec 2015 22:22:54 +0000
+
+libu8 (2.5.2-15) unstable; urgency=medium
+
+  * Fix bugs with DNS lookup
+  * git patch version libu8-2.5.2-10
+
+ -- Ken Haase <kh@beingmeta.com>  Tue, 08 Dec 2015 10:53:04 -0500
+
+libu8 (2.5.2-14) unstable; urgency=medium
+
+  * Added u8_peekc to probe without filling stream
+  * git patch version libu8-2.5.2-8
+
+ -- Ken Haase <kh@beingmeta.com>  Tue, 01 Dec 2015 11:36:11 -0500
+
+libu8 (2.5.2-13) unstable; urgency=low
+
+  * Fixed buffer allocation bugs in getaddress/gethostname wrappers
+  * git patch version libu8-2.5.2-6
+
+ -- Ken Haase <kh@beingmeta.com>  Sat, 14 Nov 2015 20:24:50 +0000
+
+libu8 (2.5.2-12) unstable; urgency=low
+
+  * Fix bug in updated buffer grow implementation
+  * git patch version libu8-2.5.2-4
+
+ -- Ken Haase <kh@beingmeta.com>  Sun, 01 Nov 2015 14:02:25 -0500
+
+libu8 (2.5.2-11) unstable; urgency=low
+
+  * Re-enabled fixed buffer length string streams
+  * git patch version libu8-2.5.2-1
+
+ -- Ken Haase <kh@beingmeta.com>  Mon, 26 Oct 2015 12:51:48 -0400
+
+libu8 (2.5.1-10) unstable; urgency=low
+
+  * Disable fixed-length string streams (for now) 
+  * git patch version libu8-2.5.1-17
+
+ -- Ken Haase <kh@beingmeta.com>  Mon, 26 Oct 2015 11:11:40 -0400
+
+libu8 (2.5.1-9) unstable; urgency=low
+
+  * Fixes to fixed size string streams
+  * git patch version libu8-2.5.1-16
+
+ -- Ken Haase <kh@beingmeta.com>  Mon, 26 Oct 2015 10:26:59 -0400
+
+libu8 (2.5.1-8) unstable; urgency=low
+
+  * Added a missing <string.h> header to declare memset
+  * git patch version libu8-2.5.1-12
+
+ -- Ken Haase <kh@beingmeta.com>  Mon, 05 Oct 2015 08:33:32 -0400
+
+libu8 (2.5.1-7) unstable; urgency=low
+
+  * Added %#s operator when the argument needs to be converted to utf-8
+  * git patch version 2-5.1-10
+
+ -- Ken Haase <kh@beingmeta.com>  Mon, 05 Oct 2015 08:12:09 -0400
+
+libu8 (2.5.1-6) unstable; urgency=low
+
+  * Fixed u8_memusage to always use procfs under Linux
+  * git patch version 2.5.1-9
+
+ -- Ken Haase <kh@beingmeta.com>  Mon, 05 Oct 2015 07:36:10 -0400
+
+libu8 (2.5.1-5) unstable; urgency=low
+
+  * Add u8_pathsuffix
+  * git patch version 2.5.1-8
+
+ -- Ken Haase <kh@beingmeta.com>  Sun, 20 Sep 2015 07:59:45 -0400
+
+libu8 (2.5.1-4) unstable; urgency=low
+
+  * Fixed bug in time conversions
+  * git patch version libu8-2.5.1-4
+
+ -- Ken Haase <kh@beingmeta.com>  Wed, 16 Sep 2015 15:09:10 -0400
+
+libu8 (2.5.1-3) unstable; urgency=low
+
+  * Fix to threading for non-linux machines
+  * git patch version libu8-2.5.1-3
+
+ -- Ken Haase <kh@beingmeta.com>  Tue, 21 Apr 2015 17:27:50 -0400
+
+libu8 (2.5.1-2) unstable; urgency=low
+
+  * Fix bug in RFC822 parsing
+  * git patch version libu8-2.5.1-1
+
+ -- Ken Haase <kh@beingmeta.com>  Thu, 02 Apr 2015 12:50:42 -0400
+
+libu8 (2.5.1-1) unstable; urgency=low
+
+  * Bumped minor version number for switch to const u8_strings and number
+    other changes
+
+ -- Ken Haase <kh@beingmeta.com>  Mon, 09 Feb 2015 11:22:32 -0500
+
+libu8 (2.4.11-3) unstable; urgency=low
+
+  * Switched type u8_string to being const u8_byte *
+
+ -- Ken Haase <kh@beingmeta.com>  Sun, 08 Feb 2015 21:54:38 -0500
+
+libu8 (2.4.10-2) unstable; urgency=low
+
+  * Update copyright dates
+
+ -- Ken Haase <kh@beingmeta.com>  Fri, 16 Jan 2015 22:11:08 -0500
+
+libu8 (2.4.10-1) unstable; urgency=low
+
+  * Fix free() race condition in server shutdown
+  * Updates to debian package building
+
+ -- Ken Haase <kh@beingmeta.com>  Tue, 06 Jan 2015 13:12:26 -0500
+
+libu8 (2.4.9-1) unstable; urgency=low
+
+  * Memory initialization fixes
+  * Better logging for server transaction
+  * Better support for building with sanitization/debugging
+  * Improved packaging
+
+ -- Ken Haase <kh@beingmeta.com>  Sat, 13 Dec 2014 11:09:52 -0500
+
+libu8 (2.4.8-9) unstable; urgency=low
+
+  * Various memory fixes, improved server logging
+
+ -- Ken Haase <kh@beingmeta.com>  Tue, 04 Nov 2014 09:00:38 -0500
+
+libu8 (2.4.8-3) unstable; urgency=low
+
+  * Release 8 of libu8 2.4
+
+ -- Ken Haase <kh@beingmeta.com>  Thu, 17 Aug 2014 11:06:52 -0700
+libu8 (2.4.7-2) unstable; urgency=low
+
+  * Release 7 of libu8 2.4
+
+ -- Ken Haase <kh@beingmeta.com>  Thu, 11 Jul 2014 11:06:52 -0400
+libu8 (2.4.5-2) unstable; urgency=low
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- Ken Haase <kh@beingmeta.com>  Thu, 17 Apr 2014 08:27:52 -0400
+libu8 (2.4.5-1) UNRELEASED; urgency=low
+
+  * Updated release
+  Various cleanups, especially configure
+
+ -- Kenneth Benefiel Haase <kh@beingmeta.com>  Thu, 6 March 2014 19:51:25 -0500
+
+libu8 (2.4.1-1) UNRELEASED; urgency=low
+
+  * Updated release
+  Added loop functions to servers, status field to clients, fixed various memory leaks
+
+ -- Kenneth Benefiel Haase <kh@beingmeta.com>  Thu, 6 March 2014 19:51:25 -0500
+
+libu8 (2.3.1-2) UNRELEASED; urgency=low
+
+  * Switch to dpkg-source 3.0 (quilt) format
+
+ -- Kenneth Benefiel Haase <kh@beingmeta.com>  Tue, 18 Feb 2014 16:25:25 -0500
+
+libu8 (2.3.1-1) unstable; urgency=low
+
+  * Updated release 
+    Reorganized headers
+
+ -- Kenneth Benefiel Haase <kh@beingmeta.com>  Fri, 26 Apr 2013 15:32:36 -0400
+    
+libu8 (2.2.7-1) unstable; urgency=low
+
+  * Updated release 
+    Switched to tripartite version numbers
+
+ -- Kenneth Benefiel Haase <kh@beingmeta.com>  Fri, 26 Apr 2013 15:32:36 -0400
+    
+libu8 (2.2.0-1) unstable; urgency=low
+
+  * Updated release 
+    Includes support for more aysnchronous servers
+
+ -- Kenneth Benefiel Haase <kh@beingmeta.com>  Tue,  7 Sep 2012 19:22:18 -0400
+
+libu8 (2.0.0-1) unstable; urgency=low
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- Kenneth Benefiel Haase <kh@beingmeta.com>  Tue,  3 Apr 2007 21:00:35 -0400

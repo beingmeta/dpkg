@@ -1,0 +1,42 @@
+Source: ofsm
+Section: Libraries
+Priority: optional
+Maintainer: Kenneth Benefiel Haase <kh@beingmeta.com>
+Build-Depends: 
+	       debhelper(>= 8.0.0),
+	       autotools-dev,
+	       equivs,
+	       dh-systemd,
+	       debsigs,
+	       devscripts,
+	       sqlite3,
+	       libu8-dev (>= 2.5.6),
+	       kno-dev (>= 2013.0.0)
+Standards-Version: 3.9.4
+Homepage: http://www.kno.dev/
+
+Package: ofsm
+Architecture: any
+Depends: kno-core (>= 2013.0.0), kno-modules
+Description: Natural language processing development environment
+
+Package: ofsm-dev
+Architecture: any
+Depends: ofsm
+Description: Natural language processing development environment
+
+Package: ofsm-dbg
+Architecture: any
+Section: debug
+Depends: ofsm
+Description: Debug symbols for beingmeta-ofsm
+
+Package: ofsm-lexdata
+Architecture: any
+Depends: ofsm
+Description: Lexical data for use by the beingmeta tagger
+
+Package: ofsm-lexsources
+Architecture: any
+Depends: ofsm
+Description: Scheme modules for developing new grammars and lexicons for the OFSM engine
