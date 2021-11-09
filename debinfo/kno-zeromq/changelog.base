@@ -1,0 +1,5 @@
+kno-zeromq (1910.0) stable; urgency=medium
+
+  * Initial create of separate dpkg for zeromq cmodule
+
+ -- Ken Haase <kh@beingmeta.com>  Tue, 7 Jan 2020 20:06:13 +0000

@@ -1,0 +1,3 @@
+kno-mongo-dbgsym_1910.0.1-12-stable_amd64.ddeb debug optional automatic=yes
+kno-mongo_1910.0.1-12-stable_amd64.buildinfo libs optional
+kno-mongo_1910.0.1-12-stable_amd64.deb libdevel optional

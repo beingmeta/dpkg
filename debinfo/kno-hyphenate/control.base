@@ -1,0 +1,15 @@
+Source: kno-hyphenate
+Priority: optional
+Maintainer: Ken Haase <kh@beingmeta.com>
+Build-Depends: debhelper (>= 8.0.0), autotools-dev, debsigs, devscripts, libu8-dev, libhyphen-dev, kno-dev (>= @KNO_MAJOR@)
+Standards-Version: 3.9.4
+Section: libs
+Homepage: http://www.beingmeta.com/
+
+Package: kno-hyphenate
+Section: libdevel
+Architecture: any
+Depends: libhyphen0, kno-core (>= @KNO_MAJOR@)
+Conflicts: kno-hyphenate
+Description: Hyphenate module for KNO
+

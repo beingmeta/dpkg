@@ -1,0 +1,28 @@
+# Contributor: beingmeta repository manager <repoman@beingmeta.com>
+# Maintainer: beingmeta repository manager <repoman@beingmeta.com>
+pkgname=kno-tidy
+pkgver=$(knoconfig major).$(knoconfig minor).$(cat ../../etc/release)
+pkgrel=18
+pkgdesc="TIDY (for HTML5) bindings for KNO"
+url="https://kno.so/"
+arch="all"
+license="GPLV3"
+depends="kno"
+makedepends="kno-dev"
+install=""
+#subpackages="$pkgname-dev $pkgname-doc"
+subpackages=""
+source="kno-tidy.tar"
+builddir="${srcdir}/kno-tidy"
+
+build() {
+	make -j
+}
+
+check() {
+	make
+}
+
+package() {
+	make DESTDIR="$pkgdir" SUDO= install
+}

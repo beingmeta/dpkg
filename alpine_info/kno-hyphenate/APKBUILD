@@ -1,0 +1,28 @@
+# Contributor: beingmeta repository manager <repoman@beingmeta.com>
+# Maintainer: beingmeta repository manager <repoman@beingmeta.com>
+pkgname=kno-hyphenate
+pkgver=$(knoconfig major).$(knoconfig minor).$(cat ../../etc/release)
+pkgrel=18
+pkgdesc="HYPHENATE bindings for KNO"
+url="https://kno.so/"
+arch="all"
+license="GPLV3"
+depends="kno hyphen"
+makedepends="kno-dev hyphen-dev"
+install=""
+#subpackages="$pkgname-dev $pkgname-doc"
+subpackages=""
+source="kno-hyphenate.tar"
+builddir="${srcdir}/kno-hyphenate"
+
+build() {
+	make -j
+}
+
+check() {
+	make
+}
+
+package() {
+	make DESTDIR="$pkgdir" SUDO= install
+}

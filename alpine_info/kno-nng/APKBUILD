@@ -1,0 +1,32 @@
+# Contributor: beingmeta repository manager <repoman@beingmeta.com>
+# Maintainer: beingmeta repository manager <repoman@beingmeta.com>
+pkgname=kno-nng
+pkgver=$(knoconfig major).$(knoconfig minor).1
+pkgrel=18
+pkgdesc="nanomsg/nng bindings for KNO"
+url="https://kno.so/"
+arch="all"
+license="GPLV3"
+depends=""
+makedepends="kno cmake ninja"
+install=""
+#subpackages="$pkgname-dev $pkgname-doc"
+subpackages=""
+source="kno-nng.tar"
+builddir="${srcdir}/kno-nng"
+
+build() {
+#	echo "@build pwd=$(pwd) startdir=${startdir} srcdir=${srcdir} pkgdir=${pkgdir} builddir=${builddir}"
+	cp -r ../../../../nng-install installed
+	make NNGINSTALL=./installed
+}
+
+check() {
+#	echo "@check pwd=$(pwd) startdir=${startdir} srcdir=${srcdir} pkgdir=${pkgdir} builddir=${builddir}"
+	make NNGINSTALL=./installed
+}
+
+package() {
+#	echo "@package pwd=$(pwd) startdir=${startdir} srcdir=${srcdir} pkgdir=${pkgdir} builddir=${builddir}"
+	make NNGINSTALL=./installed DESTDIR="$pkgdir" SUDO= install
+}

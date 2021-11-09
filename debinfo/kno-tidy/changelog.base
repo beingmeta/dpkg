@@ -1,0 +1,5 @@
+kno-tidy (1910.0) stable; urgency=medium
+
+  * Initial create of separate dpkg for tidy cmodules
+
+ -- Ken Haase <kh@beingmeta.com>  Sat, 6 Jan 2020 03:06:13 +0000

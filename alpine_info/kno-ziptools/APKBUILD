@@ -1,0 +1,37 @@
+# Contributor: beingmeta repository manager <repoman@beingmeta.com>
+# Maintainer: beingmeta repository manager <repoman@beingmeta.com>
+pkgname=kno-ziptools
+pkgver=$(knoconfig major).$(knoconfig minor).1
+pkgrel=18
+pkgdesc="libzip (ziptools) bindings for KNO"
+url="https://kno.so/"
+arch="all"
+license="GPLV3"
+depends="kno snappy xz-libs zstd-libs bzip2"
+makedepends="kno-dev bzip2-dev xz-dev snappy-dev zstd-dev"
+install=""
+#subpackages="$pkgname-dev $pkgname-doc"
+subpackages=""
+source="kno-ziptools.tar"
+builddir="${srcdir}/kno-ziptools"
+
+build() {
+#	echo "@build pwd=$(pwd) startdir=${startdir} srcdir=${srcdir} pkgdir=${pkgdir} builddir=${builddir}"
+	cp -r ../../../../libzip-install installed
+	make LIBZIPINSTALL=./installed
+}
+
+check() {
+#	echo "@check pwd=$(pwd) startdir=${startdir} srcdir=${srcdir} pkgdir=${pkgdir} builddir=${builddir}"
+	make LIBZIPINSTALL=./installed
+}
+
+package() {
+#	echo "@package pwd=$(pwd) startdir=${startdir} srcdir=${srcdir} pkgdir=${pkgdir} builddir=${builddir}"
+	make LIBZIPINSTALL=./installed DESTDIR="$pkgdir" SUDO= install
+}
+	
+
+
+
+

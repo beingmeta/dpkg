@@ -1,0 +1,15 @@
+Source: kno-tidy
+Priority: optional
+Maintainer: Ken Haase <kh@beingmeta.com>
+Build-Depends: debhelper (>= 8.0.0), autotools-dev, debsigs, devscripts, libu8-dev, kno-dev (>= @KNO_MAJOR@)
+Standards-Version: 3.9.4
+Section: libs
+Homepage: http://www.beingmeta.com/
+
+Package: kno-tidy
+Section: libdevel
+Architecture: any
+Depends: kno-core (>= @KNO_MAJOR@)
+Conflicts: kno-tidy
+Description: Tidy module for KNO
+

@@ -1,0 +1,59 @@
+# Contributor: beingmeta repository manager <repoman@beingmeta.com>
+# Maintainer: beingmeta repository manager <repoman@beingmeta.com>
+pkgname=ofsm
+pkgver=$(knoconfig major).$(knoconfig minor).$(cat ../../etc/release)
+pkgrel=18
+pkgdesc="beingmeta's high-speed NLP engine"
+url="https://kno.so/"
+arch="all"
+license="GPLV3"
+depends="kno libu8"
+makedepends="kno-dev libu8-dev"
+install=""
+subpackages="$pkgname-lexdata $pkgname-static $pkgname-dev $pkgname-lexsources"
+depends_lexdata="$pkgname"
+depends_lexsources="$pkgname"
+depends_dev="$pkgname"
+depends_static="$pkgname $pkgname-dev"
+source="ofsm.tar"
+builddir="${srcdir}/ofsm"
+
+build() {
+	make -j
+}
+
+check() {
+	make
+}
+
+package() {
+	make DESTDIR="$pkgdir" SUDO= install-shared install-kno-modules
+}
+
+dev() {
+        cd ${builddir}
+	# echo "@dev pwd=$(pwd) startdir=${startdir} srcdir=${srcdir} pkgdir=${pkgdir} "
+	# echo "     builddir=${builddir} subpkgdir=${subpkgdir}"
+        make DESTDIR="${subpkgdir}" SUDO= install-headers
+}
+
+static() {
+        cd ${builddir}
+	# echo "@dev pwd=$(pwd) startdir=${startdir} srcdir=${srcdir} pkgdir=${pkgdir} "
+	# echo "     builddir=${builddir} subpkgdir=${subpkgdir}"
+        make DESTDIR="${subpkgdir}" SUDO= install-static
+}
+
+lexdata() {
+        cd ${builddir}
+	# echo "@dev pwd=$(pwd) startdir=${startdir} srcdir=${srcdir} pkgdir=${pkgdir} "
+	# echo "     builddir=${builddir} subpkgdir=${subpkgdir}"
+        make DESTDIR="${subpkgdir}" SUDO= install-lexdata
+}
+
+lexsources() {
+        cd ${builddir}
+	# echo "@dev pwd=$(pwd) startdir=${startdir} srcdir=${srcdir} pkgdir=${pkgdir} "
+	# echo "     builddir=${builddir} subpkgdir=${subpkgdir}"
+        make DESTDIR="${subpkgdir}" SUDO= install-lexsources
+}

@@ -1,0 +1,5 @@
+kno-hyphenate (1910.0) stable; urgency=medium
+
+  * Initial create of separate repo for hyphenate cmodule
+
+ -- Ken Haase <kh@beingmeta.com>  Sat, 5 Jan 2020 18:06:13 +0000

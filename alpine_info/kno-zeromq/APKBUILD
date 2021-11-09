@@ -1,0 +1,28 @@
+# Contributor: beingmeta repository manager <repoman@beingmeta.com>
+# Maintainer: beingmeta repository manager <repoman@beingmeta.com>
+pkgname=kno-zeromq
+pkgver=$(knoconfig major).$(knoconfig minor).1
+pkgrel=18
+pkgdesc="Sundown (Markdown) bindings for KNO"
+url="https://kno.so/"
+arch="all"
+license="GPLV3"
+depends="kno zeromq"
+makedepends="kno-dev zeromq-dev"
+install=""
+#subpackages="$pkgname-dev $pkgname-doc"
+subpackages=""
+source="kno-zeromq.tar"
+builddir="${srcdir}/kno-zeromq"
+
+build() {
+	make -j
+}
+
+check() {
+	make
+}
+
+package() {
+	make DESTDIR="$pkgdir" SUDO= install
+}

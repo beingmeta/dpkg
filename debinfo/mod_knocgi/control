@@ -1,0 +1,15 @@
+Source: libapache2-mod-knocgi
+Priority: optional
+Maintainer: Ken Haase <kh@beingmeta.com>
+Build-Depends: debhelper (>= 8.0.0), autotools-dev, debsigs, devscripts, libu8-dev, apache2-dev, kno-dev
+Standards-Version: 3.9.4
+Section: libs
+Homepage: http://www.beingmeta.com/
+#Vcs-Git: git://git.debian.org/collab-maint/libu8.git
+#Vcs-Browser: http://git.debian.org/?p=collab-maint/libu8.git;a=summary
+
+Package: libapache2-mod-knocgi
+Section: libdevel
+Architecture: any
+Depends: apache2 | apache2-mpm, libu8
+Description: Apache module for kno servlets

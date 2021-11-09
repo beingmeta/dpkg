@@ -1,0 +1,28 @@
+# Contributor: beingmeta repository manager <repoman@beingmeta.com>
+# Maintainer: beingmeta repository manager <repoman@beingmeta.com>
+pkgname=kno-imagetools
+pkgver=$(knoconfig major).$(knoconfig minor).$(cat ../../etc/release)
+pkgrel=18
+pkgdesc="HYPHENATE bindings for KNO"
+url="https://kno.so/"
+arch="all"
+license="GPLV3"
+depends="kno libqrencode imagemagick6 libexif"
+makedepends="kno-dev libqrencode-dev imagemagick6-dev libexif-dev"
+install=""
+#subpackages="$pkgname-dev $pkgname-doc"
+subpackages=""
+source="kno-imagetools.tar"
+builddir="${srcdir}/kno-imagetools"
+
+build() {
+	make -j
+}
+
+check() {
+	make
+}
+
+package() {
+	make DESTDIR="$pkgdir" SUDO= install
+}

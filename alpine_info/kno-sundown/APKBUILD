@@ -1,0 +1,28 @@
+# Contributor: beingmeta repository manager <repoman@beingmeta.com>
+# Maintainer: beingmeta repository manager <repoman@beingmeta.com>
+pkgname=kno-sundown
+pkgver=$(knoconfig major).$(knoconfig minor).1
+pkgrel=18
+pkgdesc="Sundown (Markdown) bindings for KNO"
+url="https://kno.so/"
+arch="all"
+license="GPLV3"
+depends="kno"
+makedepends="kno-dev"
+install=""
+#subpackages="$pkgname-dev $pkgname-doc"
+subpackages=""
+source="kno-sundown.tar"
+builddir="${srcdir}/kno-sundown"
+
+build() {
+	make -j
+}
+
+check() {
+	make
+}
+
+package() {
+	make DESTDIR="$pkgdir" SUDO= install
+}

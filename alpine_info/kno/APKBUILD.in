@@ -1,0 +1,67 @@
+# Contributor: beingmeta repository manager <repoman@beingmeta.com>
+# Maintainer: beingmeta repository manager <repoman@beingmeta.com>
+pkgname=kno
+pkgver=@KNO_MAJOR@.@KNO_MINOR@
+pkgrel=@KNO_PATCHLEVEL@
+pkgdesc="Library and applications for symbolic computing at scale"
+url="https://kno.so/"
+arch="all"
+license="GPLV3"
+depends="libu8 libressl ldns libcurl libarchive snappy libuuid"
+makedepends="ldns-dev libressl-dev libuuid libc-dev alpine-sdk snappy-dev curl-dev libarchive-dev zstd-dev libu8-dev"
+install=""
+#subpackages=""
+subpackages="$pkgname-dev $pkgname-doc $pkgname-static"
+depends_dev="$pkgname"
+depends_doc="$pkgname"
+depends_static="$pkgname $pkgname-dev"
+source="kno_@KNO_VERSION@.tar"
+builddir="${srcdir}/kno"
+
+build() {
+	echo "@build pwd=$(pwd) startdir=${startdir} srcdir=${srcdir} pkgdir=${pkgdir} builddir=${builddir}"
+	./configure \
+		--build=$CBUILD \
+		--host=$CHOST \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--without-parseltongue \
+		--with-cstacksize=16777216 \
+		--localstatedir=/var \
+		--without-sudo
+#		--enable-stripping
+	make -j
+}
+
+check() {
+	echo "@check pwd=$(pwd) startdir=${startdir} srcdir=${srcdir} pkgdir=${pkgdir} builddir=${builddir}"
+	make
+}
+
+package() {
+	echo "@package pwd=$(pwd) startdir=${startdir} srcdir=${srcdir} pkgdir=${pkgdir} builddir=${builddir}"
+        make DESTDIR="$pkgdir" SUDO= install-core
+}
+
+dev() {
+        cd ${builddir}
+	# echo "@dev pwd=$(pwd) startdir=${startdir} srcdir=${srcdir} pkgdir=${pkgdir} "
+	# echo "     builddir=${builddir} subpkgdir=${subpkgdir}"
+        make DESTDIR="${subpkgdir}" SUDO= install-dev
+}
+
+static() {
+        cd ${builddir}
+	# echo "@dev pwd=$(pwd) startdir=${startdir} srcdir=${srcdir} pkgdir=${pkgdir} "
+	# echo "     builddir=${builddir} subpkgdir=${subpkgdir}"
+        make DESTDIR="${subpkgdir}" SUDO= install-static-libs
+}
+
+doc() {
+        cd ${builddir}
+	# echo "@doc pwd=$(pwd) startdir=${startdir} srcdir=${srcdir} pkgdir=${pkgdir} "
+	# echo "     builddir=${builddir} subpkgdir=${subpkgdir}"
+        make DESTDIR="${subpkgdir}" SUDO= install-docs
+}
+

@@ -1,0 +1,28 @@
+# Contributor: beingmeta repository manager <repoman@beingmeta.com>
+# Maintainer: beingmeta repository manager <repoman@beingmeta.com>
+pkgname=mod-knocgi
+pkgver=$(knoconfig major).$(knoconfig minor).$(cat ../../etc/release)
+pkgrel=18
+pkgdesc="Apache module for connecting with KNO servlets"
+url="https://kno.so/"
+arch="all"
+license="GPLV3"
+depends="libu8 apache2"
+makedepends="apache2-dev libu8-dev"
+install=""
+#subpackages="$pkgname-dev $pkgname-doc"
+subpackages=""
+source="mod-knocgi.tar"
+builddir="${srcdir}/mod-knocgi"
+
+build() {
+	make -j
+}
+
+check() {
+	make
+}
+
+package() {
+	make DESTDIR="$pkgdir" SUDO= conf.d-install
+}
