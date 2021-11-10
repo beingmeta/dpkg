@@ -1,7 +1,7 @@
 Source: kno-hyphenate
 Priority: optional
 Maintainer: Ken Haase <kh@beingmeta.com>
-Build-Depends: debhelper (>= 8.0.0), autotools-dev, debsigs, devscripts, libu8-dev, libhyphen-dev, kno-dev (>= @KNO_MAJOR@)
+Build-Depends: debhelper (>= 8.0.0), autotools-dev, debsigs, devscripts, libu8-dev, libhyphen-dev, kno-dev (= @MAJOR_VERSION@)
 Standards-Version: 3.9.4
 Section: libs
 Homepage: http://www.beingmeta.com/
@@ -9,7 +9,7 @@ Homepage: http://www.beingmeta.com/
 Package: kno-hyphenate
 Section: libdevel
 Architecture: any
-Depends: libhyphen0, kno-core (>= @KNO_MAJOR@)
+Depends: libhyphen0, kno-core (= @MAJOR_VERSION@)
 Conflicts: kno-hyphenate
 Description: Hyphenate module for KNO
 

@@ -11,13 +11,13 @@ Build-Depends:
 	       devscripts,
 	       sqlite3,
 	       libu8-dev (>= 2.5.6),
-	       kno-dev (>= 2013.0.0)
+	       kno-dev (>= 2110.0.0)
 Standards-Version: 3.9.4
 Homepage: http://www.kno.dev/
 
 Package: ofsm
 Architecture: any
-Depends: kno-core (>= 2013.0.0), kno-modules
+Depends: kno-core (>= 2110.0.0), kno-modules
 Description: Natural language processing development environment
 
 Package: ofsm-dev

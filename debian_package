@@ -1,0 +1,8 @@
+#!/bin/sh
+
+usedir=${1}
+
+"cd" ${usedir};
+dpkg-buildpackage -b -us -uc -sa -rfakeroot
+
+

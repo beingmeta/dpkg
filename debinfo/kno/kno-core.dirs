@@ -24,9 +24,9 @@ usr/share/kno/libscm/sqldb
 usr/share/kno/libscm/text
 usr/share/kno/libscm/xhtml
 usr/share/kno/stdlib
-usr/share/kno/libscm/kno-@KNO_MAJOR@
-usr/share/kno/libscm/kno-@KNO_VERSION@
-usr/share/kno/libscm/kno-@KNO_PATCHVERSION@
+usr/share/kno/libscm/kno-@MAJOR_VERSION@
+usr/share/kno/libscm/kno-@BASE_VERSION@
+usr/share/kno/libscm/kno-@VERSION@
 usr/share/kno/packages
 etc
 etc/kno

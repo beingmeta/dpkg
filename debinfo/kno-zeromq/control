@@ -1,7 +1,7 @@
 Source: kno-zeromq
 Priority: optional
 Maintainer: Ken Haase <kh@beingmeta.com>
-Build-Depends: debhelper (>= 8.0.0), autotools-dev, debsigs, devscripts, libu8-dev, libzmq5-dev, kno-dev (>= @KNO_MAJOR@)
+Build-Depends: debhelper (>= 8.0.0), autotools-dev, debsigs, devscripts, libu8-dev, libzmq5-dev, kno-dev (= @MAJOR_VERSION@)
 Standards-Version: 3.9.4
 Section: libs
 Homepage: http://www.beingmeta.com/
@@ -9,6 +9,6 @@ Homepage: http://www.beingmeta.com/
 Package: kno-zeromq
 Section: libdevel
 Architecture: any
-Depends: libzmq5, kno-core (>= @KNO_MAJOR@)
+Depends: libzmq5, kno-core (= @MAJOR_VERSION@)
 Description: ZeroMQ module for KNO
 
