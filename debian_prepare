@@ -27,7 +27,7 @@ mkdir ${usedir}/debian
 ("cd" debinfo/${pkgname};
  for file in *; do
      if [ -d ${file} ]; then
-	 cp -r ${file} ../${usedir}/debian;
+	 cp -r ${file} ../../${usedir}/debian;
      else
 	 u8_xsubst ${file} ../../${usedir}/debian/${file} \
 		   "VERSION" "${version}" \

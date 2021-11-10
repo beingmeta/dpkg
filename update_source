@@ -17,13 +17,13 @@ if [ -f ${srcdir}/etc/base_version ]; then
      cut etc/base_version -d'.' -f 1 > ../state/MAJOR_VERSION;
      cut etc/base_version -d'.' -f 2 > ../state/MINOR_VERSION)
 elif [ -f ${srcdir}/version ]; then
-    version=$(knoconfig major).$(cat ${pkgname}/version);
+    version=$(knoconfig major).$(cat ${srcdir}/version);
     echo ${version} > state/BASE_VERSION;
     echo ${version} > state/FULL_VERSION;
     echo ${version} > state//VERSION;
-    ("cd" ${pkgname}; u8_gitbranch > ../state/BRANCH);
-    knoconfig major > ../state/MAJOR_VERSION;
-    cut etc/version -d'.' -f 1 > ../state/MINOR_VERSION;
+    ("cd" ${srcdir}; u8_gitbranch > ../state/BRANCH);
+    knoconfig major > state/MAJOR_VERSION;
+    cut ${srcdir}/version -d'.' -f 1 > state/MINOR_VERSION;
 fi;
 if [ -x ${srcdir}/make_source_tar ]; then
     ("cd" ${srcdir}; ./make_source_tar ../${tarfile});
