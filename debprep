@@ -1,0 +1,53 @@
+#!/bin/sh
+
+logmsg() { echo $1 >&2; }
+
+pkgname=${1:-${PKGNAME}}
+workdir=${2:-${pkgname}}
+if [ "${workdir}" = "-" ] || [ "${workdir}" = "." ]; then
+    workdir=${pkgname};
+fi;
+
+version=$(cat state/VERSION)
+rel_version=$(cat state/REL_VERSION)
+branch=$(cat state/BRANCH);
+channel=$(cat state/CHANNEL);
+full_version=$(cat state/FULL_VERSION || echo $version);
+major_version=$(cat state/MAJOR_VERSION || echo $version);
+minor_version=$(cat state/MINOR_VERSION || echo $version);
+base_version=$(cat state/BASE_VERSION || echo $version);
+distro=$(cat state/DISTRO || lsb_release -s -c || echo debian)
+status=$(cat state/STATUS || echo stable)
+urgency=$(cat state/URGENCY || echo normal)
+
+if [ -d ${workdir} ]; then logmsg "Removing current ${workdir}"; rm -rf ${workdir}; fi
+logmsg "Unpacking ${pkgname}.tar into ${workdir}";
+mkdir ${workdir}; ("cd" ${workdir}; tar xf ../${pkgname}.tar);
+if [ -d ${workdir}/debian ]; then rm -rf ${workdir}/debian; fi
+if [ ! -f state/NOSOURCE ]; then
+    logmsg "Creating source tarball at ${pkgname}_${rel_version}.orig.tar.gz";
+    tar -czf ${pkgname}_${rel_version}.orig.tar.gz ${workdir};
+fi;
+mkdir ${workdir}/debian
+logmsg "Creating build directory at '${workdir}'"
+("cd" debinfo/${pkgname};
+ for file in *; do
+     if [ -d ${file} ]; then
+	 cp -r ${file} ../../${workdir}/debian;
+     else
+	 u8_xsubst ${file} ../../${workdir}/debian/${file} \
+		   "VERSION" "${rel_version}" \
+		   "BASE_VERSION" "${base_version}" \
+		   "FULL_VERSION" "${full_version}" \
+		   "MINOR_VERSION" "${minor_version}" \
+		   "MAJOR_VERSION" "${major_version}";
+     fi;
+ done);
+cp -r debinfo/${pkgname} ${workdir}/debian
+for x in BRANCH VERSION FULL_VERSION BASE_VERSION; do cp state/$x ${pkgname}; done
+
+./deb_changelog ${pkgname} "${DISTRO}" "${rel_version}" "${channel}" \
+		"${STATUS}" "${URGENCY}" "${full_version}" \
+	 1> ${workdir}/debian/changelog;
+cat debinfo/${pkgname}/changelog >> ${workdir}/debian/changelog;
+

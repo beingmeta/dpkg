@@ -1,0 +1,8 @@
+#!/bin/sh
+
+export buildopt=
+if [ -f state/NOSOURCE ]; then buildopt=-b; fi
+usedir=${1}
+"cd" ${usedir};
+dpkg-buildpackage ${buildopt} -us -uc -sa -rfakeroot
+version=$(cat ../state/VERSION)
