@@ -19,5 +19,5 @@ workdir=${PKGNAME}
  dpkg-buildpackage ${buildopt} -us -uc -sa -rfakeroot)
 if [ ! -z "${GPGID}" ]; then
 #    debsign -p${GPG} --re-sign -k${GPGID} dist/kno_@KNO_VERSION@*.changes && touch $@;
-    debsign --re-sign -k${GPGID} kno_${REL_VERSION}*.changes
+    debsign --re-sign -k${GPGID} ${PKGNAME}_${REL_VERSION}*.changes
 fi;

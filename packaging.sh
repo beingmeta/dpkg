@@ -100,6 +100,10 @@ if [ -f ${STATE_ROOT}/GPGID ]; then
     GPGID=$(cat ${STATE_ROOT}/GPGID);
 fi;
 
+if [ -f ${STATE_ROOT}/OUTDIR ]; then
+    OUTDIR=$(cat ${STATE_ROOT}/OUTDIR);
+fi;
+
 logmsg () {
     echo "pkg: $1" >&2;
 }

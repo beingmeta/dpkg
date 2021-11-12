@@ -1,0 +1,4 @@
+#!/bin/sh
+
+repo=$1; shift;
+for file in $@; do curl -u "admin:Arraki5*nexus" -H "Content-Type: multipart/form-data" --data-binary "@${file}" ${repo}; done
