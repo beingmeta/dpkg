@@ -1,34 +1,57 @@
 #!/bin/sh
-pkgname=${1:-${PKGNAME}}
-tarfile=${2:-${pkgname}.tar}
-srcurl=$(cat sources/${pkgname})
-srcdir=${pkgname}_src
+
+. packaging.sh
+
+tarfile=${PKGNAME}.tar
+srcurl=$(cat sources/${PKGNAME})
+srcdir=gits/${PKGNAME}
 if [ ! -d "${srcdir}" ]; then
-    git clone $(cat sources/${pkgname}) ${srcdir};
+    git clone $(cat sources/${PKGNAME}) ${srcdir};
 else ("cd" ${srcdir}; git pull);
 fi
-echo ${srcdir} > state/SRCDIR
 if [ -f ${srcdir}/etc/base_version ]; then
     ("cd" ${srcdir}; 
-     u8_gitbranch > ../state/BRANCH;
-     u8_gitversion etc/base_version > ../state/VERSION;
-     u8_gitversion etc/base_version  nobranch > ../state/REL_VERSION;
-     u8_gitversion etc/base_version full > ../state/FULL_VERSION;
-     cp etc/base_version ../state/BASE_VERSION;
-     cut etc/base_version -d'.' -f 1 > ../state/MAJOR_VERSION;
-     cut etc/base_version -d'.' -f 2 > ../state/MINOR_VERSION)
+     u8_gitbranch > ${STATE_ROOT}/BRANCH;
+     u8_gitversion etc/base_version > ${STATE_ROOT}/VERSION;
+     u8_gitversion etc/base_version  nobranch > ${STATE_ROOT}/REL_VERSION;
+     u8_gitversion etc/base_version full > ${STATE_ROOT}/FULL_VERSION;
+     cp etc/base_version ${STATE_ROOT}/BASE_VERSION;
+     cut etc/base_version -d'.' -f 1 > ${STATE_ROOT}/MAJOR_VERSION;
+     cut etc/base_version -d'.' -f 2 > ${STATE_ROOT}/MINOR_VERSION);
 elif [ -f ${srcdir}/version ]; then
-    ("cd" ${srcdir}; u8_gitbranch > ../state/BRANCH);
+    ("cd" ${srcdir}; u8_gitbranch > ${STATE_ROOT}/BRANCH );
     version=$(knoconfig major).$(cat ${srcdir}/version);
-    echo ${version} > state/BASE_VERSION;
-    echo ${version} > state/FULL_VERSION;
-    echo ${version} > state//REL_VERSION;
-    echo ${version} > state//VERSION;
-    knoconfig major > state/MAJOR_VERSION;
-    cut ${srcdir}/version -d'.' -f 1 > state/MINOR_VERSION;
+    echo ${version} > ${STATE_ROOT}/BASE_VERSION;
+    echo ${version} > ${STATE_ROOT}/FULL_VERSION;
+    echo ${version} > ${STATE_ROOT}/REL_VERSION;
+    echo ${version} > ${STATE_ROOT}/VERSION;
+    knoconfig major > ${STATE_ROOT}/MAJOR_VERSION;
+    cut ${srcdir}/version -d'.' -f 1 > ${STATE_ROOT}/MINOR_VERSION;
 fi;
 if [ -x ${srcdir}/make_source_tar ]; then
-    ("cd" ${srcdir}; ./make_source_tar ../${tarfile});
+    ("cd" ${srcdir}; ./make_source_tar ../../${tarfile});
 else 
-    ("cd" ${srcdir}; git archive -o ../${tarfile} HEAD);
+    ("cd" ${srcdir}; git archive -o ../../${tarfile} HEAD );
+    ("cd" state; tar -rf ../${tarfile} \
+        BASE_VERSION FULL_VERSION REL_VERSION VERSION MAJOR_VERSION MINOR_VERSION);
 fi
+
+shift;
+for opt in $@; do
+    case ${opt} in
+	channel=*)
+	    echo ${opt#channel=} > ${STATE_ROOT}/CHANNEL;
+	    ;;
+	CHANNEL=*)
+	    echo ${opt#CHANNEL=} > ${STATE_ROOT}/CHANNEL;
+	    ;;
+	nosource|NOSOURCE)
+	    echo ${opt} > ${STATE_ROOT}/NOSOURCE;
+	    ;;
+	*)
+	    echo "Unhandled option ${opt}" >&2;
+	    ;;
+    esac;
+done;
+	       
+	

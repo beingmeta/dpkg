@@ -12,9 +12,4 @@ else
     fi;
 fi;
 
-export buildopt=
-if [ -f state/NOSOURCE ]; then buildopt=-b; fi
-workdir=${PKGNAME}
-"cd" ${workdir};
-dpkg-buildpackage ${buildopt} -us -uc -sa -rfakeroot
-
+(sudo dpkg -i ${PKGNAME}_${REL_VERSION}*.deb) && (sudo dpkg -i ${PKGNAME}-*_${REL_VERSION}*.deb);
