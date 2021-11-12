@@ -15,6 +15,9 @@ fi;
 export buildopt=
 if [ -f state/NOSOURCE ]; then buildopt=-b; fi
 workdir=${PKGNAME}
-"cd" ${workdir};
-dpkg-buildpackage ${buildopt} -us -uc -sa -rfakeroot
-
+("cd" ${workdir};
+ dpkg-buildpackage ${buildopt} -us -uc -sa -rfakeroot)
+if [ ! -z "${GPGID}" ]; then
+#    debsign -p${GPG} --re-sign -k${GPGID} dist/kno_@KNO_VERSION@*.changes && touch $@;
+    debsign --re-sign -k${GPGID} kno_${REL_VERSION}*.changes
+fi;
