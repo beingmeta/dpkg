@@ -13,7 +13,7 @@ else
 fi;
 
 workdir=${2:-${PKGNAME}}
-if [ -d ${workdir} ]; then logmsg "Removing current ${workdir}"; rm -rf ${workdir}; fi
+if [ -d ${workdir} ]; then logmsg "Removing existing build directory ${workdir}"; rm -rf ${workdir}; fi
 logmsg "Creating build directory at '${workdir}'"
 mkdir ${workdir}; ("cd" ${workdir}; tar xf ../${PKGNAME}.tar);
 if [ ! -f state/NOSOURCE ]; then
@@ -45,6 +45,6 @@ for custom in ${workdir}/debian/*.${DISTRO}; do
 	mv ${custom} ${workdir}/debian/$(basename ${custom});
     fi;
 done;
-./deb_changelog ${pkgname} "${DISTRO}" "${REL_VERSION}" "${CHANNEL}" \
+./deblog "${PKGNAME}" "${DISTRO}" "${REL_VERSION}" "${CHANNEL}" \
 		"${STATUS}" "${URGENCY}" "${FULL_VERSION}" \
 	 1> ${workdir}/debian/changelog;

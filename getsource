@@ -1,13 +1,48 @@
 #!/bin/sh
 
 . packaging.sh
+shift;
+for opt in $@; do
+    case ${opt} in
+	channel=*)
+	    CHANNEL=${opt#channel=};
+	    echo ${CHANNEL} > ${STATE_ROOT}/CHANNEL;
+	    ;;
+	CHANNEL=*)
+	    CHANNEL=${opt#CHANNEL=};
+	    echo ${CHANNEL} > ${STATE_ROOT}/CHANNEL;
+	    ;;
+	branch=*)
+	    BRANCH=${opt#branch=}
+	    echo ${BRANCH} > ${STATE_ROOT}/BRANCH;
+	    ;;
+	BRANCH=*)
+	    BRANCH=${opt#BRANCH=}
+	    echo ${BRANCH} > ${STATE_ROOT}/BRANCH;
+	    ;;
+	nosource|NOSOURCE)
+	    echo ${opt} > ${STATE_ROOT}/NOSOURCE;
+	    ;;
+	*)
+	    echo "Unhandled option ${opt}" >&2;
+	    ;;
+    esac;
+done;
 
 tarfile=${PKGNAME}.tar
 srcurl=$(cat sources/${PKGNAME})
 srcdir=gits/${PKGNAME}
 if [ ! -d "${srcdir}" ]; then
     git clone $(cat sources/${PKGNAME}) ${srcdir};
-else ("cd" ${srcdir}; git pull);
+    ("cd" ${srcdir};
+     if [ ! -z "${BRANCH}" ]; then git checkout ${BRANCH}; fi;
+     git submodule init;
+     git submodule update);
+else ("cd" ${srcdir};
+      if [ ! -z "${BRANCH}" ]; then git checkout ${BRANCH}; fi;
+      git pull;
+      git submodule init;
+      git submodule update);
 fi
 if [ -f ${srcdir}/etc/base_version ]; then
     ("cd" ${srcdir}; 
@@ -28,6 +63,7 @@ elif [ -f ${srcdir}/version ]; then
     knoconfig major > ${STATE_ROOT}/MAJOR_VERSION;
     cut ${srcdir}/version -d'.' -f 1 > ${STATE_ROOT}/MINOR_VERSION;
 fi;
+logmsg "Creating source tarball ${tarfile} with version info";
 if [ -x ${srcdir}/make_source_tar ]; then
     ("cd" ${srcdir}; ./make_source_tar ../../${tarfile});
 else 
@@ -36,22 +72,3 @@ else
         BASE_VERSION FULL_VERSION REL_VERSION VERSION MAJOR_VERSION MINOR_VERSION);
 fi
 
-shift;
-for opt in $@; do
-    case ${opt} in
-	channel=*)
-	    echo ${opt#channel=} > ${STATE_ROOT}/CHANNEL;
-	    ;;
-	CHANNEL=*)
-	    echo ${opt#CHANNEL=} > ${STATE_ROOT}/CHANNEL;
-	    ;;
-	nosource|NOSOURCE)
-	    echo ${opt} > ${STATE_ROOT}/NOSOURCE;
-	    ;;
-	*)
-	    echo "Unhandled option ${opt}" >&2;
-	    ;;
-    esac;
-done;
-	       
-	

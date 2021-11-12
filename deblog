@@ -2,10 +2,8 @@
 PKGNAME=${1:-libu8};
 CODENAME=${2:-debian};
 VERSION=$3;
-BRANCH=${4:-current};
-STATUS=${5:-stable};
-URGENCY=${6:-medium};
-FULL_VERSION=${7:-${VERSION}}
+STATUS=${4:-stable};
+URGENCY=${5:-medium};
 DATE=`date -R`;
 
 if [ -z "${STATUS}" ] || 
@@ -22,20 +20,7 @@ else
   STATUSADJ="${STATUS}";
 fi
 	
-if [ -z "${BRANCH}" ] ||
-   [ ${BRANCH} = "main" ] ||
-   [ ${BRANCH} = "trunk" ] ||
-   [ ${BRANCH} = "master" ] ||
-   [ ${BRANCH} = "pkgtest" ] ||
-   [ ${BRANCH%-pkgtest} != ${BRANCH} ] ||
-   [ ${BRANCH} = "current" ] ||
-   [ ${BRANCH} = "default" ]; then
-    DBRANCH=
-else
-    DBRANCH="-${BRANCH}";
-fi;
-
-echo ${PKGNAME} \(${VERSION}-${CODENAME}${DBRANCH}\) ${CODENAME}${DBRANCH}${STATUS}\; urgency=${URGENCY}
+echo ${PKGNAME} \(${VERSION}-${CODENAME}\) ${CODENAME}${STATUS}\; urgency=${URGENCY}
 echo
 if [ -z ${DBRANCH} ]; then
     echo "  * ${GITID} ${STATUSADJ} point release of ${PKGNAME} for ${CODENAME} (${FULL_VERSION})"
