@@ -54,20 +54,6 @@ Suggests:
     libcurl4-dbg | libcurl3-dbg
 Description: This package contains the debugging symbols for kno-core
 
-Package: kno-sqlite
-Architecture: any
-Depends: kno-core (= ${binary:Version}), sqlite | sqlite3
-Description: SQLite bindings for Kno
-
-Package: kno-sqlite-dbg
-Architecture: any
-Section: debug
-Depends:
-    kno-core-dbg (= ${binary:Version}),
-    kno-sqlite (= ${binary:Version}),
-    ${misc:Depends}
-Description: This package contains the debugging symbols for kno-sqlite
-
 Package: kno-parseltongue
 Architecture: any
 Depends: kno-core, python3
@@ -129,17 +115,12 @@ Description: Provides an Emacs mode for interacting with knoc
 
 Package: kno-full
 Architecture: any
-Depends: ${misc:Depends}, kno-core, kno-doc,
-	 kno-sqlite,
-	 kno-parseltongue,
-	 elpa-knoc
+Depends: ${misc:Depends}, kno-core, kno-doc, kno-parseltongue, elpa-knoc
 Description: Installs all standard Kno modules
 
 Package: kno-full-dbg
 Architecture: any
-Depends: ${misc:Depends}, kno-full, 
-	 kno-sqlite-dbg,
-	 kno-parseltongue-dbg
+Depends: ${misc:Depends}, kno-full, kno-parseltongue-dbg
 Description: Installs all standard Kno modules
 
 Package: kno-dev

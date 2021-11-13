@@ -48,8 +48,8 @@ if [ -f ${srcdir}/etc/base_version ]; then
     ("cd" ${srcdir}; 
      u8_gitbranch > ${STATE_ROOT}/BRANCH;
      u8_gitversion etc/base_version > ${STATE_ROOT}/VERSION;
-     u8_gitversion etc/base_version  nobranch > ${STATE_ROOT}/REL_VERSION;
-     u8_gitversion etc/base_version full > ${STATE_ROOT}/FULL_VERSION;
+     u8_gitversion etc/base_version -nobranch > ${STATE_ROOT}/REL_VERSION;
+     u8_gitversion etc/base_version -full > ${STATE_ROOT}/FULL_VERSION;
      cp etc/base_version ${STATE_ROOT}/BASE_VERSION;
      cut etc/base_version -d'.' -f 1 > ${STATE_ROOT}/MAJOR_VERSION;
      cut etc/base_version -d'.' -f 2 > ${STATE_ROOT}/MINOR_VERSION);
@@ -60,7 +60,7 @@ elif [ -f ${srcdir}/etc/mod_version ]; then
      KNO_MINOR=$(knoconfig minor);
      MOD_VERSION=$(u8_gitversion etc/mod_version);
      VERSION=${KNO_MAJOR}.${KNO_MINOR}.${MOD_VERSION};
-     u8_gitversion etc/mod_version full > ${STATE_ROOT}/FULL_VERSION;
+     u8_gitversion etc/mod_version -full > ${STATE_ROOT}/FULL_VERSION;
      cp etc/base_version ${STATE_ROOT}/BASE_VERSION;
      cut etc/base_version -d'.' -f 1 > ${STATE_ROOT}/MAJOR_VERSION;
      cut etc/base_version -d'.' -f 2 > ${STATE_ROOT}/MINOR_VERSION);
