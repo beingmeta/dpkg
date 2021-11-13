@@ -1,0 +1,14 @@
+Source: kno-postgres
+Priority: optional
+Maintainer: Ken Haase <kh@beingmeta.com>
+Build-Depends: debhelper (>= 8.0.0), autotools-dev, debsigs, devscripts, libu8-dev, libpql-dev, kno-dev (>= @MAJOR_VERSION@)
+Standards-Version: 3.9.4
+Section: libs
+Homepage: http://www.beingmeta.com/
+
+Package: kno-postgres
+Section: libdevel
+Architecture: any
+Depends: libodbc1, kno-core (>= @MAJOR_VERSION@)
+Description: Postgres module for KNO
+

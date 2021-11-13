@@ -1,0 +1,14 @@
+Source: kno-mariadb
+Priority: optional
+Maintainer: Ken Haase <kh@beingmeta.com>
+Build-Depends: debhelper (>= 8.0.0), autotools-dev, debsigs, devscripts, libu8-dev, libmariadb-dev, kno-dev (>= @KNO_MAJOR@)
+Standards-Version: 3.9.4
+Section: libs
+Homepage: http://www.beingmeta.com/
+
+Package: kno-mariadb
+Section: libdevel
+Architecture: any
+Depends: libmariadb3, kno-core (>= @KNO_MAJOR@)
+Description: MARIADB module for KNO
+

@@ -1,0 +1,14 @@
+Source: kno-archivetools
+Priority: optional
+Maintainer: Ken Haase <kh@beingmeta.com>
+Build-Depends: debhelper (>= 8.0.0), autotools-dev, debsigs, devscripts, libu8-dev, kno-dev (>= @MAJOR_VERSION@.0.0), libarchive-dev
+Standards-Version: 3.9.4
+Section: libs
+Homepage: http://www.beingmeta.com/
+
+Package: kno-archivetools
+Section: libdevel
+Architecture: any
+Depends: kno-core (>= @MAJOR_VERSION@.0.0)
+Description: KNO modules for using libarchive
+

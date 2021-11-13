@@ -1,0 +1,17 @@
+kno-mariadb (2101.2) stable; urgency=medium
+
+  * Update for kno 2101
+
+ -- Ken Haase <kh@beingmeta.com>  Fri, 12 Jan 2021 15:27:33 +0000
+
+kno-mariadb (2007.2) stable; urgency=medium
+
+  * Change to mariadb
+
+ -- Ken Haase <kh@beingmeta.com>  Fri, 04 Dec 2020 15:27:33 +0000
+
+kno-mysql (1910.0) stable; urgency=medium
+
+  * Initial create of separate dpkg for mysql cmodule
+
+ -- Ken Haase <kh@beingmeta.com>  Sat, 5 Jan 2020 21:06:13 +0000
