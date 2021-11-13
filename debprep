@@ -26,7 +26,10 @@ mkdir ${workdir}/debian
 logmsg "Setting up ${workir}/debian";
 ("cd" debinfo/${PKGNAME};
  for file in *; do
-     if [ -d ${file} ]; then
+     if [ ${file} != ${file%.ex} ]; then
+	 # skip .ex files
+	 :
+     elif [ -d ${file} ]; then
 	 cp -r ${file} ../../${workdir}/debian;
      else
 	 u8_xsubst ${file} ../../${workdir}/debian/${file} \
@@ -42,7 +45,9 @@ logmsg "Setting up ${workir}/debian";
  done);
 for custom in ${workdir}/debian/*.${DISTRO}; do
     if [ -f ${custom} ]; then
-	mv ${custom} ${workdir}/debian/$(basename ${custom});
+	base=$(basename ${custom});
+	mv ${custom} ${workdir}/debian/${base};
+	rm ${workdir}/debian/${base}.*;
     fi;
 done;
 ./deblog "${PKGNAME}" "${DISTRO}" "${REL_VERSION}" "${CHANNEL}" \
