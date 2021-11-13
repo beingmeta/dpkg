@@ -12,4 +12,6 @@ else
     fi;
 fi;
 
-(sudo dpkg -i ${PKGNAME}_${REL_VERSION}*.deb) && (sudo dpkg -i ${PKGNAME}-*_${REL_VERSION}*.deb);
+head_package=${PKGNAME}_${REL_VERSION}*.deb
+sub_packages=$(ls ${PKGNAME}-*_${REL_VERSION}*.deb 2>/dev/null)
+(sudo dpkg -i ${head_package}) && (if [ -n "${sub_packages}" ]; then sudo dpkg -i ${sub_packages}; fi);

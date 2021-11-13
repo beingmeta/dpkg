@@ -37,6 +37,9 @@ logmsg "Setting up ${workir}/debian";
 		   "CHANNEL" "${CHANNEL}"                  \
 		   "BRANCH" "${BRANCH}"                    \
 		   "DISTRO" "${DISTRO}"                    \
+		   "KNO_VERSION" "${KNO_VERSION}"          \
+		   "KNO_MAJOR" "${KNO_MAJOR}"              \
+		   "KNO_MINOR" "${KNO_MINOR}"              \
 		   "BASE_VERSION" "${BASE_VERSION}"        \
 		   "FULL_VERSION" "${FULL_VERSION}"        \
 		   "MINOR_VERSION" "${MINOR_VERSION}"      \

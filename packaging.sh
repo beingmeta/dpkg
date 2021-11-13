@@ -1,6 +1,7 @@
 export PACKAGING_ROOT STATE_ROOT PATH
 export PKGNAME VERSION REL_VERSION BRANCH CHANNEL FULL_VERSION
 export BASE_VERSION MAJOR_VERSION MINOR_VERSION
+export KNO_VERSION KNO_MAJOR KNO_MINOR
 export REPO_URL REPO_LOGIN REPO_CURLOPTS
 export DISTRO STATUS URGENCY
 
@@ -114,6 +115,14 @@ if [ -f ${STATE_ROOT}/BASE_VERSION ]; then
     BASE_VERSION=$(cat ${STATE_ROOT}/BASE_VERSION);
 else
     BASE_VERSION=${VERSION}
+fi;
+
+# Information about KNO
+
+if which knoconfig 2>/dev/null 1>/dev/null; then
+    KNO_VERSION=$(knoconfig version);
+    KNO_MAJOR=$(knoconfig major);
+    KNO_MINOR=$(knoconfig minor);
 fi;
 
 # Other packaging parameters
