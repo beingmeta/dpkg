@@ -2,6 +2,8 @@
 
 ACTION=$1; shift;
 
+if [ "${ACTION}" = "saveout" ]; then NO_PKGNAME=saveout; fi
+
 if [ -f packaging.sh ]; then
     . packaging.sh
 else
@@ -78,9 +80,18 @@ debmake() {
 
 debinstall() {
     local head_package=${PKGNAME}_${REL_VERSION}*.deb
-    sub_packages=$(ls ${PKGNAME}-*_${REL_VERSION}*.deb 2>/dev/null)
+    local sub_packages=$(ls ${PKGNAME}-*_${REL_VERSION}*.deb 2>/dev/null)
     (sudo dpkg -i ${head_package}) && 
 	(if [ -n "${sub_packages}" ]; then sudo dpkg -i ${sub_packages}; fi);
+}
+
+saveout() {
+    local saveto="${1:-${PKGNAME}.out}";
+    local head_package="$(ls ${PKGNAME}_${REL_VERSION}*.deb 2>/dev/null)";
+    local sub_packages="$(ls ${PKGNAME}-*_${REL_VERSION}*.deb 2>/dev/null)";
+    local files="$(ls ${PKGNAME}_${REL_VERSION}* 2>/dev/null)";
+    if [ ! -d ${saveto} ]; then mkdir ${saveto}; fi
+    mv ${head_package} ${sub_packages} ${files} ${saveto};
 }
 
 case ${ACTION} in
@@ -98,6 +109,9 @@ case ${ACTION} in
 	;;
     clean)
 	rm -rf ${PKGNAME} ${PKGNAME}.tar;
+	;;
+    saveout)
+	saveout $*;
 	;;
     *)
 	logmsg "Unknown command '${ACTION}'";
