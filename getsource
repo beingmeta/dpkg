@@ -31,7 +31,7 @@ done;
 
 tarfile=${PKGNAME}.tar
 srcurl=$(cat sources/${PKGNAME})
-srcdir=gits/${PKGNAME}
+srcdir=git/${PKGNAME}
 if [ ! -d "${srcdir}" ]; then
     git clone $(cat sources/${PKGNAME}) ${srcdir};
     ("cd" ${srcdir};
