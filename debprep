@@ -12,8 +12,11 @@ else
     fi;
 fi;
 
-workdir=${2:-${PKGNAME}}
-if [ -d ${workdir} ]; then logmsg "Removing existing build directory ${workdir}"; rm -rf ${workdir}; fi
+workdir=${1:-${PKGNAME}}
+if [ -d ${workdir} ]; then
+    logmsg "Removing existing build directory ${workdir}";
+    rm -rf ${workdir};
+fi
 logmsg "Creating build directory at '${workdir}'"
 mkdir ${workdir}; ("cd" ${workdir}; tar xf ../${PKGNAME}.tar);
 if [ ! -f state/NOSOURCE ]; then

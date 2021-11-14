@@ -14,7 +14,7 @@ fi;
 
 export buildopt=
 if [ -f state/NOSOURCE ]; then buildopt=-b; fi
-workdir=${PKGNAME}
+workdir=${1:-${PKGNAME}}
 ("cd" ${workdir};
  dpkg-buildpackage ${buildopt} -us -uc -sa -rfakeroot)
 if [ ! -z "${GPGID}" ]; then

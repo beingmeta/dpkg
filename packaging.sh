@@ -42,6 +42,7 @@ if [ $# -gt 0 ]  && [ -z "${NO_PKGNAME}" ]; then
     else
 	echo "${pkgname}" > ${STATE_ROOT}/PKGNAME;
     fi;
+    shift;
 fi;
 
 if [ -f ${STATE_ROOT}/PKGNAME ]; then
