@@ -69,18 +69,23 @@ debprep() {
 debmake() {
     local buildopt=
     if [ -f state/NOSOURCE ]; then buildopt=-b; fi
-    workdir=${1:-${PKGNAME}}
+    local workdir="${1:-${PKGNAME}}"
     ("cd" ${workdir};
      dpkg-buildpackage ${buildopt} -us -uc -sa -rfakeroot)
     if [ ! -z "${GPGID}" ]; then
 	#    debsign -p${GPG} --re-sign -k${GPGID} dist/kno_@KNO_VERSION@*.changes && touch $@;
 	debsign --re-sign -k${GPGID} ${PKGNAME}_${REL_VERSION}*.changes
     fi;
+    local changes_file="$(ls ${PKGNAME}_${VERSION}*.changes)";
+    local output_dir="output/${PKGNAME}/";
+    grep "^ [0-9a-f]* [0-9]* [^ ]*$" ${changes_file} | \
+	cut -d' ' -f 4 - | > ${output_dir}/files;
+    for file in $(cat ${output_dir}/files); do mv ${file} ${output_dir}; done;
 }
 
 debinstall() {
-    local head_package=${PKGNAME}_${REL_VERSION}*.deb
-    local sub_packages=$(ls ${PKGNAME}-*_${REL_VERSION}*.deb 2>/dev/null)
+    local head_package="output/${PKGNAME}/${PKGNAME}_${REL_VERSION}*.deb";
+    local sub_packages="$(ls output/${PKGNAME}/${PKGNAME}-*_${REL_VERSION}*.deb 2>/dev/null)";
     (sudo dpkg -i ${head_package}) && 
 	(if [ -n "${sub_packages}" ]; then sudo dpkg -i ${sub_packages}; fi);
 }
@@ -94,12 +99,26 @@ saveout() {
     mv ${head_package} ${sub_packages} ${files} ${saveto};
 }
 
+cleanout() {
+    local head_package="$(ls ${PKGNAME}_${REL_VERSION}*.deb 2>/dev/null)";
+    local sub_packages="$(ls ${PKGNAME}-*_${REL_VERSION}*.deb 2>/dev/null)";
+    local files="$(ls ${PKGNAME}_${REL_VERSION}* 2>/dev/null)";
+    rm -f ${head_package} ${sub_packages} ${files};
+}
+
 case ${ACTION} in
     prep)
 	debprep $*;
 	;;
     make)
-	debmake $*;
+	if [ "${LOGFILE}" = none ]; then
+	    debmake $@;
+	elif [ -n "${LOGFILE}" ]; then
+	    debmake $* > ${LOGFILE};
+	else
+	    debmake $* > output/${PKGNAME}/log;
+	fi;
+	ls -l output/${PKGNAME}/
 	;;
     install)
 	debinstall $*;
