@@ -1,0 +1,61 @@
+#!/bin/sh
+
+if [ -f packaging.sh ]; then
+    . packaging.sh
+else
+    script_root=$(dirname $0);
+    if [ -f ${script_root}/packaging.sh ]; then
+	. ${script_root}/packaging.sh;
+    else
+	echo "Can't find packaging.sh init";
+	exit 2;
+    fi;
+fi;
+
+workdir=${1:-${PKGNAME}}
+if [ -d ${workdir} ]; then
+    logmsg "Removing existing build directory ${workdir}";
+    rm -rf ${workdir};
+fi
+logmsg "Creating build directory at '${workdir}'"
+mkdir ${workdir}; ("cd" ${workdir}; tar xf ../${PKGNAME}.tar);
+if [ ! -f state/NOSOURCE ]; then
+    srctar=${PKGNAME}_${REL_VERSION}.orig.tar.gz;
+    logmsg "Creating source tarball at ${srctar}";
+    tar -czf ${srctar} ${workdir};
+fi;
+if [ -d ${workdir}/debian ]; then rm -rf ${workdir}/debian; fi
+mkdir ${workdir}/debian
+logmsg "Setting up ${workir}/debian";
+("cd" debinfo/${PKGNAME};
+ for file in *; do
+     if [ ${file} != ${file%.ex} ]; then
+	 # skip .ex files
+	 :
+     elif [ -d ${file} ]; then
+	 cp -r ${file} ../../${workdir}/debian;
+     else
+	 u8_xsubst ${file} ../../${workdir}/debian/${file} \
+		   "VERSION" "${REL_VERSION}"              \
+		   "CHANNEL" "${CHANNEL}"                  \
+		   "BRANCH" "${BRANCH}"                    \
+		   "DISTRO" "${DISTRO}"                    \
+		   "KNO_VERSION" "${KNO_VERSION}"          \
+		   "KNO_MAJOR" "${KNO_MAJOR}"              \
+		   "KNO_MINOR" "${KNO_MINOR}"              \
+		   "BASE_VERSION" "${BASE_VERSION}"        \
+		   "FULL_VERSION" "${FULL_VERSION}"        \
+		   "MINOR_VERSION" "${MINOR_VERSION}"      \
+		   "MAJOR_VERSION" "${MAJOR_VERSION}";
+     fi;
+ done);
+for custom in ${workdir}/debian/*.${DISTRO}; do
+    if [ -f ${custom} ]; then
+	base=$(basename ${custom});
+	mv ${custom} ${workdir}/debian/${base};
+	rm ${workdir}/debian/${base}.*;
+    fi;
+done;
+./deblog "${PKGNAME}" "${DISTRO}" "${REL_VERSION}" "${CHANNEL}" \
+		"${STATUS}" "${URGENCY}" "${FULL_VERSION}" \
+	 1> ${workdir}/debian/changelog;

@@ -61,12 +61,11 @@ debprep() {
 	    rm ${workdir}/debian/${base}.*;
 	fi;
     done;
-    ./deblog "${PKGNAME}" "${DISTRO}" "${REL_VERSION}" "${CHANNEL}" \
-	     "${STATUS}" "${URGENCY}" "${FULL_VERSION}" \
-	     1> ${workdir}/debian/changelog;
+    debchangelog 1> ${workdir}/debian/changelog;
 }
 
-debmake() {
+debpackage() {
+    local output_dir="output/${PKGNAME}/";
     local buildopt=
     if [ -f state/NOSOURCE ]; then buildopt=-b; fi
     local workdir="${1:-${PKGNAME}}"
@@ -76,11 +75,12 @@ debmake() {
 	#    debsign -p${GPG} --re-sign -k${GPGID} dist/kno_@KNO_VERSION@*.changes && touch $@;
 	debsign --re-sign -k${GPGID} ${PKGNAME}_${REL_VERSION}*.changes
     fi;
+    rm -f ${output_dir}/FILES ${output_dir}/${PKGNAME}*;
     local changes_file="$(ls ${PKGNAME}_${VERSION}*.changes)";
-    local output_dir="output/${PKGNAME}/";
     grep "^ [0-9a-f]* [0-9]* [^ ]*$" ${changes_file} | \
-	cut -d' ' -f 4 - | > ${output_dir}/files;
-    for file in $(cat ${output_dir}/files); do mv ${file} ${output_dir}; done;
+    	cut - -d' ' -f 4 > ${output_dir}/FILES;
+    for file in $(cat ${output_dir}/FILES); do
+	if [ -f "${file}" ]; then mv ${file} ${output_dir}; fi; done;
 }
 
 debinstall() {
@@ -88,6 +88,18 @@ debinstall() {
     local sub_packages="$(ls output/${PKGNAME}/${PKGNAME}-*_${REL_VERSION}*.deb 2>/dev/null)";
     (sudo dpkg -i ${head_package}) && 
 	(if [ -n "${sub_packages}" ]; then sudo dpkg -i ${sub_packages}; fi);
+}
+
+debchangelog() {
+    local date="$(date -R)";
+    local status_adj="${STATUS}";
+    if [ -z "${status_adj}" ]; then status_adj=normal; fi
+    echo ${PKGNAME} \(${VERSION}\) ${CODENAME}${STATUS}\; urgency=${URGENCY}
+    echo
+    echo "  * ${GITID} ${STATUSADJ} point release of ${PKGNAME} (branch '${BRANCH}') for ${CODENAME} (${FULL_VERSION})"
+    echo
+    echo " -- ${REPOMAN}  ${date}"
+    echo
 }
 
 saveout() {
@@ -110,13 +122,14 @@ case ${ACTION} in
     prep)
 	debprep $*;
 	;;
-    make)
+    package|pkg|make|mkpkg|makepkg)
 	if [ "${LOGFILE}" = none ]; then
-	    debmake $@;
+	    debpackage $@;
 	elif [ -n "${LOGFILE}" ]; then
-	    debmake $* > ${LOGFILE};
+	    debpackage $* > ${LOGFILE};
 	else
-	    debmake $* > output/${PKGNAME}/log;
+	    rm -f output/${PKGNAME}/LOG
+	    debpackage $* > output/${PKGNAME}/LOG;
 	fi;
 	ls -l output/${PKGNAME}/
 	;;

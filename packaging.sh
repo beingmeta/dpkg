@@ -2,7 +2,7 @@ export PACKAGING_ROOT STATE_ROOT PATH
 export PKGNAME VERSION REL_VERSION BRANCH CHANNEL FULL_VERSION
 export BASE_VERSION MAJOR_VERSION MINOR_VERSION
 export KNO_VERSION KNO_MAJOR KNO_MINOR
-export REPO_URL REPO_LOGIN REPO_CURLOPTS
+export REPOMAN REPO_URL REPO_LOGIN REPO_CURLOPTS
 export DISTRO STATUS URGENCY
 
 if [ "$(basename $0)" = "packaging.sh" ]; then
@@ -31,6 +31,10 @@ fi;
 
 if [ $# -gt 0 ]  && [ -z "${NO_PKGNAME}" ]; then
     pkgname=$1;
+    if [ "${pkgname%#*}" != "${pkgname}" ]; then
+	branch=${pkgname#*#};
+	pkgname=${pkgname%#*};
+    fi;
     if [ ! -z "${PKGNAME}" ]; then
 	if [ "${pkgname}" != "${PKGNAME}" ]; then
 	    echo "Currently buildling '${PKGNAME}' not '$[pkgname}'";
@@ -39,10 +43,22 @@ if [ $# -gt 0 ]  && [ -z "${NO_PKGNAME}" ]; then
     elif [ ! -f sources/${pkgname} ]; then
 	echo "No source information for '${pkgname}'";
 	exit 2;
-    else
+    elif [ ! -f ${STATE_ROOT}/PKGNAME ]; then
 	echo "${pkgname}" > ${STATE_ROOT}/PKGNAME;
+    elif [ "$(cat ${STATE_ROOT}/PKGNAME)" = "${pkgname}" ]; then
+	:;
+    else
+	echo "Switching from $(cat ${STATE_ROOT}/PKGNAME) to ${pkgname}";
+	rm ${STATE_ROOT}/*;
+	echo "${pkgname}" > ${STATE_ROOT}/PKGNAME;
+	if [ -n "${branch}" ]; then echo "${branch}" > ${STATE_ROOT}/BRANCH; fi;
+	cp ${PACKAGING_ROOT}/defaults/* ${STATE_ROOT} 2> /dev/null;
+	if [ -d ${PACKAGING_ROOT}/defaults/${pkgname} ]; then
+	    cp ${PACKAGING_ROOT}/defaults/${pkgname}/* ${STATE_ROOT} 2> /dev/null;
+	fi;
     fi;
-    shift;
+    # Discard the package name (usually)
+    if [ -z "${KEEP_PKG_ARG}" ]; then shift; fi;
 fi;
 
 if [ -f ${STATE_ROOT}/PKGNAME ]; then
@@ -53,7 +69,6 @@ if [ -f ${STATE_ROOT}/DISTRO ]; then
     DISTRO=$(cat ${STATE_ROOT}/DISTRO);
 else
     DISTRO=$(lsb_release -s -c || echo release);
-
 fi;
 
 if [ -f ${STATE_ROOT}/CHANNEL ]; then
@@ -90,7 +105,10 @@ elif [ -f ${STATE_ROOT}/VERSION ]; then
     REL_VERSION=${VERSION%-*}
 fi;
 
-if [ -f ${STATE_ROOT}/BRANCH ]; then
+if [ -n "${branch}" ]; then
+    BRANCH="${branch}";
+    echo "${branch}" > ${STATE_ROOT}/BRANCH;
+elif [ -f ${STATE_ROOT}/BRANCH ]; then
     BRANCH=$(cat ${STATE_ROOT}/BRANCH);
 fi;
 
@@ -145,6 +163,45 @@ fi;
 
 # Getting information about repos
 
+if [ -n "${PKGTOOL}" ]; then
+    :;
+elif [ -f "${STATE_ROOT}/PKGTOOL" ]; then
+    PKGTOOL=$(cat "${STATE_ROOT}/PKGTOOL");
+else
+    for probe in "${PACKAGING_ROOT}/defaults/${PKGNAME}/PKGTOOL" "${PACKAGING_ROOT}/defaults/PKGTOOL"; do
+	if [ -z "${PKGTOOL}" ] && [ -f "${probe}" ]; then
+	    PKGTOOL=$(cat "${probe}");
+	fi;
+    done;
+    if [ -z "${PKGTOOL}" ] && which lsb_release 1>/dev/null 2>/dev/null; then
+	release_type="$(lsb_release -s -i)";
+	case ${release_type} in
+	    Ubuntu|Debian)
+		PKGTOOL=debtool;
+		;;
+	    RHEL|CENTOS)
+		PKGTOOL=rpmtool;
+		;;
+	    *)
+		PKGTOOL=
+		;;
+	esac
+	if [ -n "${PKGTOOL}" ]; then
+	    echo ${PKGTOOL} > ${STATE_ROOT}/PKGTOOL;
+	fi;
+    fi;
+fi;
+
+if [ -f "${STATE_ROOT}/REPOMAN" ]; then
+    REPOMAN=$(cat "${STATE_ROOT}/REPOMAN");
+elif [ -f "defaults/${PKGNAME}/REPOMAN" ]; then
+    REPOMAN=$(cat "defaults/${PKGNAME}/REPOMAN");
+elif [ -f "defaults/REPOMAN" ]; then
+    REPOMAN=$(cat "defaults/REPOMAN");
+else
+    REPOMAN="Repository Manager <repoman@beingmeta.com>"
+fi;
+
 if [ -n "${REPO_URL}" ]; then
     # If we already have an URL in the environment assume everything
     # else has been set appropriately
@@ -175,9 +232,9 @@ if [ -z "${REPO_URL}" ] && [ -f repos/default ]; then
     REPO_CURL_OPTS=$(cat ${STATE_ROOT}/REPO_CURLOPTS 2>/dev/null || cat repos/default-curlopts 2>/dev/null || echo)
 fi;
 
-if [ -f ${STATE_ROOT}/OUTDIR ]; then
-    OUTDIR=$(cat ${STATE_ROOT}/OUTDIR);
-fi;
+if [ -f ${STATE_ROOT}/OUTDIR ]; then OUTDIR=$(cat ${STATE_ROOT}/OUTDIR); fi;
+
+if [ -f ${STATE_ROOT}/GIT_NO_LFS ]; then GIT_NO_LFS=sorry; fi;
 
 logmsg () {
     echo "pkg: $1" >&2;

@@ -14,11 +14,15 @@ if [ "$1" = all ]; then
 	esac
     done;
     exit;
+elif [ "$1" = update ]; then
+    for dir in src/*; do
+	if [ -d ${dir}/.git ]; then
+	    (cd $dir; git pull; git submodule update; git lfs update);fi;
+    done;
+    exit;
 fi;
 
 . packaging.sh
-
-TRY_BRANCH=
 
 for opt in $@; do
     case ${opt} in
@@ -41,12 +45,8 @@ for opt in $@; do
 	nosource|NOSOURCE)
 	    echo ${opt} > ${STATE_ROOT}/NOSOURCE;
 	    ;;
-	*=*)
-	    echo "Unhandled option ${opt}" >&2;
-	    ;;
 	*)
-	    echo "Using branch ${opt}";
-	    BRANCH=${opt};
+	    echo "Unhandled option ${opt}" >&2;
 	    ;;
     esac;
 done;
@@ -57,14 +57,19 @@ srcdir=src/${PKGNAME}
 if [ ! -d "${srcdir}" ]; then
     git clone $(cat sources/${PKGNAME}) ${srcdir};
     ("cd" ${srcdir};
-     if [ ! -z "${BRANCH}" ]; then git checkout ${BRANCH}; fi;
+     if [ -n "${BRANCH}" ]; then git checkout ${BRANCH}; fi;
      git submodule init;
-     git submodule update);
+     git submodule update;
+     if [ -z "${GIT_NO_LFS}" ]; then git lfs install; git lfs checkout; fi;);
 else ("cd" ${srcdir};
-      if [ ! -z "${BRANCH}" ]; then git checkout ${BRANCH}; fi;
+      if [ -n "${BRANCH}" ]; then git checkout ${BRANCH}; fi;
       git pull;
       git submodule init;
-      git submodule update);
+      git submodule update;
+      if [ -z "${GIT_NO_LFS}" ]; then
+	  git lfs fetch;
+	  git lfs pull;
+      fi;);
 fi
 if [ -f ${srcdir}/etc/base_version ]; then
     ("cd" ${srcdir}; 
@@ -75,17 +80,17 @@ if [ -f ${srcdir}/etc/base_version ]; then
      cp etc/base_version ${STATE_ROOT}/BASE_VERSION;
      cut etc/base_version -d'.' -f 1 > ${STATE_ROOT}/MAJOR_VERSION;
      cut etc/base_version -d'.' -f 2 > ${STATE_ROOT}/MINOR_VERSION);
-elif [ -f ${srcdir}/etc/mod_version ]; then
+elif [ -f ${srcdir}/etc/knomod_version ]; then
     ("cd" ${srcdir}; 
      u8_gitbranch > ${STATE_ROOT}/BRANCH;
      KNO_MAJOR=$(knoconfig major);
      KNO_MINOR=$(knoconfig minor);
-     MOD_VERSION=$(u8_gitversion etc/mod_version);
+     MOD_VERSION=$(u8_gitversion etc/knomod_version);
      VERSION=${KNO_MAJOR}.${KNO_MINOR}.${MOD_VERSION};
-     u8_gitversion etc/mod_version -full > ${STATE_ROOT}/FULL_VERSION;
-     cp etc/mod_version ${STATE_ROOT}/BASE_VERSION;
-     cut etc/mod_version -d'.' -f 1 > ${STATE_ROOT}/MAJOR_VERSION;
-     cut etc/mod_version -d'.' -f 2 > ${STATE_ROOT}/MINOR_VERSION);
+     u8_gitversion etc/knomod_version -full > ${STATE_ROOT}/FULL_VERSION;
+     cp etc/knomod_version ${STATE_ROOT}/BASE_VERSION;
+     cut etc/knomod_version -d'.' -f 1 > ${STATE_ROOT}/MAJOR_VERSION;
+     cut etc/knomod_version -d'.' -f 2 > ${STATE_ROOT}/MINOR_VERSION);
 elif [ -f ${srcdir}/version ]; then
     ("cd" ${srcdir}; u8_gitbranch > ${STATE_ROOT}/BRANCH );
     version=$(knoconfig major).$(cat ${srcdir}/version);
