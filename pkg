@@ -4,17 +4,6 @@ if [ -f state/PKGNAME ]; then
    CURPKG=$(cat state/PKGNAME);
 fi;
 
-if [ "$1" = make ]; then
-    shift;
-    . ./packaging.sh;
-    ./getsource ${PKGNAME} && ${PKGTOOL} prep && ${PKGTOOL} package;
-    for arg in $@; do
-	./getsource $arg && ${PKGTOOL} prep && ${PKGTOOL} package;
-    done;
-    exit;
-fi;
-	       
-
 if [ -f sources/$1 ]; then
     if [ -z "${CURPKG}" ]; then
 	exec ./getsource $*;
