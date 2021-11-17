@@ -103,7 +103,7 @@ debchangelog() {
     if [ -z "${status_adj}" ]; then status_adj=normal; fi
 #    echo ${PKGNAME} \(${VERSION}-${DPKG_REVISION}-${CODENAME}\) ${codename} ${STATUS}\; urgency=${URGENCY}
 #    echo ${PKGNAME} \(${VERSION}-${CODENAME}\) ${codename} ${STATUS}\; urgency=${URGENCY}
-    echo ${PKGNAME} \(${VERSION}\) ${CODENAME} ${STATUS}\; urgency=${URGENCY}
+    echo ${PKGNAME} \(${VERSION}-${DPKG_REVISION}-${CODENAME}\) ${CODENAME} ${STATUS}\; urgency=${URGENCY}
     echo
     echo "  * ${GITID} ${STATUSADJ} point release of ${PKGNAME} (branch '${BRANCH}') for ${CODENAME} (${FULL_VERSION})"
     echo
