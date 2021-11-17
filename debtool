@@ -89,6 +89,12 @@ debinstall() {
 	(if [ -n "${sub_packages}" ]; then sudo dpkg -i ${sub_packages}; fi);
 }
 
+debpush() {
+    local head_package="output/${PKGNAME}/${PKGNAME}_${VERSION}*.deb";
+    local sub_packages="$(ls output/${PKGNAME}/${PKGNAME}-*_${VERSION}*.deb 2>/dev/null)";
+    ./curlpush ${head_package} ${sub_packages};
+}
+
 debchangelog() {
     local date="$(date -R)";
     local status_adj="${STATUS}";
@@ -118,6 +124,9 @@ cleanout() {
 }
 
 case ${ACTION} in
+    start|getsource|source)
+	getsource $*;
+	;;
     prep)
 	debprep $*;
 	;;
@@ -137,6 +146,9 @@ case ${ACTION} in
 	;;
     install)
 	debinstall $*;
+	;;
+    push)
+	debpush $*;
 	;;
     update)
 	./getsource ${PKGNAME} ${BRANCH}
