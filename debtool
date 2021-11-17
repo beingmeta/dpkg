@@ -25,7 +25,7 @@ debprep() {
     logmsg "Creating build directory at '${workdir}'"
     mkdir ${workdir}; ("cd" ${workdir}; tar xf ../${PKGNAME}.tar);
     if [ ! -f state/NOSOURCE ]; then
-	srctar=${PKGNAME}_${VERSION}-${CODENAME}.orig.tar.gz;
+	srctar=${PKGNAME}_${VERSION}.orig.tar.gz;
 	logmsg "Creating source tarball at ${srctar}";
 	tar -czf ${srctar} ${workdir};
     fi;
