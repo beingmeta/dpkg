@@ -2,6 +2,8 @@
 
 ACTION=$1; shift;
 
+DPKG_REVISION=1
+
 if [ -f packaging.sh ]; then
     . packaging.sh
 else
@@ -99,7 +101,9 @@ debchangelog() {
     local date="$(date -R)";
     local status_adj="${STATUS}";
     if [ -z "${status_adj}" ]; then status_adj=normal; fi
-    echo ${PKGNAME} \(${VERSION}\) ${CODENAME}${STATUS}\; urgency=${URGENCY}
+#    echo ${PKGNAME} \(${VERSION}-${DPKG_REVISION}-${CODENAME}\) ${codename} ${STATUS}\; urgency=${URGENCY}
+#    echo ${PKGNAME} \(${VERSION}-${CODENAME}\) ${codename} ${STATUS}\; urgency=${URGENCY}
+    echo ${PKGNAME} \(${VERSION}\) ${CODENAME} ${STATUS}\; urgency=${URGENCY}
     echo
     echo "  * ${GITID} ${STATUSADJ} point release of ${PKGNAME} (branch '${BRANCH}') for ${CODENAME} (${FULL_VERSION})"
     echo

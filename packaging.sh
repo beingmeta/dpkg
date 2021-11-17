@@ -3,7 +3,7 @@ export PKGNAME VERSION REL_VERSION BRANCH CHANNEL FULL_VERSION
 export BASE_VERSION MAJOR_VERSION MINOR_VERSION
 export KNO_VERSION KNO_MAJOR KNO_MINOR
 export REPOMAN REPO_URL REPO_LOGIN REPO_CURLOPTS
-export DISTRO STATUS URGENCY
+export CODENAME DISTRO STATUS URGENCY
 
 if [ "$(basename $0)" = "packaging.sh" ]; then
     echo "This file should be loaded (sourced) rather than run by itself";
@@ -160,6 +160,11 @@ fi;
 if [ -f ${STATE_ROOT}/GPGID ]; then
     GPGID=$(cat ${STATE_ROOT}/GPGID);
 fi;
+
+# Codenames (at least for Debian)
+
+CODENAME=${DISTRO};
+if [ -n "${CHANNEL}" ]; then CODENAME=${CODENAME}-${CHANNEL}; fi;
 
 # Getting information about repos
 
