@@ -237,6 +237,18 @@ if [ -z "${REPO_URL}" ] && [ -f repos/default ]; then
     REPO_CURL_OPTS=$(cat ${STATE_ROOT}/REPO_CURLOPTS 2>/dev/null || cat repos/default-curlopts 2>/dev/null || echo)
 fi;
 
+if [ -n "${DISTRO}" ]; then
+    REPO_URL=$(echo ${REPO_URL} | sed - -e "s/@DISTRO@/-${DISTRO}/");
+else
+    REPO_URL=$(echo ${REPO_URL} | sed - -e "s/@CHANNEL@//");
+fi;
+
+if [ -n "${CHANNEL}" ]; then
+    REPO_URL=$(echo ${REPO_URL} | sed - -e "s/@CHANNEL@/-${CHANNEL}/");
+else
+    REPO_URL=$(echo ${REPO_URL} | sed - -e "s/@CHANNEL@//");
+fi;
+
 if [ -f ${STATE_ROOT}/OUTDIR ]; then OUTDIR=$(cat ${STATE_ROOT}/OUTDIR); fi;
 
 if [ -f ${STATE_ROOT}/GIT_NO_LFS ]; then GIT_NO_LFS=sorry; fi;
