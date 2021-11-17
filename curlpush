@@ -35,10 +35,13 @@ for arg in $*; do
 	    ;;
     esac
 done;
+
 CURLOPTS=${REPO_CURLOPTS}
-if [ -n "${PUSH_LOGIN}" ]; then
-    CURLOPTS="-u \"${PUSH_LOGIN}\" ${CURLOPTS}";
-fi;
+
 for file in ${FILES}; do \
-    ${DEBUG_CURLPUSH} ${CURL} ${CURLOPTS} -H "Content-Type: multipart/form-data" --data-binary "@${file}" ${PUSH_URL};
-done
+    if [ -z "${PUSH_LOGIN}" ]; then
+	${DEBUG_CURLPUSH} ${CURL} ${CURLOPTS} -H "Content-Type: multipart/form-data" --data-binary "@${file}" ${PUSH_URL};
+    else
+	${DEBUG_CURLPUSH} ${CURL} -u "${PUSH_LOGIN}" ${CURLOPTS} -H "Content-Type: multipart/form-data" --data-binary "@${file}" ${PUSH_URL};
+	fi;
+done;
