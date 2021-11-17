@@ -2,8 +2,6 @@
 
 ACTION=$1; shift;
 
-if [ "${ACTION}" = "saveout" ]; then NO_PKGNAME=saveout; fi
-
 if [ -f packaging.sh ]; then
     . packaging.sh
 else
@@ -25,7 +23,7 @@ debprep() {
     logmsg "Creating build directory at '${workdir}'"
     mkdir ${workdir}; ("cd" ${workdir}; tar xf ../${PKGNAME}.tar);
     if [ ! -f state/NOSOURCE ]; then
-	srctar=${PKGNAME}_${REL_VERSION}.orig.tar.gz;
+	srctar=${PKGNAME}_${VERSION}.orig.tar.gz;
 	logmsg "Creating source tarball at ${srctar}";
 	tar -czf ${srctar} ${workdir};
     fi;
@@ -41,7 +39,7 @@ debprep() {
 	     cp -r ${file} ../../${workdir}/debian;
 	 else
 	     u8_xsubst ${file} ../../${workdir}/debian/${file} \
-		       "VERSION" "${REL_VERSION}"              \
+		       "VERSION" "${VERSION}"              \
 		       "CHANNEL" "${CHANNEL}"                  \
 		       "BRANCH" "${BRANCH}"                    \
 		       "DISTRO" "${DISTRO}"                    \
@@ -73,7 +71,7 @@ debpackage() {
      dpkg-buildpackage ${buildopt} -us -uc -sa -rfakeroot)
     if [ ! -z "${GPGID}" ]; then
 	#    debsign -p${GPG} --re-sign -k${GPGID} dist/kno_@KNO_VERSION@*.changes && touch $@;
-	debsign --re-sign -k${GPGID} ${PKGNAME}_${REL_VERSION}*.changes
+	debsign --re-sign -k${GPGID} ${PKGNAME}_${VERSION}*.changes
     fi;
     rm -f ${output_dir}/FILES ${output_dir}/${PKGNAME}*;
     local changes_file="$(ls ${PKGNAME}_${VERSION}*.changes)";
@@ -81,11 +79,12 @@ debpackage() {
     	cut - -d' ' -f 4 > ${output_dir}/FILES;
     for file in $(cat ${output_dir}/FILES); do
 	if [ -f "${file}" ]; then mv ${file} ${output_dir}; fi; done;
+    mv ${changes_file} ${output_dir};
 }
 
 debinstall() {
-    local head_package="output/${PKGNAME}/${PKGNAME}_${REL_VERSION}*.deb";
-    local sub_packages="$(ls output/${PKGNAME}/${PKGNAME}-*_${REL_VERSION}*.deb 2>/dev/null)";
+    local head_package="output/${PKGNAME}/${PKGNAME}_${VERSION}*.deb";
+    local sub_packages="$(ls output/${PKGNAME}/${PKGNAME}-*_${VERSION}*.deb 2>/dev/null)";
     (sudo dpkg -i ${head_package}) && 
 	(if [ -n "${sub_packages}" ]; then sudo dpkg -i ${sub_packages}; fi);
 }
@@ -104,17 +103,17 @@ debchangelog() {
 
 saveout() {
     local saveto="${1:-${PKGNAME}.out}";
-    local head_package="$(ls ${PKGNAME}_${REL_VERSION}*.deb 2>/dev/null)";
-    local sub_packages="$(ls ${PKGNAME}-*_${REL_VERSION}*.deb 2>/dev/null)";
-    local files="$(ls ${PKGNAME}_${REL_VERSION}* 2>/dev/null)";
+    local head_package="$(ls ${PKGNAME}_${VERSION}*.deb 2>/dev/null)";
+    local sub_packages="$(ls ${PKGNAME}-*_${VERSION}*.deb 2>/dev/null)";
+    local files="$(ls ${PKGNAME}_${VERSION}* 2>/dev/null)";
     if [ ! -d ${saveto} ]; then mkdir ${saveto}; fi
     mv ${head_package} ${sub_packages} ${files} ${saveto};
 }
 
 cleanout() {
-    local head_package="$(ls ${PKGNAME}_${REL_VERSION}*.deb 2>/dev/null)";
-    local sub_packages="$(ls ${PKGNAME}-*_${REL_VERSION}*.deb 2>/dev/null)";
-    local files="$(ls ${PKGNAME}_${REL_VERSION}* 2>/dev/null)";
+    local head_package="$(ls ${PKGNAME}_${VERSION}*.deb 2>/dev/null)";
+    local sub_packages="$(ls ${PKGNAME}-*_${VERSION}*.deb 2>/dev/null)";
+    local files="$(ls ${PKGNAME}_${VERSION}* 2>/dev/null)";
     rm -f ${head_package} ${sub_packages} ${files};
 }
 
@@ -122,7 +121,7 @@ case ${ACTION} in
     prep)
 	debprep $*;
 	;;
-    package|pkg|make|mkpkg|makepkg)
+    package|pkg|mkpkg|makepkg)
 	if [ "${LOGFILE}" = none ]; then
 	    debpackage $@;
 	elif [ -n "${LOGFILE}" ]; then
@@ -132,6 +131,9 @@ case ${ACTION} in
 	    debpackage $* > output/${PKGNAME}/LOG;
 	fi;
 	ls -l output/${PKGNAME}/
+	;;
+    make)
+	getsource ${PKGNAME} && debprep ${PKGNAME} && debpackage ${PKGNAME};
 	;;
     install)
 	debinstall $*;

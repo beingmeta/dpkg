@@ -1,0 +1,72 @@
+#!/bin/sh
+
+if [ -f state/PKGNAME ]; then
+   CURPKG=$(cat state/PKGNAME);
+fi;
+
+if [ "$1" = make ]; then
+    shift;
+    . ./packaging.sh;
+    ./getsource ${PKGNAME} && ${PKGTOOL} prep && ${PKGTOOL} package;
+    for arg in $@; do
+	./getsource $arg && ${PKGTOOL} prep && ${PKGTOOL} package;
+    done;
+    exit;
+fi;
+	       
+
+if [ -f sources/$1 ]; then
+    if [ -z "${CURPKG}" ]; then
+	exec ./getsource $*;
+    else 
+	. ./packaging.sh;
+	CURPKG=${PKGNAME};
+    fi;
+else ACTION=$1; shift;
+fi;
+
+case ${ACTION} in
+    get|geti)
+	upper=$(echo $1 | tr [a-z] [A-Z]);
+	if [ -f state/${upper} ]; then
+	    cat state/${upper};
+	elif [ "${ACTION}" = geti ]; then
+	    echo "No value for ${upper}";
+	fi;
+	exit;
+	;;
+	set)
+	upper=$(echo $1 | tr [a-z] [A-Z]);
+	echo $2 > state/${upper};
+	exit;
+	;;
+    start|read|getsource)
+	./getsource $@;
+	exit;
+	;;
+esac;
+
+if [ -z "${PACKAGING_ROOT}" ]; then
+    . packaging.sh;
+fi;
+
+case ${ACTION} in
+    deb|debian)
+	debtool ${curpkg} $@;
+	exit;
+	;;
+    rpm|redhat)
+	rpmtool ${curpkg} $@;
+	exit;
+	;;
+    prep|prepare|pkg|package|install|push)
+	
+	${PKGTOOL} ${curpkg} ${ACTION} $@;
+	exit;
+	;;
+    pkg|package)
+	${PKGTOOL} ${curpkg} ${ACTION} $@;
+	exit;
+	;;
+esac
+   
