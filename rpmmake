@@ -12,12 +12,16 @@ else
     fi;
 fi;
 
-export buildopt=
-if [ -f state/NOSOURCE ]; then buildopt=-b; fi
-workdir=${1:-${PKGNAME}}
-("cd" ${workdir};
- dpkg-buildpackage ${buildopt} -us -uc -sa -rfakeroot)
-if [ ! -z "${GPGID}" ]; then
-#    debsign -p${GPG} --re-sign -k${GPGID} dist/kno_@KNO_VERSION@*.changes && touch $@;
-    debsign --re-sign -k${GPGID} ${PKGNAME}_${REL_VERSION}*.changes
-fi;
+BUILDRPM=buildrpm
+RPMFLAGS=
+
+${BUILDRPM} $(RPMFLAGS)
+	   --define="_rpmdir $(RPMDIR)"
+	   --define="_srcrpmdir $(RPMDIR)"
+	   --nodeps -ta
+	    staging/libu8-@U8VERSION@.tar.gz &&
+		if [ -n "${GPGID}" ]; then
+rpm --addsign --define="_gpg_name $(GPGID)"
+		--define="__gpg_sign_cmd $(RPMGPG)"
+		$(RPMDIR)/libu8-@U8VERSION@*.src.rpm
+		$(RPMDIR)/*/libu8*-@U8VERSION@-*.rpm;
