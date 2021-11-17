@@ -25,7 +25,7 @@ debprep() {
     logmsg "Creating build directory at '${workdir}'"
     mkdir ${workdir}; ("cd" ${workdir}; tar xf ../${PKGNAME}.tar);
     if [ ! -f state/NOSOURCE ]; then
-	srctar=${PKGNAME}_${VERSION}.orig.tar.gz;
+	srctar=${PKGNAME}_${VERSION}-${CODENAME}.orig.tar.gz;
 	logmsg "Creating source tarball at ${srctar}";
 	tar -czf ${srctar} ${workdir};
     fi;
@@ -103,7 +103,7 @@ debchangelog() {
     if [ -z "${status_adj}" ]; then status_adj=normal; fi
 #    echo ${PKGNAME} \(${VERSION}-${DPKG_REVISION}-${CODENAME}\) ${codename} ${STATUS}\; urgency=${URGENCY}
 #    echo ${PKGNAME} \(${VERSION}-${CODENAME}\) ${codename} ${STATUS}\; urgency=${URGENCY}
-    echo ${PKGNAME} \(${VERSION}-${DPKG_REVISION}-${CODENAME}\) ${CODENAME} ${STATUS}\; urgency=${URGENCY}
+    echo ${PKGNAME} \(${VERSION}-${CODENAME}\) ${CODENAME} ${STATUS}\; urgency=${URGENCY}
     echo
     echo "  * ${GITID} ${STATUSADJ} point release of ${PKGNAME} (branch '${BRANCH}') for ${CODENAME} (${FULL_VERSION})"
     echo
