@@ -1,32 +1,22 @@
 #!/bin/sh
 
 if [ -f state/PKGNAME ]; then
-   CURPKG=$(cat state/PKGNAME);
+    curpkg=$(cat state/PKGNAME);
 fi;
 
-if [ -f sources/$1 ]; then
-    if [ -z "${CURPKG}" ]; then
-	exec ./getsource $*;
-    else 
-	. ./packaging.sh;
-	CURPKG=${PKGNAME};
-    fi;
-else ACTION=$1; shift;
-fi;
-
-case ${ACTION} in
+case $1 in
     get|geti)
-	upper=$(echo $1 | tr [a-z] [A-Z]);
+	upper=$(echo $2 | tr [a-z] [A-Z]);
 	if [ -f state/${upper} ]; then
 	    cat state/${upper};
-	elif [ "${ACTION}" = geti ]; then
+	elif [ "$1" = geti ]; then
 	    echo "No value for ${upper}";
 	fi;
 	exit;
 	;;
-	set)
-	upper=$(echo $1 | tr [a-z] [A-Z]);
-	echo $2 > state/${upper};
+    set)
+	upper=$(echo $2 | tr [a-z] [A-Z]);
+	echo $3 > state/${upper};
 	exit;
 	;;
     start|read|getsource)
@@ -35,8 +25,18 @@ case ${ACTION} in
 	;;
 esac;
 
-if [ -z "${PACKAGING_ROOT}" ]; then
-    . packaging.sh;
+if [ -f "sources/$1" ]; then
+    if [ -z "${PACKAGING_ROOT}" ]; then
+	. packaging.sh;
+    elif [ "${curpkg}" != "$1" ]; then
+	. packaging.sh;
+    fi;
+fi;
+
+ACTION=$1;
+
+if [ "${PKGNAME}" != "${curpkg}" ]; then
+    ./getsource ${PKGNAME};
 fi;
 
 case ${ACTION} in
@@ -49,7 +49,6 @@ case ${ACTION} in
 	exit;
 	;;
     prep|prepare|pkg|package|install|push)
-	
 	${PKGTOOL} ${curpkg} ${ACTION} $@;
 	exit;
 	;;
