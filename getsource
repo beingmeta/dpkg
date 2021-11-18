@@ -1,5 +1,9 @@
 #!/bin/sh
 
+logmsg () {
+    echo "pkg: $1" >&2;
+}
+
 if [ "$1" = all ]; then
     for dir in sources/*; do
 	pkg=$(basename ${dir});
@@ -22,7 +26,9 @@ elif [ "$1" = update ]; then
     exit;
 fi;
 
-. packaging.sh
+if [ -z "${PACKAGING_ROOT}" ]; then
+    . packaging.sh
+fi;
 
 for opt in $@; do
     case ${opt} in
@@ -71,41 +77,42 @@ else ("cd" ${srcdir};
 	  git lfs pull;
       fi;);
 fi
+
+KNO_MAJOR=$(knoconfig major);
+KNO_MINOR=$(knoconfig minor);
+if [ -d ${srcdir}/.git ]; then
+    ("cd" ${srcdir}; BRANCH=$(u8_gitbranch)); fi;
+
 if [ -f ${srcdir}/etc/base_version ]; then
     ("cd" ${srcdir}; 
-     u8_gitbranch > ${STATE_ROOT}/BRANCH;
-     u8_gitversion etc/base_version > ${STATE_ROOT}/VERSION;
-     u8_gitversion etc/base_version -full > ${STATE_ROOT}/FULL_VERSION;
-     cp etc/base_version ${STATE_ROOT}/BASE_VERSION;
-     cut etc/base_version -d'.' -f 1 > ${STATE_ROOT}/MAJOR_VERSION;
-     cut etc/base_version -d'.' -f 2 > ${STATE_ROOT}/MINOR_VERSION);
+     VERSION=$(u8_gitversion etc/base_version);
+     FULL_VERSION=$(u8_gitversion etc/base_version -full);
+     BASE_VERSION=$(cat etc/base_version));
 elif [ -f ${srcdir}/etc/knomod_version ]; then
     ("cd" ${srcdir}; 
-     u8_gitbranch > ${STATE_ROOT}/BRANCH;
-     KNO_MAJOR=$(knoconfig major);
-     KNO_MINOR=$(knoconfig minor);
      MOD_VERSION=$(u8_gitversion etc/knomod_version);
      VERSION=${KNO_MAJOR}.${KNO_MINOR}.${MOD_VERSION};
-     echo ${VERSION} > ${STATE_ROOT}/VERSION
-     u8_gitversion etc/knomod_version -full > ${STATE_ROOT}/FULL_VERSION;
-     cp etc/knomod_version ${STATE_ROOT}/BASE_VERSION;
-     cut etc/knomod_version -d'.' -f 1 > ${STATE_ROOT}/MAJOR_VERSION;
-     cut etc/knomod_version -d'.' -f 2 > ${STATE_ROOT}/MINOR_VERSION);
+     BASE_VERSION=$(cat etc/knomod_version));
 elif [ -f ${srcdir}/version ]; then
-    ("cd" ${srcdir}; u8_gitbranch > ${STATE_ROOT}/BRANCH );
-    version=$(knoconfig major).$(cat ${srcdir}/version);
-    echo ${version} > ${STATE_ROOT}/BASE_VERSION;
-    echo ${version} > ${STATE_ROOT}/FULL_VERSION;
-    echo ${version} > ${STATE_ROOT}/VERSION;
-    knoconfig major > ${STATE_ROOT}/MAJOR_VERSION;
-    cut ${srcdir}/version -d'.' -f 1 > ${STATE_ROOT}/MINOR_VERSION;
+    BASE_VERSION=$(cat ${srcdir}/version);
+    FULL_VERSION=$(u8_gitversion ${srcdir}/version -full);
+    VERSION="$(knoconfig major).${BASE_VERISON}";
 fi;
+MAJOR_VERSION=$(echo ${BASE_VERSION} | cut - -d'.' -f 1);
+MINOR_VERSION=$(echo ${BASE_VERSION} | cut - -d'.' -f 2);
+
+if [ -n "${VERSION}" ]; then echo ${VERSION} > ${STATE_ROOT}/VERSION; fi
+if [ -n "${FULL_VERSION}" ]; then echo ${VERSION} > ${STATE_ROOT}/FULL_VERSION; fi
+if [ -n "${BRANCH}" ]; then echo ${VERSION} > ${STATE_ROOT}/BRANCH; fi
+if [ -n "${MAJOR_VERSION}" ]; then echo ${VERSION} > ${STATE_ROOT}/MAJOR_VERSION; fi
+if [ -n "${MINOR_VERSION}" ]; then echo ${VERSION} > ${STATE_ROOT}/MINOR_VERSION; fi
+
 logmsg "Creating source tarball ${tarfile} with version info";
+
 if [ -x ${srcdir}/make_source_tar ]; then
     ("cd" ${srcdir}; ./make_source_tar ../../${tarfile});
 else 
     ("cd" ${srcdir}; git archive -o ../../${tarfile} HEAD );
     ("cd" state; tar -rf ../${tarfile} \
         VERSION BASE_VERSION FULL_VERSION VERSION MAJOR_VERSION MINOR_VERSION);
-fi
-
+fi;
