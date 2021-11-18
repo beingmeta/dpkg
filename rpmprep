@@ -17,15 +17,26 @@ if [ -d ${workdir} ]; then
     logmsg "Removing existing build directory ${workdir}";
     rm -rf ${workdir};
 fi
-logmsg "Creating build directory at '${workdir}'"
+tarball="${PKGNAME}-${VERSION}.tar.gz"
 rpm_root="${PKGNAME}-${MAJOR_VERSION}.${MINOR_VERSION}";
-mkdir ${rpm_root};
-("cd" ${rpm_root}; tar xf ../${PKGNAME}.tar);
-tar cf ${PKGNAME}-${VERSION}.tar.gz ${rpm_root};
+logmsg "Creating tarball ${tarball} for ${rpm_root}";
+rm -f ${rpm_Root} && mkdir ${rpm_root} && ("cd" ${rpm_root}; tar xf ../${PKGNAME}.tar);
+if [ -f rpminfo/${PKGNAME}/${PKGNAME}.spec.in ]; then
+    u8_xsubst rpminfo/${PKGNAME}/${PKGNAME}.spec.in ${rpm_root}/${PKGNAME}.spec \
+	      "VERSION" "${VERSION}" \
+	      "MAJOR_VERSION" "${MAJOR_VERSION}" \
+	      "MINOR_VERSION" "${MINOR_VERSION}";
+elif [ -f rpminfo/${PKGNAME}.spec.in ]; then
+    u8_xsubst rpminfo/${PKGNAME}/${PKGNAME}.spec.in ${rpm_root}/${PKGNAME}.spec \
+	      "VERSION" "${VERSION}" \
+	      "MAJOR_VERSION" "${MAJOR_VERSION}" \
+	      "MINOR_VERSION" "${MINOR_VERSION}";
+else
+    echo "No RPM info for ${PKGNAME}";
+    exit;
+fi;
+tar cf ${tarball} ${rpm_root};
+logmsg "Establishing workdir ${workdir}";
 mv ${rpm_root} ${workdir}; 
-u8_xsubst rpminfo/${PKGNAME}/${PKGNAME}.spec.in ${workdir}/${PKGNAME}.spec \
-	  "VERSION" "${VERSION}" \
-	  "MAJOR_VERSION" "${MAJOR_VERSION}" \
-	  "MINOR_VERSION" "${MINOR_VERSION}"
-rm -f ${PKGNAME}-${VERSION}.tar.gz;
+
 

@@ -2,15 +2,33 @@
 
 export PACKAGING_ROOT STATE_ROOT PATH
 export PKGNAME VERSION REL_VERSION BRANCH CHANNEL FULL_VERSION
-export BASE_VERSION MAJOR_VERSION MINOR_VERSION
+export BASE_VERSION MAJOR_VERSION MINOR_VERSION RELEASE_VERSION
 export KNO_VERSION KNO_MAJOR KNO_MINOR
 export REPOMAN REPO_URL REPO_LOGIN REPO_CURLOPTS
-export CODENAME DISTRO STATUS URGENCY
+export CODENAME DISTRO STATUS ARCH URGENCY
 
 PKGLOG=${PKGLOG:-/dev/null}
 
 logmsg () {
     echo "pkg: $1" >&2;
+}
+
+mkpath () {
+    local root=$1;
+    local path=$2;
+    local slash_root=${root}
+    if [ "${path#/}" != "${path}" ]; then
+	# starts with /
+	echo ${path};
+    else
+	if [ ${root%/} == ${root} ]; then slash_root="${root}/"; echo "addslash" >&2; fi
+	if [ ${path#./} != ${path} ]; then path=${path#./}; fi;
+	if [ ${path#../} != ${path} ]; then
+	    path=${path#../};
+	    slash_root=$(dirname ${slash_root});
+	fi;
+	echo ${slash_root}${path};
+   fi;
 }
 
 if [ "$(basename $0)" = "packaging.sh" ]; then
@@ -128,10 +146,16 @@ import_state() {
     fi;
     MAJOR_VERSION=$(echo $VERSION | cut -d. -f 1);
     MINOR_VERSION=$(echo $VERSION | cut -d. -f 2);
+    RELEASE_VERSION=$(echo $VERSION | cut -d. -f 3);
     if [ -f ${STATE_ROOT}/DISTRO ]; then
 	DISTRO=$(cat ${STATE_ROOT}/DISTRO);
     else
 	DISTRO=$(lsb_release -s -c || echo release);
+    fi;
+    if [ -f ${STATE_ROOT}/ARCH ]; then
+	ARCH=$(cat ${STATE_ROOT}/ARCH);
+    else
+	ARCH=$(uname -p || echo x86_64);
     fi;
     if [ -f ${STATE_ROOT}/CHANNEL ]; then
 	CHANNEL=$(cat ${STATE_ROOT}/CHANNEL);

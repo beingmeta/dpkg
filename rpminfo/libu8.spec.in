@@ -1,6 +1,6 @@
 Name:           libu8
-Version:        @MAJOR_VERSION@.@MINOR_VERSION@
-Release:        @VERSION@%{?dist}
+Version:        @VERSION@
+Release:        1%{?dist}
 Summary:        utility/compatability for Unicode and other functions
 
 Group:          System Environment/Libraries
