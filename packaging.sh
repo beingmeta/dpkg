@@ -76,20 +76,6 @@ if [ $# -gt 0 ]  && [ -z "${NO_PKGNAME}" ]; then
     fi;
 fi;
 
-if [ -f ${STATE_ROOT}/PKGNAME ]; then
-    PKGNAME=$(cat ${STATE_ROOT}/PKGNAME);
-fi;
-
-if [ -f ${STATE_ROOT}/DISTRO ]; then
-    DISTRO=$(cat ${STATE_ROOT}/DISTRO);
-else
-    DISTRO=$(lsb_release -s -c || echo release);
-fi;
-
-if [ -f ${STATE_ROOT}/CHANNEL ]; then
-    CHANNEL=$(cat ${STATE_ROOT}/CHANNEL);
-fi;
-
 # These are used to probe for specific settings
 PROBES=
 push_probe() {
@@ -142,17 +128,22 @@ import_state() {
     fi;
     MAJOR_VERSION=$(echo $VERSION | cut -d. -f 1);
     MINOR_VERSION=$(echo $VERSION | cut -d. -f 2);
+    if [ -f ${STATE_ROOT}/DISTRO ]; then
+	DISTRO=$(cat ${STATE_ROOT}/DISTRO);
+    else
+	DISTRO=$(lsb_release -s -c || echo release);
+    fi;
+    if [ -f ${STATE_ROOT}/CHANNEL ]; then
+	CHANNEL=$(cat ${STATE_ROOT}/CHANNEL);
+    else CHANNEL=;
+    fi;
     if [ -f ${dir}/STATUS ]; then
 	STATUS=$(cat ${dir}/STATUS);
-    else STATUS=;
+    else STATUS=stable;
     fi;
     if [ -f ${dir}/URGENCY ]; then
 	URGENCY=$(cat ${dir}/URGENCY);
-    else URGENCY=;
-    fi;
-    if [ -f ${dir}/DISTRO ]; then
-	DISTRO=$(cat ${dir}/DISTRO);
-    else DISTRO=;
+    else URGENCY=normal;
     fi;
     if [ -f ${dir}/CHANNEL ]; then
 	CHANNEL=$(cat ${dir}/CHANNEL);
