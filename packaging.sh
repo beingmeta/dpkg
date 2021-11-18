@@ -5,9 +5,16 @@ export KNO_VERSION KNO_MAJOR KNO_MINOR
 export REPOMAN REPO_URL REPO_LOGIN REPO_CURLOPTS
 export CODENAME DISTRO STATUS URGENCY
 
+logmsg () {
+    echo "pkg: $1" >&2;
+}
+
 if [ "$(basename $0)" = "packaging.sh" ]; then
     echo "This file should be loaded (sourced) rather than run by itself";
     exit;
+else
+    :
+    # echo "Loading packaging.sh into $$"
 fi;
 
 if [ -z "${PACKAGING_ROOT}" ]; then
@@ -35,30 +42,29 @@ if [ $# -gt 0 ]  && [ -z "${NO_PKGNAME}" ]; then
 	branch=${pkgname#*#};
 	pkgname=${pkgname%#*};
     fi;
-    if [ ! -z "${PKGNAME}" ]; then
-	if [ "${pkgname}" != "${PKGNAME}" ]; then
-	    echo "Currently buildling '${PKGNAME}' not '$[pkgname}'";
-	    exit 2;
+    if [ -f sources/${pkgname} ]; then
+	if [ ! -z "${PKGNAME}" ]; then
+	    if [ "${pkgname}" != "${PKGNAME}" ]; then
+		echo "Currently buildling '${PKGNAME}' not '$[pkgname}'";
+		exit 2;
+	    fi;
+	elif [ ! -f ${STATE_ROOT}/PKGNAME ]; then
+	    echo "${pkgname}" > ${STATE_ROOT}/PKGNAME;
+	elif [ "$(cat ${STATE_ROOT}/PKGNAME)" = "${pkgname}" ]; then
+	    :;
+	else
+	    echo "Switching from $(cat ${STATE_ROOT}/PKGNAME) to ${pkgname}";
+	    rm ${STATE_ROOT}/*;
+	    echo "${pkgname}" > ${STATE_ROOT}/PKGNAME;
+	    if [ -n "${branch}" ]; then echo "${branch}" > ${STATE_ROOT}/BRANCH; fi;
+	    cp ${PACKAGING_ROOT}/defaults/* ${STATE_ROOT} 2> /dev/null;
+	    if [ -d ${PACKAGING_ROOT}/defaults/${pkgname} ]; then
+		cp ${PACKAGING_ROOT}/defaults/${pkgname}/* ${STATE_ROOT} 2> /dev/null;
+	    fi;
 	fi;
-    elif [ ! -f sources/${pkgname} ]; then
-	echo "No source information for '${pkgname}'";
-	exit 2;
-    elif [ ! -f ${STATE_ROOT}/PKGNAME ]; then
-	echo "${pkgname}" > ${STATE_ROOT}/PKGNAME;
-    elif [ "$(cat ${STATE_ROOT}/PKGNAME)" = "${pkgname}" ]; then
-	:;
-    else
-	echo "Switching from $(cat ${STATE_ROOT}/PKGNAME) to ${pkgname}";
-	rm ${STATE_ROOT}/*;
-	echo "${pkgname}" > ${STATE_ROOT}/PKGNAME;
-	if [ -n "${branch}" ]; then echo "${branch}" > ${STATE_ROOT}/BRANCH; fi;
-	cp ${PACKAGING_ROOT}/defaults/* ${STATE_ROOT} 2> /dev/null;
-	if [ -d ${PACKAGING_ROOT}/defaults/${pkgname} ]; then
-	    cp ${PACKAGING_ROOT}/defaults/${pkgname}/* ${STATE_ROOT} 2> /dev/null;
-	fi;
+	# Discard the package name (usually)
+	if [ -z "${KEEP_PKG_ARG}" ]; then shift; fi;
     fi;
-    # Discard the package name (usually)
-    if [ -z "${KEEP_PKG_ARG}" ]; then shift; fi;
 fi;
 
 if [ -f ${STATE_ROOT}/PKGNAME ]; then
@@ -99,11 +105,11 @@ if [ -f ${STATE_ROOT}/VERSION ]; then
     VERSION=$(cat ${STATE_ROOT}/VERSION);
 fi;
 
-if [ -f ${STATE_ROOT}/REL_VERSION ]; then
-    REL_VERSION=$(cat ${STATE_ROOT}/REL_VERSION);
-elif [ -f ${STATE_ROOT}/VERSION ]; then
-    REL_VERSION=${VERSION%-*}
-fi;
+# if [ -f ${STATE_ROOT}/REL_VERSION ]; then
+#     REL_VERSION=$(cat ${STATE_ROOT}/REL_VERSION);
+# elif [ -f ${STATE_ROOT}/VERSION ]; then
+#     REL_VERSION=${VERSION%-*}
+# fi;
 
 if [ -n "${branch}" ]; then
     BRANCH="${branch}";
@@ -251,8 +257,12 @@ fi;
 
 if [ -f ${STATE_ROOT}/OUTDIR ]; then OUTDIR=$(cat ${STATE_ROOT}/OUTDIR); fi;
 
-if [ -f ${STATE_ROOT}/GIT_NO_LFS ]; then GIT_NO_LFS=sorry; fi;
+if [ -f ${STATE_ROOT}/GIT_NO_LFS ]; then
+    GIT_NO_LFS=$(cat ${STATE_ROOT}/GIT_NO_LFS);
+elif ! git lfs status 2>/dev/null 1>/dev/null; then
+    GIT_NO_LFS=sorry;
+    echo ${GIT_NO_LFS} > ${STATE_ROOT}/GIT_NO_LFS;
+else
+    unset GIT_NO_LFS
+fi;
 
-logmsg () {
-    echo "pkg: $1" >&2;
-}
