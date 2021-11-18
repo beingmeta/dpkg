@@ -70,8 +70,8 @@ if [ ! -d "${srcdir}" ]; then
 else ("cd" ${srcdir};
       if [ -n "${BRANCH}" ]; then git checkout ${BRANCH}; fi;
       git pull;
-      git submodule init;
-      git submodule update;
+      git submodule init; 
+     git submodule update;
       if [ -z "${GIT_NO_LFS}" ]; then
 	  git lfs fetch;
 	  git lfs pull;
@@ -81,31 +81,23 @@ fi
 KNO_MAJOR=$(knoconfig major);
 KNO_MINOR=$(knoconfig minor);
 if [ -d ${srcdir}/.git ]; then
-    ("cd" ${srcdir}; BRANCH=$(u8_gitbranch)); fi;
-
+    BRANCH=$("cd" ${srcdir}; u8_gitbranch);
+    echo ${BRANCH} > ${STATE_ROOT}/BRANCH;
+fi;
 if [ -f ${srcdir}/etc/base_version ]; then
-    ("cd" ${srcdir}; 
-     VERSION=$(u8_gitversion etc/base_version);
-     FULL_VERSION=$(u8_gitversion etc/base_version -full);
-     BASE_VERSION=$(cat etc/base_version));
+    (cd "${srcdir}";
+     echo $(u8_gitversion etc/base_version) > ${STATE_ROOT}/VERSION;
+     echo $(u8_gitversion etc/base_version -full) > ${STATE_ROOT}/FULL_VERSION;
+     cp etc/base_version ${STATE_ROOT}/BASE_VERSION);
 elif [ -f ${srcdir}/etc/knomod_version ]; then
     ("cd" ${srcdir}; 
      MOD_VERSION=$(u8_gitversion etc/knomod_version);
-     VERSION=${KNO_MAJOR}.${KNO_MINOR}.${MOD_VERSION};
-     BASE_VERSION=$(cat etc/knomod_version));
-elif [ -f ${srcdir}/version ]; then
-    BASE_VERSION=$(cat ${srcdir}/version);
-    FULL_VERSION=$(u8_gitversion ${srcdir}/version -full);
-    VERSION="$(knoconfig major).${BASE_VERISON}";
+     echo ${KNO_MAJOR}.${KNO_MINOR}.${MOD_VERSION} > ${STATE_ROOT}/VERSION;
+     echo $(u8_gitversion etc/base_version -full) > ${STATE_ROOT}/FULL_VERSION;
+     cp etc/knomod_version ${STATE_ROOT}/BASE_VERSION);
 fi;
-MAJOR_VERSION=$(echo ${BASE_VERSION} | cut - -d'.' -f 1);
-MINOR_VERSION=$(echo ${BASE_VERSION} | cut - -d'.' -f 2);
 
-if [ -n "${VERSION}" ]; then echo ${VERSION} > ${STATE_ROOT}/VERSION; fi
-if [ -n "${FULL_VERSION}" ]; then echo ${VERSION} > ${STATE_ROOT}/FULL_VERSION; fi
-if [ -n "${BRANCH}" ]; then echo ${VERSION} > ${STATE_ROOT}/BRANCH; fi
-if [ -n "${MAJOR_VERSION}" ]; then echo ${VERSION} > ${STATE_ROOT}/MAJOR_VERSION; fi
-if [ -n "${MINOR_VERSION}" ]; then echo ${VERSION} > ${STATE_ROOT}/MINOR_VERSION; fi
+import_state;
 
 logmsg "Creating source tarball ${tarfile} with version info";
 
@@ -116,3 +108,9 @@ else
     ("cd" state; tar -rf ../${tarfile} \
         VERSION BASE_VERSION FULL_VERSION VERSION MAJOR_VERSION MINOR_VERSION);
 fi;
+
+echo PKG_NAME=${PKGNAME};
+echo VERSION=${VERSION};
+echo BASE_VERSION=${BASE_VERSION};
+echo FULL_VERSION=${FULL_VERSION};
+echo BRANCH=${BRANCH};

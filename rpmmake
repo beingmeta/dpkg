@@ -12,16 +12,16 @@ else
     fi;
 fi;
 
-BUILDRPM=buildrpm
+BUILDRPM=rpmbuild
+RPMDIR=./staging/
 RPMFLAGS=
 
-${BUILDRPM} $(RPMFLAGS)
-	   --define="_rpmdir $(RPMDIR)"
-	   --define="_srcrpmdir $(RPMDIR)"
-	   --nodeps -ta
-	    staging/libu8-@U8VERSION@.tar.gz &&
-		if [ -n "${GPGID}" ]; then
-rpm --addsign --define="_gpg_name $(GPGID)"
-		--define="__gpg_sign_cmd $(RPMGPG)"
-		$(RPMDIR)/libu8-@U8VERSION@*.src.rpm
-		$(RPMDIR)/*/libu8*-@U8VERSION@-*.rpm;
+("cd" libu8;
+ ${BUILDRPM} ${RPMFLAGS} --define="_rpmdir ${RPMDIR}" --define="_srcrpmdir ${RPMDIR}" --nodeps -ta ../libu8-${VERSION}.tar.gz) &&
+    if [ -n "${GPGID}" ]; then
+	rpm --addsign --define="_gpg_name ${GPGID}" \
+	    --define="__gpg_sign_cmd ${RPMGPG}" \
+	    ${RPMDIR}/libu8-@U8VERSION@*.src.rpm \
+	    ${RPMDIR}/*/libu8*-@U8VERSION@-*.rpm;
+    fi;
+

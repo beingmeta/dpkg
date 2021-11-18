@@ -18,9 +18,14 @@ if [ -d ${workdir} ]; then
     rm -rf ${workdir};
 fi
 logmsg "Creating build directory at '${workdir}'"
-mkdir ${workdir}; ("cd" ${workdir}; tar xf ../${PKGNAME}.tar);
-tar cf ${PKGNAME}-${VERSION}.tar.gz ${workdir};
+rpm_root="${PKGNAME}-${MAJOR_VERSION}.${MINOR_VERSION}";
+mkdir ${rpm_root};
+("cd" ${rpm_root}; tar xf ../${PKGNAME}.tar);
+tar cf ${PKGNAME}-${VERSION}.tar.gz ${rpm_root};
+mv ${rpm_root} ${workdir}; 
 u8_xsubst rpminfo/${PKGNAME}/${PKGNAME}.spec.in ${workdir}/${PKGNAME}.spec \
-	  "@VERSION@" "${VERSION}" \
-	  "@MAJOR_VERSION@" "${MAJOR_VERSION}" \
-	  "@MINOR_VERSION@" "${MINOR_VERSION}"
+	  "VERSION" "${VERSION}" \
+	  "MAJOR_VERSION" "${MAJOR_VERSION}" \
+	  "MINOR_VERSION" "${MINOR_VERSION}"
+rm -f ${PKGNAME}-${VERSION}.tar.gz;
+

@@ -1,9 +1,13 @@
+#!/bin/sh
+
 export PACKAGING_ROOT STATE_ROOT PATH
 export PKGNAME VERSION REL_VERSION BRANCH CHANNEL FULL_VERSION
 export BASE_VERSION MAJOR_VERSION MINOR_VERSION
 export KNO_VERSION KNO_MAJOR KNO_MINOR
 export REPOMAN REPO_URL REPO_LOGIN REPO_CURLOPTS
 export CODENAME DISTRO STATUS URGENCY
+
+PKGLOG=${PKGLOG:-/dev/null}
 
 logmsg () {
     echo "pkg: $1" >&2;
@@ -13,8 +17,7 @@ if [ "$(basename $0)" = "packaging.sh" ]; then
     echo "This file should be loaded (sourced) rather than run by itself";
     exit;
 else
-    :
-    # echo "Loading packaging.sh into $$"
+    echo "Loading packaging.sh into $$, arg1=$1" >${PKGLOG}
 fi;
 
 if [ -z "${PACKAGING_ROOT}" ]; then
@@ -36,25 +39,31 @@ if [ -z "${PACKAGING_ROOT}" ]; then
     fi;
 fi;
 
+if [ -f state/PKGNAME ]; then
+    curpkg=$(cat state/PKGNAME);
+fi;
+
 if [ $# -gt 0 ]  && [ -z "${NO_PKGNAME}" ]; then
     pkgname=$1;
-    if [ "${pkgname%#*}" != "${pkgname}" ]; then
-	branch=${pkgname#*#};
-	pkgname=${pkgname%#*};
+    stripped="${pkgname%#*}"
+    if [ "${stripped}" != "${pkgname}" ]; then
+	branch="${pkgname#*#}";
+	pkgname=${stripped}
     fi;
-    if [ -f sources/${pkgname} ]; then
-	if [ ! -z "${PKGNAME}" ]; then
-	    if [ "${pkgname}" != "${PKGNAME}" ]; then
-		echo "Currently buildling '${PKGNAME}' not '$[pkgname}'";
-		exit 2;
-	    fi;
-	elif [ ! -f ${STATE_ROOT}/PKGNAME ]; then
-	    echo "${pkgname}" > ${STATE_ROOT}/PKGNAME;
-	elif [ "$(cat ${STATE_ROOT}/PKGNAME)" = "${pkgname}" ]; then
-	    :;
+    if [ -f "sources/${pkgname}" ]; then
+	if [ ! -f ${STATE_ROOT}/PKGNAME ]; then
+	    curpkg=$(cat ${STATE_ROOT}/PKGNAME);
+	else curpkg=; fi
+	if [ "${curpkg}" == "${pkgname}" ]; then
+	    PKGNAME=${curpkg};
 	else
-	    echo "Switching from $(cat ${STATE_ROOT}/PKGNAME) to ${pkgname}";
-	    rm ${STATE_ROOT}/*;
+	    if [ -z "${curpkg}" ]; then
+		echo "Building ${pkgname}";
+	    else
+		echo "Switching from ${curpkg} to ${pkgname}";
+	    fi;
+	    PKGNAME=${pkgname};
+	    rm -f ${STATE_ROOT}/*;
 	    echo "${pkgname}" > ${STATE_ROOT}/PKGNAME;
 	    if [ -n "${branch}" ]; then echo "${branch}" > ${STATE_ROOT}/BRANCH; fi;
 	    cp ${PACKAGING_ROOT}/defaults/* ${STATE_ROOT} 2> /dev/null;
@@ -101,46 +110,59 @@ push_probe "${PKGNAME}.${DISTRO}";
 
 # This is all information which should come from getsource
 
-if [ -f ${STATE_ROOT}/VERSION ]; then
-    VERSION=$(cat ${STATE_ROOT}/VERSION);
-fi;
+get_state() {
+    local file=$1;
+    if [ -f ${file} ]; then
+	$(cat ${file});
+    else echo; fi
+}
+	
 
-# if [ -f ${STATE_ROOT}/REL_VERSION ]; then
-#     REL_VERSION=$(cat ${STATE_ROOT}/REL_VERSION);
-# elif [ -f ${STATE_ROOT}/VERSION ]; then
-#     REL_VERSION=${VERSION%-*}
-# fi;
+import_state() {
+    local dir=${1:-${STATE_ROOT}};
+    if [ -f ${dir}/PKGNAME ]; then
+	PKGNAME=$(cat ${dir}/PKGNAME);
+    else PKGNAME=;
+    fi;
+    if [ -f ${dir}/BRANCH ]; then
+	BRANCH=$(cat ${dir}/BRANCH);
+    else BRANCH=;
+    fi;
+    if [ -f ${dir}/VERSION ]; then
+	VERSION=$(cat ${dir}/VERSION);
+    else VERSION=;
+    fi;
+    if [ -f ${dir}/BASE_VERSION ]; then
+	BASE_VERSION=$(cat ${dir}/BASE_VERSION);
+    else BASE_VERSION=${VERSION};
+    fi;
+    if [ -f ${dir}/FULL_VERSION ]; then
+	FULL_VERSION=$(cat ${dir}/FULL_VERSION);
+    else FULL_VERSION=${VERSION};
+    fi;
+    MAJOR_VERSION=$(echo $VERSION | cut -d. -f 1);
+    MINOR_VERSION=$(echo $VERSION | cut -d. -f 2);
+    if [ -f ${dir}/STATUS ]; then
+	STATUS=$(cat ${dir}/STATUS);
+    else STATUS=;
+    fi;
+    if [ -f ${dir}/URGENCY ]; then
+	URGENCY=$(cat ${dir}/URGENCY);
+    else URGENCY=;
+    fi;
+    if [ -f ${dir}/DISTRO ]; then
+	DISTRO=$(cat ${dir}/DISTRO);
+    else DISTRO=;
+    fi;
+    if [ -f ${dir}/CHANNEL ]; then
+	CHANNEL=$(cat ${dir}/CHANNEL);
+    else CHANNEL=;
+    fi;
+    CODENAME=${DISTRO};
+    if [ -n "${CHANNEL}" ]; then CODENAME=${CODENAME}-${CHANNEL}; fi;
+}
 
-if [ -n "${branch}" ]; then
-    BRANCH="${branch}";
-    echo "${branch}" > ${STATE_ROOT}/BRANCH;
-elif [ -f ${STATE_ROOT}/BRANCH ]; then
-    BRANCH=$(cat ${STATE_ROOT}/BRANCH);
-fi;
-
-if [ -f ${STATE_ROOT}/FULL_VERSION ]; then
-    FULL_VERSION=$(cat ${STATE_ROOT}/FULL_VERSION);
-else
-    FULL_VERSION=${VERSION};
-fi;
-
-if [ -f ${STATE_ROOT}/MAJOR_VERSION ]; then
-    MAJOR_VERSION=$(cat ${STATE_ROOT}/MAJOR_VERSION);
-else
-    MAJOR_VERSION=$(echo $VERSION | cut -d'.' -f 1);
-fi;
-
-if [ -f ${STATE_ROOT}/MINOR_VERSION ]; then
-    MINOR_VERSION=$(cat ${STATE_ROOT}/MINOR_VERSION || echo $version);
-else
-    MINOR_VERSION=$(echo $VERSION | cut -d'.' -f 2);
-fi;
-
-if [ -f ${STATE_ROOT}/BASE_VERSION ]; then
-    BASE_VERSION=$(cat ${STATE_ROOT}/BASE_VERSION);
-else
-    BASE_VERSION=${VERSION}
-fi;
+import_state;
 
 # Information about KNO
 
@@ -150,32 +172,14 @@ if which knoconfig 2>/dev/null 1>/dev/null; then
     KNO_MINOR=$(knoconfig minor);
 fi;
 
-# Other packaging parameters
-
-if [ -f ${STATE_ROOT}/STATUS ]; then
-    STATUS=$(cat ${STATE_ROOT}/STATUS);
-else
-    STATUS=stable;
-fi;
-if [ -f ${STATE_ROOT}/URGENCY ]; then
-    URGENCY=$(cat ${STATE_ROOT}/URGENCY);
-else
-    URGENCY=normal
-fi;
-
 if [ -f ${STATE_ROOT}/GPGID ]; then
     GPGID=$(cat ${STATE_ROOT}/GPGID);
 fi;
 
-# Codenames (at least for Debian)
-
-CODENAME=${DISTRO};
-if [ -n "${CHANNEL}" ]; then CODENAME=${CODENAME}-${CHANNEL}; fi;
-
-# Getting information about repos
+# Find the package tool
 
 if [ -n "${PKGTOOL}" ]; then
-    :;
+    echo "PKGTOOL=${PKGTOOL}";
 elif [ -f "${STATE_ROOT}/PKGTOOL" ]; then
     PKGTOOL=$(cat "${STATE_ROOT}/PKGTOOL");
 else
@@ -202,6 +206,8 @@ else
 	fi;
     fi;
 fi;
+
+# Getting information about repos
 
 if [ -f "${STATE_ROOT}/REPOMAN" ]; then
     REPOMAN=$(cat "${STATE_ROOT}/REPOMAN");
@@ -239,8 +245,8 @@ fi;
 		   
 if [ -z "${REPO_URL}" ] && [ -f repos/default ]; then
     REPO_URL=$(cat repos/default);
-    REPO_LOGIN=$(cat ${STATE_ROOT}/REPO_LOGIN 2>/dev/null || cat repos/default-login 2>/dev/null || echo)
-    REPO_CURL_OPTS=$(cat ${STATE_ROOT}/REPO_CURLOPTS 2>/dev/null || cat repos/default-curlopts 2>/dev/null || echo)
+    REPO_LOGIN=$(cat ${STATE_ROOT}/REPO_LOGIN 2>/dev/null || cat repos/default-login 2>/dev/null || echo);
+    REPO_CURL_OPTS=$(cat ${STATE_ROOT}/REPO_CURLOPTS 2>/dev/null || cat repos/default-curlopts 2>/dev/null || echo);
 fi;
 
 if [ -n "${DISTRO}" ]; then
@@ -265,4 +271,3 @@ elif ! git lfs status 2>/dev/null 1>/dev/null; then
 else
     unset GIT_NO_LFS
 fi;
-
