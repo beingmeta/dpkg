@@ -26,9 +26,7 @@ elif [ "$1" = update ]; then
     exit;
 fi;
 
-if [ -z "${PACKAGING_ROOT}" ]; then
-    . packaging.sh
-fi;
+. packaging.sh
 
 for opt in $@; do
     case ${opt} in

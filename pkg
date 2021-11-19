@@ -19,9 +19,12 @@ case $1 in
 	echo $3 > state/${upper};
 	exit;
 	;;
-    start|read|getsource|setsource)
-	./setsource $@;
-	exit;
+    *)
+	upper=$(echo $1 | tr [a-z] [A-Z]);
+	if [ -f state/${upper} ]; then
+	    cat state/${upper};
+	    exit;
+	fi;
 	;;
 esac;
 
@@ -31,9 +34,10 @@ if [ -f "sources/$1" ]; then
     elif [ "${curpkg}" != "$1" ]; then
 	. packaging.sh;
     fi;
+else
+    ACTION=$1; shift;
+    . packaging.sh;
 fi;
-
-ACTION=$1;
 
 if [ "${PKGNAME}" != "${curpkg}" ]; then
     ./setsource ${PKGNAME};
@@ -48,12 +52,12 @@ case ${ACTION} in
 	rpmtool ${curpkg} $@;
 	exit;
 	;;
-    prep|prepare|pkg|package|install|push)
-	${PKGTOOL} ${curpkg} ${ACTION} $@;
+    prep|prepare|pkg|package|install|push|make)
+	${PKGTOOL} ${ACTION} $@;
 	exit;
 	;;
     pkg|package)
-	${PKGTOOL} ${curpkg} ${ACTION} $@;
+	${PKGTOOL} ${ACTION} $@;
 	exit;
 	;;
 esac
