@@ -1,19 +1,19 @@
-Name:           kno-@PKG_NAME@
+Name:           @PKGNAME@
 Version:        @VERSION@
-Release:        @VERSION@%{?dist}
-Summary:        ODBC bindings for kno
+Release:        1%{?dist}
+Summary:        ODBC for kno
 
 Group:          System Environment/Libraries
 License:        GNU GPL
 URL:            http://www.beingmeta.com/
-Source0:        kno-@PKG_NAME@.tar
+Source0:        kno-@PKGNAME@.tar
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  libu8-devel kno-devel libexif-devel libqrencode-devel libpng-devel ImageMagick-devel
 Requires:       libu8 >= 3.0 kno >= 2106 qrencode-libs libexif libpng ImageMagick-libs 
 
 %description
-This provides modules for 
+This provides KNO wrappers for the Unix ODBC libraries
 
 %prep
 %setup -q

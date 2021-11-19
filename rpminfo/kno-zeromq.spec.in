@@ -1,19 +1,19 @@
-Name:           kno-@PKG_NAME@
+Name:           @PKGNAME@
 Version:        @VERSION@
-Release:        @VERSION@%{?dist}
+Release:        1%{?dist}
 Summary:        ODBC bindings for kno
 
 Group:          System Environment/Libraries
 License:        GNU GPL
 URL:            http://www.beingmeta.com/
-Source0:        kno-@PKG_NAME@.tar
+Source0:        kno-@PKGNAME@.tar
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:  libu8-devel kno-devel hyphen-devel
-Requires:       libu8 >= 3.0 kno >= 2106 hyphen
+BuildRequires:  libu8-devel curl-devel libldns-devel libffi-devel jemalloc-devel csnappy-devel libzstd-devel python3-devel zeromq-devel
+Requires:       libu8 >= 3.0 curl >= 7.15.1 ldns csnappy libffi libzstd zeromq
 
 %description
-This provides a KNO wrapper for the hyphenate library
+This provides ODBC bindings for the ZeroMQ library
 
 %prep
 %setup -q
@@ -35,7 +35,6 @@ rm -rf $RPM_BUILD_ROOT
 %postun -p /sbin/ldconfig
 
 %files
-%{_libdir}/kno/@PKG_NAME@.so*
-%{_datadir}/kno/data/hyph_en_US.dic
+%{_libdir}/kno/@PKGNAME@.so*
 %doc
 
