@@ -6,7 +6,7 @@ Summary:        ODBC bindings for kno
 Group:          System Environment/Libraries
 License:        GNU GPL
 URL:            http://www.beingmeta.com/
-Source0:        kno-@PKGNAME@.tar
+Source0:        @PKGNAME@-@VERSION@.tar
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  libu8-devel kno-devel
@@ -35,7 +35,7 @@ rm -rf $RPM_BUILD_ROOT
 %postun -p /sbin/ldconfig
 
 %files
-%{_libdir}/kno/@PKGNAME@.so*
+%{_libdir}/kno/ziptools.so*
 %{_datadir}/kno/modules/installed/gpath/ziptools.scm
 %doc
 
