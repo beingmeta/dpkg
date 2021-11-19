@@ -13,7 +13,7 @@ if [ "$1" = all ]; then
 	    \#*)
 		;;
 	    *)
-		./getsource ${pkg};
+		./setsource ${pkg};
 		;;
 	esac
     done;
@@ -93,8 +93,16 @@ elif [ -f ${srcdir}/etc/knomod_version ]; then
     ("cd" ${srcdir}; 
      MOD_VERSION=$(u8_gitversion etc/knomod_version);
      echo ${KNO_MAJOR}.${KNO_MINOR}.${MOD_VERSION} > ${STATE_ROOT}/VERSION;
-     echo $(u8_gitversion etc/base_version -full) > ${STATE_ROOT}/FULL_VERSION;
+     echo $(u8_gitversion etc/knomod_version -full) > ${STATE_ROOT}/FULL_VERSION;
      cp etc/knomod_version ${STATE_ROOT}/BASE_VERSION);
+fi;
+
+if [ -f ${srcdir}/dist/libname ]; then
+    LIBNAME=$(cat ${srcdir}/dist/libname);
+    echo ${LIBNAME} > ${STATE_ROOT}/LIBNAME;
+elif [ "${pkgname#kno-}" != "${pkgname}" ]; then
+    LIBNAME=${pkgname#kno-};
+    echo ${LIBNAME} > ${STATE_ROOT}/LIBNAME;
 fi;
 
 import_state;
@@ -106,11 +114,11 @@ if [ -x ${srcdir}/make_source_tar ]; then
 else 
     ("cd" ${srcdir}; git archive -o ../../${tarfile} HEAD );
     ("cd" state; tar -rf ../${tarfile} \
-        VERSION BASE_VERSION FULL_VERSION VERSION MAJOR_VERSION MINOR_VERSION);
+        VERSION BASE_VERSION FULL_VERSION VERSION);
 fi;
 
 echo PKG_NAME=${PKGNAME};
+echo BRANCH=${BRANCH};
 echo VERSION=${VERSION};
 echo BASE_VERSION=${BASE_VERSION};
 echo FULL_VERSION=${FULL_VERSION};
-echo BRANCH=${BRANCH};

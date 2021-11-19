@@ -19,8 +19,8 @@ case $1 in
 	echo $3 > state/${upper};
 	exit;
 	;;
-    start|read|getsource)
-	./getsource $@;
+    start|read|getsource|setsource)
+	./setsource $@;
 	exit;
 	;;
 esac;
@@ -36,7 +36,7 @@ fi;
 ACTION=$1;
 
 if [ "${PKGNAME}" != "${curpkg}" ]; then
-    ./getsource ${PKGNAME};
+    ./setsource ${PKGNAME};
 fi;
 
 case ${ACTION} in

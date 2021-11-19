@@ -128,8 +128,8 @@ cleanout() {
 }
 
 case ${ACTION} in
-    start|getsource|source)
-	getsource $*;
+    start|getsource|setsource|source)
+	setsource $*;
 	;;
     prep)
 	debprep $*;
@@ -146,7 +146,7 @@ case ${ACTION} in
 	ls -l output/${PKGNAME}/
 	;;
     make)
-	getsource ${PKGNAME} && debprep ${PKGNAME} && debpackage ${PKGNAME};
+	setsource ${PKGNAME} && debprep ${PKGNAME} && debpackage ${PKGNAME};
 	;;
     install)
 	debinstall $*;
@@ -155,7 +155,7 @@ case ${ACTION} in
 	debpush $*;
 	;;
     update)
-	./getsource ${PKGNAME} ${BRANCH}
+	./setsource ${PKGNAME} ${BRANCH}
 	;;
     clean)
 	rm -rf ${PKGNAME} ${PKGNAME}.tar;

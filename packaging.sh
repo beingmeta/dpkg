@@ -1,6 +1,6 @@
 #!/bin/sh
 
-export PACKAGING_ROOT STATE_ROOT PATH
+export PACKAGING_ROOT STATE_ROOT PATH LOGFILE LIBNAME
 export PKGNAME VERSION REL_VERSION BRANCH CHANNEL FULL_VERSION
 export BASE_VERSION MAJOR_VERSION MINOR_VERSION RELEASE_VERSION
 export KNO_VERSION KNO_MAJOR KNO_MINOR
@@ -21,7 +21,7 @@ mkpath () {
 	# starts with /
 	echo ${path};
     else
-	if [ ${root%/} == ${root} ]; then slash_root="${root}/"; echo "addslash" >&2; fi
+	if [ ${root%/} == ${root} ]; then slash_root="${root}/"; fi
 	if [ ${path#./} != ${path} ]; then path=${path#./}; fi;
 	if [ ${path#../} != ${path} ]; then
 	    path=${path#../};
@@ -161,6 +161,9 @@ import_state() {
 	CHANNEL=$(cat ${STATE_ROOT}/CHANNEL);
     else CHANNEL=;
     fi;
+    if [ -f ${dir}/LIBNAME ]; then
+	LIBNAME=$(cat ${dir}/LIBNAME);
+    fi;
     if [ -f ${dir}/STATUS ]; then
 	STATUS=$(cat ${dir}/STATUS);
     else STATUS=stable;
@@ -178,6 +181,16 @@ import_state() {
 }
 
 import_state;
+
+# Log files
+
+if [ -z "${LOGFILE}" ]; then
+    if [ -f defaults/${PKGNAME}.LOGFILE ]; then
+	LOGFILE=$(cat defaults/${PKGNAME}.LOGFILE);
+    elif [ -f defaults/LOGFILE ]; then
+	LOGFILE=$(cat defaults/LOGFILE);
+    fi;
+fi;
 
 # Information about KNO
 
