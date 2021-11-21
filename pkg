@@ -162,8 +162,12 @@ case ${ACTION} in
 	${PKGTOOL} prep && ${PKGTOOL} package && SUCCESS=yes;
 	pkg_done;
 	;;
-    make+)
+    make+|make+install)
 	${PKGTOOL} prep && ${PKGTOOL} package && ${PKGTOOL} install && SUCCESS=yes;
+	pkg_done;
+	;;
+    make++|make+install+push)
+	${PKGTOOL} prep && ${PKGTOOL} package && ${PKGTOOL} install && ${PKGTOOL} push && SUCCESS=yes;
 	pkg_done;
 	;;
 esac
