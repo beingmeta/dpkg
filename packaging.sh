@@ -220,10 +220,10 @@ else
 	release_type="$(lsb_release -s -i)";
 	case ${release_type} in
 	    Ubuntu|Debian)
-		PKGTOOL=debtool;
+		PKGTOOL=${PACKAGING_ROOT}/tools/debtool;
 		;;
 	    RHEL|CENTOS)
-		PKGTOOL=rpmtool;
+		PKGTOOL=${PACKAGING_ROOT}/tools/rpmtool;
 		;;
 	    *)
 		PKGTOOL=

@@ -94,7 +94,7 @@ debinstall() {
 debpush() {
     local head_package="output/${PKGNAME}/${PKGNAME}_${VERSION}*.deb";
     local sub_packages="$(ls output/${PKGNAME}/${PKGNAME}-*_${VERSION}*.deb 2>/dev/null)";
-    ./curlpush ${head_package} ${sub_packages};
+    tools/curlpush ${head_package} ${sub_packages};
 }
 
 debchangelog() {

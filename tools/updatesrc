@@ -1,0 +1,8 @@
+dir=$1
+branch=$2
+cd ${dir};
+git fetch;
+git checkout ${branch};
+git submodule update
+git lfs fetch
+git lfs checkout
