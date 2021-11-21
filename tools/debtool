@@ -16,10 +16,12 @@ else
     fi;
 fi;
 
+echo PKGNAME=${PKGNAME};
+
 DEBINFO=${PACKAGING_ROOT}/debinfo
 
 debprep() {
-    local workdir=${1:-${PKGNAME}}
+    local workdir=${1:-${PACKAGING_ROOT}/${PKGNAME}}
     if [ -d ${workdir} ]; then
 	logmsg "Removing existing build directory ${workdir}";
 	rm -rf ${workdir};
@@ -33,7 +35,7 @@ debprep() {
     fi;
     if [ -d ${workdir}/debian ]; then rm -rf ${workdir}/debian; fi
     mkdir ${workdir}/debian
-    logmsg "Setting up ${workir}/debian";
+    logmsg "Setting up ${workdir}/debian";
     ("cd" ${DEBINFO}/${PKGNAME};
      for file in *; do
 	 if [ ${file} != ${file%.ex} ]; then
@@ -42,7 +44,8 @@ debprep() {
 	 elif [ -d ${file} ]; then
 	     cp -r ${file} ../../${workdir}/debian;
 	 else
-	     u8_xsubst ${file} ../../${workdir}/debian/${file} \
+	     echo "Generating ../../${workdir}/debian/${file} from ${file}";
+	     tools/u8_xsubst ${file} ../../${workdir}/debian/${file} \
 		       "VERSION" "${VERSION}"              \
 		       "CHANNEL" "${CHANNEL}"                  \
 		       "BRANCH" "${BRANCH}"                    \

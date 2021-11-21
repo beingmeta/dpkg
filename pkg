@@ -90,7 +90,7 @@ case $1 in
 	varname=${1%=*};
 	valstring=${1#*=};
 	varname=$(echo ${varname} | tr [a-z] [A-Z]);
-	echo "Setting state ${varname} to$ '{valstring}'";
+	echo "Setting state ${varname} to ${valstring}";
 	echo ${valstring} > state/${varname};
 	exit;
 	;;
@@ -159,11 +159,11 @@ case ${ACTION} in
 	;;
     make)
 	done=
-	pkgtool prep && pkgtool package && SUCCESS=yes;
+	${PKGTOOL} prep && ${PKGTOOL} package && SUCCESS=yes;
 	pkg_done;
 	;;
     make+)
-	pkgtool prepd && pkgtool package && pkgtool install && SUCCESS=yes;
+	${PKGTOOL} prep && ${PKGTOOL} package && ${PKGTOOL} install && SUCCESS=yes;
 	pkg_done;
 	;;
 esac
