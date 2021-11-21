@@ -16,6 +16,8 @@ else
     fi;
 fi;
 
+DEBINFO=${PACKAGING_ROOT}/debinfo
+
 debprep() {
     local workdir=${1:-${PKGNAME}}
     if [ -d ${workdir} ]; then
@@ -32,7 +34,7 @@ debprep() {
     if [ -d ${workdir}/debian ]; then rm -rf ${workdir}/debian; fi
     mkdir ${workdir}/debian
     logmsg "Setting up ${workir}/debian";
-    ("cd" debinfo/${PKGNAME};
+    ("cd" ${DEBINFO}/${PKGNAME};
      for file in *; do
 	 if [ ${file} != ${file%.ex} ]; then
 	     # skip .ex files

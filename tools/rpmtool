@@ -14,6 +14,7 @@ else
     fi;
 fi;
 
+export RPMINFO=${PACKAGING_ROOT}/rpminfo
 export BUILDRPM=$(which rpmbuild)
 export RPMDIR=${PACKAGING_ROOT}/staging/
 export RPMFLAGS=
@@ -28,16 +29,16 @@ rpmprep() {
      fi) &&
 	(logmsg "Creating tarball ${tarball} for ${rpm_root}") &&
 	(rm -rf ${rpm_root}; mkdir ${rpm_root}; "cd" ${rpm_root}; tar xf ../${PKGNAME}.tar) &&
-	(if [ -f rpminfo/${PKGNAME}/${PKGNAME}.spec.in ]; then
-	     u8_xsubst rpminfo/${PKGNAME}/${PKGNAME}.spec.in ${rpm_root}/${PKGNAME}.spec \
+	(if [ -f ${RPMINFO}/${PKGNAME}/${PKGNAME}.spec.in ]; then
+	     u8_xsubst ${RPMINFO}/${PKGNAME}/${PKGNAME}.spec.in ${rpm_root}/${PKGNAME}.spec \
 		       "PKGNAME" "${PKGNAME}" \
 		       "LIBNAME" "${LIBNAME}" \
 		       "VERSION" "${VERSION}" \
 		       "MAJOR_VERSION" "${MAJOR_VERSION}" \
 		       "MINOR_VERSION" "${MINOR_VERSION}" \
      		       "RELEASE_VERSION" "${RELEASE_VERSION}";
-	 elif [ -f rpminfo/${PKGNAME}.spec.in ]; then
-	     u8_xsubst rpminfo/${PKGNAME}.spec.in ${rpm_root}/${PKGNAME}.spec \
+	 elif [ -f ${RPMINFO}/${PKGNAME}.spec.in ]; then
+	     u8_xsubst ${RPMINFO}/${PKGNAME}.spec.in ${rpm_root}/${PKGNAME}.spec \
 		       "PKGNAME" "${PKGNAME}" \
 		       "LIBNAME" "${LIBNAME}" \
 		       "VERSION" "${VERSION}" \
