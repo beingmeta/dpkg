@@ -5,20 +5,6 @@ if [ -f state/PKGNAME ]; then
 fi;
 
 case $1 in
-    get|geti)
-	upper=$(echo $2 | tr [a-z] [A-Z]);
-	if [ -f state/${upper} ]; then
-	    cat state/${upper};
-	elif [ "$1" = geti ]; then
-	    echo "No value for ${upper}";
-	fi;
-	exit;
-	;;
-    set)
-	upper=$(echo $2 | tr [a-z] [A-Z]);
-	echo $3 > state/${upper};
-	exit;
-	;;
     start|source)
 	if [ -n "$2" ]; then
 	    ./setsource $2;
@@ -42,6 +28,23 @@ case $1 in
 		fi;
 	    done;
 	fi;
+	exit;
+	;;
+    forall)
+	op=$2; shift; shift;
+	if [ $# -eq 0 ]; then
+	    for src in sources/*; do
+		name=$(basename ${src});
+		if [ "${name%~}" = "${name}" ]; then pkg ${op} ${name}; fi;
+	    done;
+	else
+	    for src in $@; do
+		if [ -f "sources/${src}" ]; then
+		    pkg ${op} ${src};
+		else echo "Not a known package: ${src}";
+		fi;
+	    done;
+	fi;	
 	exit;
 	;;
     update)
