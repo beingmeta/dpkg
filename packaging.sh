@@ -21,7 +21,7 @@ mkpath () {
 	# starts with /
 	echo ${path};
     else
-	if [ ${root%/} == ${root} ]; then slash_root="${root}/"; fi
+	if [ ${root%/} = ${root} ]; then slash_root="${root}/"; fi
 	if [ ${path#./} != ${path} ]; then path=${path#./}; fi;
 	if [ ${path#../} != ${path} ]; then
 	    path=${path#../};
@@ -72,7 +72,7 @@ if [ $# -gt 0 ]  && [ -z "${NO_PKGNAME}" ]; then
 	if [ ! -f ${STATE_ROOT}/PKGNAME ]; then
 	    curpkg=$(cat ${STATE_ROOT}/PKGNAME);
 	else curpkg=; fi
-	if [ "${curpkg}" == "${pkgname}" ]; then
+	if [ "${curpkg}" = "${pkgname}" ]; then
 	    PKGNAME=${curpkg};
 	else
 	    if [ -z "${curpkg}" ]; then
