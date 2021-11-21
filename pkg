@@ -32,7 +32,7 @@ case $1 in
 	if [ $# -eq 1 ]; then
 	    for src in sources/*; do
 		name=$(basename ${src});
-		if [ "${name%~}" != "${name}" ]; then ./setsource ${name}; fi;
+		if [ "${name%~}" = "${name}" ]; then ./setsource ${name}; fi;
 	    done;
 	else
 	    for src in $@; do
@@ -48,7 +48,7 @@ case $1 in
 	if [ $# -eq 1 ]; then
 	    for src in sources/*; do
 		name=$(basename ${src});
-		if [ "${name%~}" != "${name}" ]; then ./setsource ${name}; fi;
+		if [ "${name%~}" = "${name}" ]; then ./setsource ${name}; fi;
 	    done;
 	else
 	    for src in $@; do
