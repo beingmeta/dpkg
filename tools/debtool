@@ -16,8 +16,6 @@ else
     fi;
 fi;
 
-echo PKGNAME=${PKGNAME};
-
 DEBINFO=${PACKAGING_ROOT}/debinfo
 
 debprep() {

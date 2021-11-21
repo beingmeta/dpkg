@@ -77,9 +77,7 @@ if [ $# -gt 0 ]  && [ -z "${NO_PKGNAME}" ]; then
 	if [ "${curpkg}" = "${pkgname}" ]; then
 	    PKGNAME=${curpkg};
 	else
-	    if [ -z "${curpkg}" ]; then
-		echo "Building ${pkgname}";
-	    else
+	    if [ -n "${curpkg}" ]; then
 		echo "Switching from ${curpkg} to ${pkgname}";
 	    fi;
 	    PKGNAME=${pkgname};
@@ -283,6 +281,14 @@ if [ -z "${REPO_URL}" ] && [ -f repos/default ]; then
     REPO_CURL_OPTS=$(cat ${STATE_ROOT}/REPO_CURLOPTS 2>/dev/null || cat repos/default-curlopts 2>/dev/null || echo);
 fi;
 
+if [ -n "${REPO_URL}" ] && [ -f "repos/${REPO_URL}" ]; then
+    REPO_URL=$(cat "repos/${REPO_URL}");
+fi;
+
+if [ -n "${REPO_LOGIN}" ] && [ -f "repos/${REPO_LOGIN}" ]; then
+    REPO_LOGIN=$(cat "repos/${REPO_LOGIN}");
+fi;
+
 if [ -n "${DISTRO}" ]; then
     REPO_URL=$(echo ${REPO_URL} | sed - -e "s/@DISTRO@/-${DISTRO}/");
 else
@@ -294,6 +300,11 @@ if [ -n "${CHANNEL}" ]; then
 else
     REPO_URL=$(echo ${REPO_URL} | sed - -e "s/@CHANNEL@//");
 fi;
+
+if [ -n "${REPO_URL}" ]; then echo "${REPO_URL}" > ${STATE_ROOT}/REPO_URL; fi
+if [ -n "${REPO_OPTS}" ]; then echo "${REPO_OPTS}" > ${STATE_ROOT}/REPO_OPTS; fi
+if [ -n "${REPO_LOGIN}" ]; then echo "${REPO_LOGIN}" > ${STATE_ROOT}/REPO_LOGIN; fi
+
 
 if [ -f ${STATE_ROOT}/OUTDIR ]; then OUTDIR=$(cat ${STATE_ROOT}/OUTDIR); fi;
 
