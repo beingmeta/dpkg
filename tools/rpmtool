@@ -1,0 +1,132 @@
+#!/bin/sh
+
+ACTION=$1; shift;
+
+if [ -f packaging.sh ]; then
+    . packaging.sh
+else
+    script_root=$(dirname $0);
+    if [ -f ${script_root}/packaging.sh ]; then
+	. ${script_root}/packaging.sh;
+    else
+	echo "Can't find packaging.sh init";
+	exit 2;
+    fi;
+fi;
+
+export BUILDRPM=$(which rpmbuild)
+export RPMDIR=${PACKAGING_ROOT}/staging/
+export RPMFLAGS=
+
+rpmprep() {
+    local workdir=${1:-${PKGNAME}}
+    local tarball="${PKGNAME}-${VERSION}.tar.gz"
+    local rpm_root="${PKGNAME}-${VERSION}";
+    (if [ -d ${workdir} ]; then
+	 logmsg "Removing existing build directory ${workdir}";
+	 rm -rf ${workdir};
+     fi) &&
+	(logmsg "Creating tarball ${tarball} for ${rpm_root}") &&
+	(rm -rf ${rpm_root}; mkdir ${rpm_root}; "cd" ${rpm_root}; tar xf ../${PKGNAME}.tar) &&
+	(if [ -f rpminfo/${PKGNAME}/${PKGNAME}.spec.in ]; then
+	     u8_xsubst rpminfo/${PKGNAME}/${PKGNAME}.spec.in ${rpm_root}/${PKGNAME}.spec \
+		       "PKGNAME" "${PKGNAME}" \
+		       "LIBNAME" "${LIBNAME}" \
+		       "VERSION" "${VERSION}" \
+		       "MAJOR_VERSION" "${MAJOR_VERSION}" \
+		       "MINOR_VERSION" "${MINOR_VERSION}" \
+     		       "RELEASE_VERSION" "${RELEASE_VERSION}";
+	 elif [ -f rpminfo/${PKGNAME}.spec.in ]; then
+	     u8_xsubst rpminfo/${PKGNAME}.spec.in ${rpm_root}/${PKGNAME}.spec \
+		       "PKGNAME" "${PKGNAME}" \
+		       "LIBNAME" "${LIBNAME}" \
+		       "VERSION" "${VERSION}" \
+		       "MAJOR_VERSION" "${MAJOR_VERSION}" \
+		       "MINOR_VERSION" "${MINOR_VERSION}" \
+     		       "RELEASE_VERSION" "${RELEASE_VERSION}";
+	 else
+	     echo "No RPM info for ${PKGNAME}";
+	     exit;
+	 fi) &&
+	(tar cf ${tarball} ${rpm_root}) &&
+	(logmsg "Establishing workdir ${workdir}") &&
+	(mv ${rpm_root} ${workdir}); 
+}
+
+rpmpackage() {
+    local workdir=${1:-${PKGNAME}};
+    local staging_dir="${RPMDIR}";
+    local arch_dir=$(mkpath "${staging_dir}" "${ARCH}");
+    local output_dir=$(mkpath "output" "${PKGNAME}");
+    ("cd" ${workdir};
+     ${BUILDRPM} ${RPMFLAGS} \
+		 --define="_rpmdir ${RPMDIR}" \
+		 --define="_srcrpmdir ${RPMDIR}" \
+		 --nodeps -ta ../${PKGNAME}-${VERSION}.tar.gz) &&
+	(if [ -n "${GPGID}" ]; then
+	     rpm --addsign --define="_gpg_name ${GPGID}" \
+		 --define="__gpg_sign_cmd ${RPMGPG}" \
+		 ${RPMDIR}/${PKGNAME}-${VERSION}*.src.rpm \
+		 ${arch_dir}/${PKGNAME}*-${VERSION}*.${ARCH}.rpm;
+	 fi) &&
+	(touch ${output_dir}/rpm.done) &&
+	(mv ${RPMDIR}/${PKGNAME}-${VERSION}*.src.rpm ${output_dir}) &&
+	(mv ${arch_dir}/${PKGNAME}*-${VERSION}*.${ARCH}.rpm ${output_dir})
+}
+rpminstall() {
+    local packages="$(ls output/${PKGNAME}/${PKGNAME}*-${VERSION}*.${ARCH}.rpm 2>/dev/null)";
+    sudo rpm -Uvh ${packages};
+}
+rpminstallsrc() {
+    local packages="$(ls output/${PKGNAME}/${PKGNAME}-*-${VERSION}*.${ARCH}.rpm 2>/dev/null)";
+    sudo rpm -Uvh output/${PKGNAME}/${PKGNAME}-${VERSION}*.src.rpm
+}
+
+rpmpush() {
+    local head_package="output/${PKGNAME}/${PKGNAME}_${VERSION}*.deb";
+    local sub_packages="$(ls output/${PKGNAME}/${PKGNAME}-*_${VERSION}*.deb 2>/dev/null)";
+    ./curlpush ${head_package} ${sub_packages};
+}
+
+case ${ACTION} in
+    start|getsource|source|setsource)
+	./setsource $*;
+	;;
+    prep)
+	rpmprep $*;
+	;;
+    package|pkg|mkpkg|makepkg)
+	if [ "${LOGFILE}" = none ]; then
+	    rpmpackage $@;
+	elif [ -n "${LOGFILE}" ]; then
+	    rpmpackage $* > ${LOGFILE};
+	else
+	    rm -f output/${PKGNAME}/LOG
+	    rpmpackage $* 1> output/${PKGNAME}/LOG 2> output/${PKGNAME}/LOG;
+	fi;
+	if [ -f output/${PKGNAME}/rpm.done ]; then
+	    ls -l output/${PKGNAME}/
+	else
+	    echo "Error: Packaging failed!";
+	    exit 2;
+	fi;
+	;;
+    make)
+	./setsource ${PKGNAME} && rpmprep ${PKGNAME} && rpmpackage ${PKGNAME};
+	;;
+    install)
+	rpminstall $*;
+	;;
+    push)
+	rpmpush $*;
+	;;
+    update)
+	./setsource ${PKGNAME} ${BRANCH}
+	;;
+    clean)
+	rm -rf ${PKGNAME} ${PKGNAME}.tar;
+	;;
+    *)
+	logmsg "Unknown command '${ACTION}'";
+	;;
+esac

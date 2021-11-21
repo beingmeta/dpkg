@@ -94,24 +94,6 @@ if [ $# -gt 0 ]  && [ -z "${NO_PKGNAME}" ]; then
     fi;
 fi;
 
-# These are used to probe for specific settings
-PROBES=
-push_probe() {
-    local probe=$1
-    if [ -n "${probe}" ] &&
-	   [ "${probe}" = "${probe%.}" ] &&
-	   [ "${probe}" = "${probe%..*}" ]; then
-	if [ -z "${PROBES}" ]; then
-	    PROBES="${probe}";
-	else PROBES="${probe} ${PROBES}";
-	fi;
-    fi;
-}
-push_probe "${PKGNAME}";
-push_probe "${PKGNAME}.${DISTRO}.${CHANNEL}";
-push_probe "${PKGNAME}.${CHANNEL}";
-push_probe "${PKGNAME}.${DISTRO}";
-
 # This is all information which should come from getsource
 
 get_state() {
@@ -159,6 +141,10 @@ import_state() {
     fi;
     if [ -f ${STATE_ROOT}/CHANNEL ]; then
 	CHANNEL=$(cat ${STATE_ROOT}/CHANNEL);
+    elif [ "${BRANCH}" != "${BRANCH%-test}" ]; then
+	CHANNEL="${BRANCH%-test}";
+    elif [ "${BRANCH}" = "edge" ] || [ "${BRANCH}" = "prod" ] || [ "${BRANCH}" = "LTS" ]; then
+	CHANNEL="${BRANCH}";
     else CHANNEL=;
     fi;
     if [ -f ${dir}/LIBNAME ]; then
@@ -179,8 +165,26 @@ import_state() {
     CODENAME=${DISTRO};
     if [ -n "${CHANNEL}" ]; then CODENAME=${CODENAME}-${CHANNEL}; fi;
 }
-
 import_state;
+
+
+# These are used to probe for specific settings
+PROBES=
+push_probe() {
+    local probe=$1
+    if [ -n "${probe}" ] &&
+	   [ "${probe}" = "${probe%.}" ] &&
+	   [ "${probe}" = "${probe%..*}" ]; then
+	if [ -z "${PROBES}" ]; then
+	    PROBES="${probe}";
+	else PROBES="${probe} ${PROBES}";
+	fi;
+    fi;
+}
+push_probe "${PKGNAME}";
+push_probe "${PKGNAME}.${DISTRO}.${CHANNEL}";
+push_probe "${PKGNAME}.${CHANNEL}";
+push_probe "${PKGNAME}.${DISTRO}";
 
 # Log files
 
@@ -222,7 +226,7 @@ else
 	    Ubuntu|Debian)
 		PKGTOOL=${PACKAGING_ROOT}/tools/debtool;
 		;;
-	    RHEL|CENTOS)
+	    Fedora|RHEL|CENTOS)
 		PKGTOOL=${PACKAGING_ROOT}/tools/rpmtool;
 		;;
 	    *)

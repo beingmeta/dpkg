@@ -19,18 +19,79 @@ case $1 in
 	echo $3 > state/${upper};
 	exit;
 	;;
+    start|source)
+	if [ -n "$2" ]; then
+	    ./setsource $2;
+	    exit;
+	else
+	    echo "Usage: pkg start *pkgname*";
+	    exit;
+	fi;
+	;;
     setup)
-	for dir in sources/*; do
-	    name=$(basename ${dir});
-	    if [ "${name%~}" != "${name}" ]; then ./setsource ${name}; fi;
-	done;
+	if [ $# = 1 ]; then
+	    for src in sources/*; do
+		name=$(basename ${src});
+		if [ "${name%~}" != "${name}" ]; then ./setsource ${name}; fi;
+	    done;
+	else
+	    for src in $@; do
+		if [ -f "sources/${src}" ]; then
+		    ./setsource ${src};
+		else echo "Not a known package: ${src}";
+		fi;
+	    done;
+	fi;
 	exit;
 	;;
     update)
-	for dir in src/*; do
-	    name=$(dirname ${dir});
-	    setsource ${name};
-	done;
+	if [ $# = 1 ]; then
+	    for src in sources/*; do
+		name=$(basename ${src});
+		if [ "${name%~}" != "${name}" ]; then ./setsource ${name}; fi;
+	    done;
+	else
+	    for src in $@; do
+		if [ -f "sources/${src}" ]; then
+		    ./setsource ${src};
+		else echo "Not a known package: ${src}";
+		fi;
+	    done;
+	fi;	
+	exit;
+	;;
+    cleanup)
+	if [ $# -eq 1 ]; then
+	    for src in sources/*; do
+		name=$(basename ${src});
+		if [ "${name%~}" = "${name}" ]; then
+		    files=$(ls ${name}*.tar ${name}*.tar.gz 2>/dev/null);
+		    if [ -n "${files}" ]; then 
+			echo "Removing ${files}"; 
+			rm ${files};
+		    fi;
+		fi;
+	    done;
+	else
+	    for name in $@; do
+		if [ -f "sources/${name}" ]; then
+		    files=$(ls ${name}*.tar ${name}*.tar.gz 2>/dev/null);
+		    if [ -n "${files}" ]; then 
+			echo "Removing ${files}"; 
+			rm ${files};
+		    fi;
+		else echo "Not a known package: ${name}";
+		fi;
+	    done;
+	fi;	
+	exit;
+	;;
+    *=*)
+	varname=${1%=*};
+	valstring=${1#*=};
+	varname=$(echo ${varname} | tr [a-z] [A-Z]);
+	echo "Setting state ${varname} to$ '{valstring}'";
+	echo ${valstring} > state/${varname};
 	exit;
 	;;
     *)
@@ -57,22 +118,53 @@ if [ "${PKGNAME}" != "${curpkg}" ]; then
     ./setsource ${PKGNAME};
 fi;
 
+export SUCCESS;
+
+pkg_done() {
+    if  [ -z "${SUCCESS}" ]; then
+	echo "Failed '${ACTION}' for ${PKGNAME}";
+    else
+	echo "Success with '${ACTION}' for ${PKGNAME}";
+    fi;
+    exit;
+}
+
+if [ -z "${PKGTOOL}" ]; then
+    case ${ACTION} in
+	deb|debian|rpm|redhat)
+	;;
+	*)
+	    echo "Couldn't determine package tool!";
+	    exit;
+	    ;;
+    esac;
+fi;
+
 case ${ACTION} in
     deb|debian)
-	debtool ${curpkg} $@;
-	exit;
+	debtool ${curpkg} $@ && SUCCESS=yes;
+	pkg_done;
 	;;
     rpm|redhat)
-	rpmtool ${curpkg} $@;
-	exit;
+	rpmtool ${curpkg} $@ && SUCCESS=yes;
+	pkg_done;
 	;;
     prep|prepare|pkg|package|install|push|make)
-	${PKGTOOL} ${ACTION} $@;
-	exit;
+	${PKGTOOL} ${ACTION} $@  $@ && SUCCESS=yes;
+	pkg_done;
 	;;
     pkg|package)
-	${PKGTOOL} ${ACTION} $@;
-	exit;
+	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
+	pkg_done;
+	;;
+    make)
+	done=
+	pkgtool prep && pkgtool package && SUCCESS=yes;
+	pkg_done;
+	;;
+    make+)
+	pkgtool prepd && pkgtool package && pkgtool install && SUCCESS=yes;
+	pkg_done;
 	;;
 esac
    
