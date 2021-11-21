@@ -3,7 +3,7 @@
 ACTION=$1; shift;
 
 if [ -f packaging.sh ]; then
-    . packaging.sh
+    . ./packaging.sh
 else
     script_root=$(dirname $0);
     if [ -f ${script_root}/packaging.sh ]; then

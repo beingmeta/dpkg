@@ -4,7 +4,7 @@ logmsg () {
     echo "pkg: $1" >&2;
 }
 
-. packaging.sh
+. ./packaging.sh
 
 for opt in $@; do
     case ${opt} in
