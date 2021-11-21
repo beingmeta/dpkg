@@ -4,28 +4,6 @@ logmsg () {
     echo "pkg: $1" >&2;
 }
 
-if [ "$1" = all ]; then
-    for dir in sources/*; do
-	pkg=$(basename ${dir});
-	case $pkg in
-	    *~)
-		;;
-	    \#*)
-		;;
-	    *)
-		./setsource ${pkg};
-		;;
-	esac
-    done;
-    exit;
-elif [ "$1" = update ]; then
-    for dir in src/*; do
-	if [ -d ${dir}/.git ]; then
-	    (cd $dir; git pull; git submodule update; git lfs update);fi;
-    done;
-    exit;
-fi;
-
 . packaging.sh
 
 for opt in $@; do

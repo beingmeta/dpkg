@@ -19,6 +19,20 @@ case $1 in
 	echo $3 > state/${upper};
 	exit;
 	;;
+    setup)
+	for dir in sources/*; do
+	    name=$(basename ${dir});
+	    if [ "${name%~}" != "${name}" ]; then ./setsource ${name}; fi;
+	done;
+	exit;
+	;;
+    update)
+	for dir in src/*; do
+	    name=$(dirname ${dir});
+	    setsource ${name};
+	done;
+	exit;
+	;;
     *)
 	upper=$(echo $1 | tr [a-z] [A-Z]);
 	if [ -f state/${upper} ]; then
