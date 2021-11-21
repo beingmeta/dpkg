@@ -129,7 +129,7 @@ cleanout() {
 
 case ${ACTION} in
     start|getsource|setsource|source)
-	setsource $*;
+	./setsource $*;
 	;;
     prep)
 	debprep $*;
@@ -146,7 +146,7 @@ case ${ACTION} in
 	ls -l output/${PKGNAME}/
 	;;
     make)
-	setsource ${PKGNAME} && debprep ${PKGNAME} && debpackage ${PKGNAME};
+	./setsource ${PKGNAME} && debprep ${PKGNAME} && debpackage ${PKGNAME};
 	;;
     install)
 	debinstall $*;
