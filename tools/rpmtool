@@ -30,7 +30,7 @@ rpmprep() {
 	(logmsg "Creating tarball ${tarball} for ${rpm_root}") &&
 	(rm -rf ${rpm_root}; mkdir ${rpm_root}; "cd" ${rpm_root}; tar xf ../${PKGNAME}.tar) &&
 	(if [ -f ${RPMINFO}/${PKGNAME}/${PKGNAME}.spec.in ]; then
-	     tools/u8_xsubst ${RPMINFO}/${PKGNAME}/${PKGNAME}.spec.in ${rpm_root}/${PKGNAME}.spec \
+	     ${TOOLS}/u8_xsubst ${RPMINFO}/${PKGNAME}/${PKGNAME}.spec.in ${rpm_root}/${PKGNAME}.spec \
 		       "PKGNAME" "${PKGNAME}" \
 		       "LIBNAME" "${LIBNAME}" \
 		       "VERSION" "${VERSION}" \
@@ -38,7 +38,7 @@ rpmprep() {
 		       "MINOR_VERSION" "${MINOR_VERSION}" \
      		       "RELEASE_VERSION" "${RELEASE_VERSION}";
 	 elif [ -f ${RPMINFO}/${PKGNAME}.spec.in ]; then
-	     tools/u8_xsubst ${RPMINFO}/${PKGNAME}.spec.in ${rpm_root}/${PKGNAME}.spec \
+	     ${TOOLS}/u8_xsubst ${RPMINFO}/${PKGNAME}.spec.in ${rpm_root}/${PKGNAME}.spec \
 		       "PKGNAME" "${PKGNAME}" \
 		       "LIBNAME" "${LIBNAME}" \
 		       "VERSION" "${VERSION}" \

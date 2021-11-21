@@ -45,7 +45,7 @@ debprep() {
 	     cp -r ${file} ../../${workdir}/debian;
 	 else
 	     echo "Generating ../../${workdir}/debian/${file} from ${file}";
-	     tools/u8_xsubst ${file} ../../${workdir}/debian/${file} \
+	     ${TOOLS}/u8_xsubst ${file} ../../${workdir}/debian/${file} \
 		       "VERSION" "${VERSION}"              \
 		       "CHANNEL" "${CHANNEL}"                  \
 		       "BRANCH" "${BRANCH}"                    \
@@ -99,7 +99,7 @@ debinstall() {
 debpush() {
     local head_package="output/${PKGNAME}/${PKGNAME}_${VERSION}*.deb";
     local sub_packages="$(ls output/${PKGNAME}/${PKGNAME}-*_${VERSION}*.deb 2>/dev/null)";
-    tools/curlpush ${head_package} ${sub_packages};
+    ${TOOLS}/curlpush ${head_package} ${sub_packages};
 }
 
 debchangelog() {
