@@ -7,7 +7,7 @@
 
 export NO_PKGNAME=yes
 
-. packaging.sh
+. ./packaging.sh
 
 FILES=
 PUSH_URL=${REPO_URL}
@@ -39,9 +39,16 @@ done;
 CURLOPTS=${REPO_CURLOPTS}
 
 for file in ${FILES}; do \
-    if [ -z "${PUSH_LOGIN}" ]; then
-	${DEBUG_CURLPUSH} ${CURL} ${CURLOPTS} -H "Content-Type: multipart/form-data" --data-binary "@${file}" ${PUSH_URL};
+    done=no
+    (if [ -z "${PUSH_LOGIN}" ]; then
+	 ${DEBUG_CURLPUSH} ${CURL} ${CURLOPTS} -H "Content-Type: multipart/form-data" --data-binary "@${file}" ${PUSH_URL};
+     else
+	 ${DEBUG_CURLPUSH} ${CURL} -u "${PUSH_LOGIN}" ${CURLOPTS} -H "Content-Type: multipart/form-data" --data-binary "@${file}" ${PUSH_URL};
+     fi) && done='yes';
+    if [ "${done}" = yes ]; then
+	echo "## Successfully pushed ${file} to ${PUSH_URL}" >&2;
     else
-	${DEBUG_CURLPUSH} ${CURL} -u "${PUSH_LOGIN}" ${CURLOPTS} -H "Content-Type: multipart/form-data" --data-binary "@${file}" ${PUSH_URL};
-	fi;
+	echo "## Failed to push ${file} to ${PUSH_URL}" >&2;
+	exit 2;
+    fi;
 done;

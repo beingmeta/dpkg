@@ -19,7 +19,7 @@ fi;
 DEBINFO=${PACKAGING_ROOT}/debinfo
 
 debprep() {
-    local workdir=${1:-${PACKAGING_ROOT}/${PKGNAME}}
+    local workdir=${1:-${PKGNAME}}
     if [ -d ${workdir} ]; then
 	logmsg "Removing existing build directory ${workdir}";
 	rm -rf ${workdir};
@@ -57,7 +57,7 @@ debprep() {
 		       "MAJOR_VERSION" "${MAJOR_VERSION}";
 	 fi;
      done);
-    for custom in ${workdir}/debian/*.${DISTRO}; do
+    for custom in ${workdir}/debian/*.${DISTRO} ${workdir}/debian/*.${CHANNEL}; do
 	if [ -f ${custom} ]; then
 	    base=$(basename ${custom});
 	    mv ${custom} ${workdir}/debian/${base};
