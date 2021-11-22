@@ -13,6 +13,9 @@ logmsg () {
     echo "pkg: $1" >&2;
 }
 
+export SUDO
+if [ "$(id -u)" != "0" ]; then SUDO=sudo; fi;
+
 mkpath () {
     local root=$1;
     local path=$2;

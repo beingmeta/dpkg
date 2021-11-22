@@ -44,7 +44,7 @@ debprep() {
 	 elif [ "${file%.prop}" != "${file}" ]; then
 	     :;
 	 else
-	     echo "Generating ../../${workdir}/debian/${file} from ${file}" > output/${PKGNAME}/LOG;
+	     echo "Generating ../../${workdir}/debian/${file} from ${file}" > ../../output/${PKGNAME}/LOG;
 	     ${TOOLS}/u8_xsubst -q ${file} ../../${workdir}/debian/${file} \
 		       "VERSION" "${VERSION}"              \
 		       "CHANNEL" "${CHANNEL}"                  \
@@ -96,7 +96,7 @@ debinstall() {
     echo decl_packages=${decl_packages};
     if [ -z "${decl_packages}" ]; then 
 	head_package="output/${PKGNAME}/${PKGNAME}_${VERSION}*.deb";
-	install_packages="${head_package}$(ls output/${PKGNAME}/*-*_${VERSION}*.deb 2>/dev/null)";
+	install_packages="${head_package} $(ls output/${PKGNAME}/*-*_${VERSION}*.deb 2>/dev/null)";
     else
 	for package in ${decl_packages}; do
 	    match="$(ls output/${PKGNAME}/${package}_${VERSION}*.deb 2>/dev/null)";
@@ -106,7 +106,7 @@ debinstall() {
 	    fi;
 	done;
     fi;
-    sudo dpkg -i ${install_packages};
+    ${SUDO} dpkg -i ${install_packages};
 }
 
 debpush() {

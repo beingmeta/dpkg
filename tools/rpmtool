@@ -76,11 +76,11 @@ rpmpackage() {
 }
 rpminstall() {
     local packages="$(ls output/${PKGNAME}/${PKGNAME}*-${VERSION}*.${ARCH}.rpm 2>/dev/null)";
-    sudo rpm -Uvh ${packages};
+    ${SUDO} rpm -Uvh ${packages};
 }
 rpminstallsrc() {
     local packages="$(ls output/${PKGNAME}/${PKGNAME}-*-${VERSION}*.${ARCH}.rpm 2>/dev/null)";
-    sudo rpm -Uvh output/${PKGNAME}/${PKGNAME}-${VERSION}*.src.rpm
+    ${SUDO} rpm -Uvh output/${PKGNAME}/${PKGNAME}-${VERSION}*.src.rpm
 }
 
 rpmpush() {
