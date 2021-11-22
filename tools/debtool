@@ -2,7 +2,7 @@
 
 ACTION=$1; shift;
 
-DPKG_REVISION=1
+PKG_REVISION=1
 
 if [ -f packaging.sh ]; then
     . ./packaging.sh
@@ -44,8 +44,8 @@ debprep() {
 	 elif [ "${file%.prop}" != "${file}" ]; then
 	     :;
 	 else
-	     echo "Generating ../../${workdir}/debian/${file} from ${file}";
-	     ${TOOLS}/u8_xsubst ${file} ../../${workdir}/debian/${file} \
+	     echo "Generating ../../${workdir}/debian/${file} from ${file}" > output/${PKGNAME}/LOG;
+	     ${TOOLS}/u8_xsubst -q ${file} ../../${workdir}/debian/${file} \
 		       "VERSION" "${VERSION}"              \
 		       "CHANNEL" "${CHANNEL}"                  \
 		       "BRANCH" "${BRANCH}"                    \
