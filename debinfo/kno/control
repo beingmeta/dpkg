@@ -8,7 +8,7 @@ Homepage: http://www.kno.dev/
 
 Package: kno
 Architecture: any
-Depends: ${misc:Depends}, kno-core, kno-stdlib
+Depends: ${misc:Depends}, kno-core
 Description: Scalable knowledge base development and application platform
  Kno provides a robust and scalable object database especially
  designed and optimized for pointer-intensive semi-structured data based on

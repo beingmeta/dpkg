@@ -41,6 +41,8 @@ debprep() {
 	     :
 	 elif [ -d ${file} ]; then
 	     cp -r ${file} ../../${workdir}/debian;
+	 elif [ "${file%.prop}" != "${file}" ]; then
+	     :;
 	 else
 	     echo "Generating ../../${workdir}/debian/${file} from ${file}";
 	     ${TOOLS}/u8_xsubst ${file} ../../${workdir}/debian/${file} \
@@ -88,10 +90,23 @@ debpackage() {
 }
 
 debinstall() {
-    local head_package="output/${PKGNAME}/${PKGNAME}_${VERSION}*.deb";
-    local sub_packages="$(ls output/${PKGNAME}/${PKGNAME}-*_${VERSION}*.deb 2>/dev/null)";
-    (sudo dpkg -i ${head_package}) && 
-	(if [ -n "${sub_packages}" ]; then sudo dpkg -i ${sub_packages}; fi);
+    local decl_packages="$(cat debinfo/${PKGNAME}/install.prop 2>/dev/null)";
+    local head_package=""
+    local install_packages=""
+    echo decl_packages=${decl_packages};
+    if [ -z "${decl_packages}" ]; then 
+	head_package="output/${PKGNAME}/${PKGNAME}_${VERSION}*.deb";
+	install_packages="${head_package}$(ls output/${PKGNAME}/*-*_${VERSION}*.deb 2>/dev/null)";
+    else
+	for package in ${decl_packages}; do
+	    match="$(ls output/${PKGNAME}/${package}_${VERSION}*.deb 2>/dev/null)";
+	    if [ -n "${match}" ]; then
+		echo "Adding ${match}";
+		install_packages="${subpackages} ${match}";
+	    fi;
+	done;
+    fi;
+    sudo dpkg -i ${install_packages};
 }
 
 debpush() {
