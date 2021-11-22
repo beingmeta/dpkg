@@ -15,8 +15,10 @@ check_quiet() {
 	QUIET=yes; shift;
     fi;}
 
-check_quiet; INPUT=$1; shift;
-check_quiet; OUTPUT=$1; shift;
+if [ "$1" = "-q" ] || [ "$1" = "--quiet" ]; then QUIET=yes; shift; fi
+INPUT=$1; shift;
+if [ "$1" = "-q" ] || [ "$1" = "--quiet" ]; then QUIET=yes; shift; fi
+OUTPUT=$1; shift;
 
 if [ "${OUTPUT}" = "inplace" ] || [ "${OUTPUT}" = "-" ] || [ "${OUTPUT}" = "." ]; then
     OUTPUT=${INPUT};
