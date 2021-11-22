@@ -54,8 +54,8 @@ else ("cd" ${srcdir};
       fi;);
 fi
 
-KNO_MAJOR=$(knoconfig major);
-KNO_MINOR=$(knoconfig minor);
+if [ -z "${KNO_MAJOR}" ]; then KNO_MAJOR=$(knoconfig major); fi;
+if [ -z "${KNO_MINOR}" ]; then KNO_MINOR=$(knoconfig minor); fi;
 if [ -d ${srcdir}/.git ]; then
     BRANCH=$("cd" ${srcdir}; u8_gitbranch);
     echo ${BRANCH} > ${STATE_ROOT}/BRANCH;

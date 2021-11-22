@@ -202,6 +202,14 @@ if which knoconfig 2>/dev/null 1>/dev/null; then
     KNO_VERSION=$(knoconfig version);
     KNO_MAJOR=$(knoconfig major);
     KNO_MINOR=$(knoconfig minor);
+elif [ -d src/kno/.git ]; then
+    KNO_VERSION=$("cd" src/kno; u8_gitversion etc/base_version);
+    KNO_MAJOR=$(echo ${KNO_VERSION} | cut - -d'.' -f1);
+    KNO_MINOR=$(echo ${KNO_VERSION} | cut - -d'.' -f2);
+else
+    KNO_VERSION="2110.1.4";
+    KNO_MAJOR="2110;"
+    KNO_MINOR="1";
 fi;
 
 if [ -f ${STATE_ROOT}/GPGID ]; then
