@@ -37,7 +37,7 @@ case $1 in
 	    pkg ${op} kno;
 	    for src in sources/*; do
 		name=$(basename ${src});
-		if [ "${name}" = libu8 ] || [ "${name}" = kno ];
+		if [ "${name}" = libu8 ] || [ "${name}" = kno ]; then
 		   :;
 		elif [ "${name%~}" = "${name}" ]; then 
 		    pkg ${op} ${name};
