@@ -97,6 +97,24 @@ if [ $# -gt 0 ]  && [ -z "${NO_PKGNAME}" ]; then
     fi;
 fi;
 
+# Handle defaults from the environment
+
+if [ -n "${DEFAULT_REPO}" ]; then
+    echo ${DEFAULT_REPO} > repos/default;
+fi;
+
+if [ -n "${DEFAULT_LOGIN}" ]; then
+    echo ${DEFAULT_LOGIN} > repos/default-login;
+fi;
+
+if [ -n "${DEFAULT_BRANCH}" ]; then
+    echo ${DEFAULT_BRANCH} > defaults/BRANCH;
+fi;
+
+if [ -n "${DEFAULT_CHANNEL}" ]; then
+    echo ${DEFAULT_CHANNEL} > defaults/CHANNEL;
+fi;
+
 # This is all information which should come from getsource
 
 get_state() {
@@ -260,14 +278,6 @@ elif [ -f "defaults/REPOMAN" ]; then
     REPOMAN=$(cat "defaults/REPOMAN");
 else
     REPOMAN="Repository Manager <repoman@beingmeta.com>"
-fi;
-
-if [ -n "${DEFAULT_REPO}" ]; then
-    echo ${DEFAULT_REPO} > repos/default;
-fi;
-
-if [ -n "${DEFAULT_LOGIN}" ]; then
-    echo ${DEFAULT_LOGIN} > repos/default-login;
 fi;
 
 if [ -n "${REPO_URL}" ]; then

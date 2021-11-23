@@ -33,9 +33,15 @@ case $1 in
     forall)
 	op=$2; shift; shift;
 	if [ $# -eq 0 ]; then
+	    pkg ${op} libu8;
+	    pkg ${op} kno;
 	    for src in sources/*; do
 		name=$(basename ${src});
-		if [ "${name%~}" = "${name}" ]; then pkg ${op} ${name}; fi;
+		if [ "${name}" = libu8 ] || [ "${name}" = kno ];
+		   :;
+		elif [ "${name%~}" = "${name}" ]; then 
+		    pkg ${op} ${name};
+		fi;
 	    done;
 	else
 	    for src in $@; do
