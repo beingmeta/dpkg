@@ -97,16 +97,15 @@ debinstall() {
     if [ -z "${decl_packages}" ]; then 
 	head_package="output/${PKGNAME}/${PKGNAME}_${VERSION}*.deb";
 	install_packages="${head_package} $(ls output/${PKGNAME}/*-*_${VERSION}*.deb 2>/dev/null)";
+	${SUDO} dpkg -i ${install_packages};
     else
 	for package in ${decl_packages}; do
 	    match="$(ls output/${PKGNAME}/${package}_${VERSION}*.deb 2>/dev/null)";
 	    if [ -n "${match}" ]; then
-		echo "Adding ${match}";
-		install_packages="${subpackages} ${match}";
+		${SUDO} dpkg -i ${match}
 	    fi;
 	done;
     fi;
-    ${SUDO} dpkg -i ${install_packages};
 }
 
 debpush() {
