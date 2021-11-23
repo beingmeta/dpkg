@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# Update the packaging directory at least once
+if [ ! -f .updated ]; then
+    git pull && touch .updated;
+    exec $0 $*;
+fi;
+
 if [ -f state/PKGNAME ]; then
     curpkg=$(cat state/PKGNAME);
 fi;
@@ -17,8 +23,10 @@ case $1 in
     setup)
 	if [ $# -eq 1 ]; then
 	    for src in sources/*; do
-		name=$(basename ${src});
-		if [ "${name%~}" = "${name}" ]; then ./setsource ${name}; fi;
+		if [ -f ${src} ]; then
+		    name=$(basename ${src});
+		    if [ "${name%~}" = "${name}" ]; then ./setsource ${name}; fi;
+		fi;
 	    done;
 	else
 	    for src in $@; do
