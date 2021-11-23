@@ -36,7 +36,3 @@ Architecture: any
 Depends: ofsm
 Description: Lexical data for use by the beingmeta tagger
 
-Package: ofsm-lexsources
-Architecture: any
-Depends: ofsm
-Description: Scheme modules for developing new grammars and lexicons for the OFSM engine
