@@ -262,6 +262,10 @@ else
     REPOMAN="Repository Manager <repoman@beingmeta.com>"
 fi;
 
+if [ -n "${DEFAULT_LOGIN}" ]; then
+    echo ${DEFAULT_LOGIN} > repos/default-login;
+fi;
+
 if [ -n "${REPO_URL}" ]; then
     # If we already have an URL in the environment assume everything
     # else has been set appropriately
