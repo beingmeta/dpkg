@@ -262,6 +262,10 @@ else
     REPOMAN="Repository Manager <repoman@beingmeta.com>"
 fi;
 
+if [ -n "${DEFAULT_REPO}" ]; then
+    echo ${DEFAULT_REPO} > repos/default;
+fi;
+
 if [ -n "${DEFAULT_LOGIN}" ]; then
     echo ${DEFAULT_LOGIN} > repos/default-login;
 fi;
