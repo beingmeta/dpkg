@@ -17,6 +17,10 @@ else
 fi;
 
 DEBINFO=${PACKAGING_ROOT}/debinfo
+DPKGNAME=${PKGNAME}
+if [ -f ${DEBINFO}/${PKGNAME}/dpkgname.prop ]; then
+    DPKGNAME=$(cat ${DEBINFO}/${PKGNAME}/dpkgname.prop);
+fi
 
 debprep() {
     local workdir=${1:-${PKGNAME}}
@@ -81,7 +85,7 @@ debpackage() {
 	debsign --re-sign -k${GPGID} ${PKGNAME}_${VERSION}*.changes
     fi;
     rm -f ${output_dir}/FILES ${output_dir}/${PKGNAME}*;
-    local changes_file="$(ls ${PKGNAME}_${VERSION}*.changes)";
+    local changes_file="$(ls ${DPKGNAME}_${VERSION}*.changes)";
     grep "^ [0-9a-f]* [0-9]* [^ ]*$" ${changes_file} | \
     	cut - -d' ' -f 4 > ${output_dir}/FILES;
     for file in $(cat ${output_dir}/FILES); do
@@ -95,7 +99,7 @@ debinstall() {
     local install_packages=""
     echo decl_packages=${decl_packages};
     if [ -z "${decl_packages}" ]; then 
-	head_package="output/${PKGNAME}/${PKGNAME}_${VERSION}*.deb";
+	head_package="output/${PKGNAME}/${DPKGNAME}_${VERSION}*.deb";
 	install_packages="${head_package} $(ls output/${PKGNAME}/*-*_${VERSION}*.deb 2>/dev/null)";
 	${SUDO} dpkg -i ${install_packages};
     else
@@ -120,7 +124,7 @@ debchangelog() {
     if [ -z "${status_adj}" ]; then status_adj=normal; fi
 #    echo ${PKGNAME} \(${VERSION}-${DPKG_REVISION}-${CODENAME}\) ${codename} ${STATUS}\; urgency=${URGENCY}
 #    echo ${PKGNAME} \(${VERSION}-${CODENAME}\) ${codename} ${STATUS}\; urgency=${URGENCY}
-    echo ${PKGNAME} \(${VERSION}-${CODENAME}\) ${CODENAME} ${STATUS}\; urgency=${URGENCY}
+    echo ${DPKGNAME} \(${VERSION}-${CODENAME}\) ${CODENAME} ${STATUS}\; urgency=${URGENCY}
     echo
     echo "  * ${GITID} ${STATUSADJ} point release of ${PKGNAME} (branch '${BRANCH}') for ${CODENAME} (${FULL_VERSION})"
     echo
