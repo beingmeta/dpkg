@@ -93,6 +93,20 @@ debpackage() {
     mv ${changes_file} ${output_dir};
 }
 
+debcheck() {
+    local buildinfo=$(ls output/${PKGNAME}/${PKGNAME}_${VERSION}-${DISTRO}*.buildinfo 2>/dev/null);
+    if [ -z "${buildinfo}" ]; then
+	dbgmsg "No buildinfo found for output/${PKGNAME}/${PKGNAME}_${VERSION}-${DISTRO}...";
+	return 1;
+    elif [ -f "${buildinfo}" ]; then
+	dbgmsg "File ${buildinfo} found";
+	return 0;
+    else
+	dbgmsg "File ${buildinfo} not found";
+	return 1;
+    fi;
+}
+
 debinstall() {
     local decl_packages="$(cat debinfo/${PKGNAME}/install.prop 2>/dev/null)";
     local head_package=""
@@ -153,10 +167,15 @@ case ${ACTION} in
 	./setsource $*;
 	;;
     prep)
-	debprep $*;
+	if ! debcheck; then
+	    debprep $*;
+	fi;
 	;;
     package|pkg|mkpkg|makepkg)
-	if [ "${LOGFILE}" = none ]; then
+	if debcheck; then
+	    echo "Nothing to do";
+	    exit;
+	elif [ "${LOGFILE}" = none ]; then
 	    debpackage $@;
 	elif [ -n "${LOGFILE}" ]; then
 	    debpackage $* > ${LOGFILE};
@@ -167,22 +186,50 @@ case ${ACTION} in
 	ls -l output/${PKGNAME}/
 	;;
     make)
-	./setsource ${PKGNAME} && debprep ${PKGNAME} && debpackage ${PKGNAME};
+	if ! debcheck; then
+	    ./setsource ${PKGNAME} && debprep ${PKGNAME} && debpackage ${PKGNAME};
+	fi;
 	;;
     install)
-	debinstall $*;
+	INSTALLED=$(cat output/${PKGNAME}/INSTALLED 2>/dev/null||echo)
+	XVERSION="${VERSION}-${CHANNEL}"
+	if [ "${INSTALLED}" != "${XVERSION}" ]; then
+	    debinstall $* && echo ${XVERSION} > output/${PKGNAME}/INSTALLED;
+	fi;
 	;;
     push)
-	debpush $*;
+	PUSHED=$(cat output/${PKGNAME}/PUSHED 2>/dev/null||echo)
+	XVERSION="${VERSION}-${CHANNEL}"
+	if [ "${PUSHED}" != "${XVERSION}" ]; then
+	    debpush $* && echo ${XVERSION} > output/${PKGNAME}/PUSHED;
+	fi;
 	;;
     update)
-	./setsource ${PKGNAME} ${BRANCH}
+	${SUDO} apt upgrade ${PKGNAME};
+	APTVERSION=$(u8_aptversion ${PKGNAME});
+	if [ "${APTVERSION}" != "${VERSION}" ]; then
+	    ./setsource ${PKGNAME} && 
+		debprep ${PKGNAME} && 
+		debpackage ${PKGNAME} &&
+		debinstall ${PKGNAME} && 
+		debpush ${PKGNAME};
+	fi;
 	;;
     clean)
 	rm -rf ${PKGNAME} ${PKGNAME}.tar;
 	;;
+    cleanout)
+	cleanout;
+	;;
     saveout)
 	saveout $*;
+	;;
+    check)
+	if debcheck; then
+	    return 1;
+	else
+	    return 0;
+	fi;
 	;;
     *)
 	logmsg "Unknown command '${ACTION}'";

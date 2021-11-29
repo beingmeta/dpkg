@@ -13,6 +13,12 @@ logmsg () {
     echo "pkg: $1" >&2;
 }
 
+dbgmsg () {
+    if [ -n "${DEBUGGING}" ]; then
+	echo "pkg: $1" >&2;
+    fi;
+}
+
 export SUDO
 if [ "$(id -u)" != "0" ]; then SUDO=sudo; fi;
 

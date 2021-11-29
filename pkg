@@ -170,9 +170,29 @@ case ${ACTION} in
 	rpmtool ${curpkg} $@ && SUCCESS=yes;
 	pkg_done;
 	;;
-    prep|prepare|pkg|package|install|push|make)
-	${PKGTOOL} ${ACTION} $@  $@ && SUCCESS=yes;
+    prep|prepare|pkg|package|install|push|make|update)
+	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
 	pkg_done;
+	;;
+    check)
+	if ${PKGTOOL} check $@; then
+	    echo "Version ${VERSION} of ${PKGNAME} is up to date";
+	else
+	    echo "Version ${VERSION} of ${PKGNAME} needs to be built";
+	fi;
+	;;
+    check)
+	if ${PKGTOOL} check $@; then
+	    echo "Version ${VERSION} of ${PKGNAME} is up to date";
+	else
+	    echo "Version ${VERSION} of ${PKGNAME} needs to be built";
+	fi;
+	;;
+    cleanout)
+	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
+	("cd" output/${PKGNAME}; rm -f FILES INSTALLED PUSHED);
+	Echo "# Contents of output/${PKGNAME}";
+	ls -l output/${PKGNAME}
 	;;
     pkg|package)
 	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
