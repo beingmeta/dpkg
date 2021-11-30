@@ -116,7 +116,6 @@ debinstall() {
     local decl_packages="$(cat debinfo/${PKGNAME}/install.prop 2>/dev/null)";
     local head_package=""
     local install_packages=""
-    echo decl_packages=${decl_packages};
     if [ -z "${decl_packages}" ]; then 
 	head_package="output/${PKGNAME}/${DPKGNAME}_${VERSION}*.deb";
 	install_packages="${head_package} $(ls output/${PKGNAME}/*-*_${VERSION}*.deb 2>/dev/null)";
