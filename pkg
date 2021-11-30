@@ -107,6 +107,22 @@ case $1 in
 	fi;	
 	exit;
 	;;
+    default)
+	arg=$2
+	if [ "${arg%=*}" = "${arg}" ]; then
+	    arg=$(echo ${arg} | tr [a-z] [A-Z]);
+	    if [ -f defaults/${arg} ]; then
+		cat defaults/${arg};
+	    fi;
+	else
+	    varname=${2%=*};
+	    valstring=${2#*=};
+	    varname=$(echo ${varname} | tr [a-z] [A-Z]);
+	    echo "Setting default for ${varname} to ${valstring}";
+	    echo ${valstring} > state/${varname};
+	    exit;
+	fi;
+	;;
     *=*)
 	varname=${1%=*};
 	valstring=${1#*=};
