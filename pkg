@@ -139,10 +139,10 @@ if [ "${PKGNAME}" != "${curpkg}" ]; then
     ./setsource ${PKGNAME};
 fi;
 
-export SUCCESS;
+export SUCCESS
 
 pkg_done() {
-    if  [ -z "${SUCCESS}" ]; then
+    if [ -z "${SUCCESS}" ]; then
 	echo "Failed '${ACTION}' for ${PKGNAME}";
     else
 	echo "Success with '${ACTION}' for ${PKGNAME}";
@@ -181,17 +181,16 @@ case ${ACTION} in
 	    echo "Version ${VERSION} of ${PKGNAME} needs to be built";
 	fi;
 	;;
-    check)
-	if ${PKGTOOL} check $@; then
-	    echo "Version ${VERSION} of ${PKGNAME} is up to date";
-	else
-	    echo "Version ${VERSION} of ${PKGNAME} needs to be built";
-	fi;
-	;;
     cleanout)
 	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
 	("cd" output/${PKGNAME}; rm -f FILES INSTALLED PUSHED);
-	Echo "# Contents of output/${PKGNAME}";
+	echo "# Contents of output/${PKGNAME}";
+	ls -l output/${PKGNAME}
+	;;
+    cleanall)
+	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
+	("cd" output/${PKGNAME}; rm -f FILES INSTALLED PUSHED);
+	echo "# Contents of output/${PKGNAME}";
 	ls -l output/${PKGNAME}
 	;;
     pkg|package)

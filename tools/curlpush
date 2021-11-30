@@ -26,6 +26,20 @@ for arg in $*; do
 	*:*)
 	    PUSH_LOGIN=${arg};
 	    ;;
+	repo=*)
+	    repo=${arg%repo=};
+	    if [ -f repos/${repo} ]; then
+		PUSH_URL=$(cat repos/${repo});
+		if [ -f repos/${repo}.login ]; then
+		    PUSH_LOGIN=$(cat repos/${repo}.login);
+		fi;
+	    else
+		PUSH_URL=${repo};
+	    fi;
+	    ;;
+	login=*)
+	    PUSH_LOGIN=${arg%repo=};
+	    ;;
 	*)
 	    if [ -z "${FILES}" ]; then
 		FILES="${arg}";

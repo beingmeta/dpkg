@@ -63,12 +63,17 @@ debprep() {
 		       "MAJOR_VERSION" "${MAJOR_VERSION}";
 	 fi;
      done);
-    for custom in ${workdir}/debian/*.${DISTRO} ${workdir}/debian/*.${CHANNEL}; do
-	if [ -f ${custom} ]; then
-	    base=$(basename ${custom});
-	    mv ${custom} ${workdir}/debian/${base};
-	    rm ${workdir}/debian/${base}.*;
-	fi;
+    for suffix in ${DISTRO}.${CHANNEL} ${DISTRO} ${CHANNEL}; do
+	for custom in ${workdir}/debian/*.${suffix}; do
+	    if [ -f ${custom} ]; then
+		base=$(basename ${custom});
+		base=${base%.${suffix}};
+		dbgmsg "Using custom file ${custom} as ${base} in ${workdir}/debian/";
+		mv ${custom} ${workdir}/debian/${base};
+		# Remove other custom entries
+		rm ${workdir}/debian/${base}.*;
+	    fi;
+	done;
     done;
     debchangelog 1> ${workdir}/debian/changelog;
 }
@@ -127,9 +132,14 @@ debinstall() {
 }
 
 debpush() {
+    local repo=$1
     local head_package="output/${PKGNAME}/${PKGNAME}_${VERSION}*.deb";
     local sub_packages="$(ls output/${PKGNAME}/${PKGNAME}-*_${VERSION}*.deb 2>/dev/null)";
-    ${TOOLS}/curlpush ${head_package} ${sub_packages};
+    if [ -z "${REPO}" ]; then
+	${TOOLS}/curlpush ${head_package} ${sub_packages};
+    else
+	${TOOLS}/curlpush ${head_package} ${sub_packages} repo=${repo};
+    fi;
 }
 
 debchangelog() {
@@ -138,7 +148,8 @@ debchangelog() {
     if [ -z "${status_adj}" ]; then status_adj=normal; fi
 #    echo ${PKGNAME} \(${VERSION}-${DPKG_REVISION}-${CODENAME}\) ${codename} ${STATUS}\; urgency=${URGENCY}
 #    echo ${PKGNAME} \(${VERSION}-${CODENAME}\) ${codename} ${STATUS}\; urgency=${URGENCY}
-    echo ${DPKGNAME} \(${VERSION}-${CODENAME}\) ${CODENAME} ${STATUS}\; urgency=${URGENCY}
+#    echo ${DPKGNAME} \(${VERSION}-${CODENAME}\) ${CODENAME} ${STATUS}\; urgency=${URGENCY}
+    echo ${DPKGNAME} \(${VERSION}\) ${CODENAME} ${STATUS}\; urgency=${URGENCY}
     echo
     echo "  * ${GITID} ${STATUSADJ} point release of ${PKGNAME} (branch '${BRANCH}') for ${CODENAME} (${FULL_VERSION})"
     echo
@@ -156,10 +167,17 @@ saveout() {
 }
 
 cleanout() {
-    local head_package="$(ls ${PKGNAME}_${VERSION}*.deb 2>/dev/null)";
-    local sub_packages="$(ls ${PKGNAME}-*_${VERSION}*.deb 2>/dev/null)";
-    local files="$(ls ${PKGNAME}_${VERSION}* 2>/dev/null)";
+    local head_package="$(ls output/${PKGNAME}/${PKGNAME}_${VERSION}*.deb 2>/dev/null)";
+    local sub_packages="$(ls output/${PKGNAME}/${PKGNAME}-*_${VERSION}*.deb 2>/dev/null)";
+    local files="$(ls output/${PKGNAME}/${PKGNAME}_${VERSION}* 2>/dev/null)";
     rm -f ${head_package} ${sub_packages} ${files};
+}
+
+cleanall() {
+    cleanout;
+    rm -f output/${PKGNAME}/*.deb output/${PKGNAME}/*.ddeb \
+       output/${PKGNAME}/*.changes output/${PKGNAME}/*.dsc \
+       output/${PKGNAME}/*.buildinfo output/${PKGNAME}/*.tar.*
 }
 
 case ${ACTION} in
@@ -167,9 +185,7 @@ case ${ACTION} in
 	./setsource $*;
 	;;
     prep)
-	if ! debcheck; then
-	    debprep $*;
-	fi;
+	debprep $*;
 	;;
     package|pkg|mkpkg|makepkg)
 	if debcheck; then
@@ -200,7 +216,7 @@ case ${ACTION} in
     push)
 	PUSHED=$(cat output/${PKGNAME}/PUSHED 2>/dev/null||echo)
 	XVERSION="${VERSION}-${CHANNEL}"
-	if [ "${PUSHED}" != "${XVERSION}" ]; then
+	if [ $# -gt 0 ] || [ "${PUSHED}" != "${XVERSION}" ]; then
 	    debpush $* && echo ${XVERSION} > output/${PKGNAME}/PUSHED;
 	fi;
 	;;
@@ -220,6 +236,9 @@ case ${ACTION} in
 	;;
     cleanout)
 	cleanout;
+	;;
+    cleanall)
+	cleanall;
 	;;
     saveout)
 	saveout $*;
