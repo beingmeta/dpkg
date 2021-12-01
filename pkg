@@ -65,7 +65,7 @@ case $1 in
 	fi;	
 	exit;
 	;;
-    update)
+    pull|getsources|udpate_sources)
 	if [ $# -eq 1 ]; then
 	    for src in sources/*; do
 		name=$(basename ${src});
@@ -146,6 +146,7 @@ if [ -f "sources/$1" ]; then
     elif [ "${curpkg}" != "$1" ]; then
 	. ./packaging.sh;
     fi;
+    ACTION=$1; shift;
 else
     ACTION=$1; shift;
     . ./packaging.sh;
@@ -186,7 +187,7 @@ case ${ACTION} in
 	rpmtool ${curpkg} $@ && SUCCESS=yes;
 	pkg_done;
 	;;
-    prep|prepare|pkg|package|install|push|make|update)
+    prep|prepare|pkg|package|install|push|make|update|latest)
 	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
 	pkg_done;
 	;;
