@@ -3,6 +3,9 @@
 ACTION=$1; shift;
 
 PKG_REVISION=1
+if [ -f state/PKGNAME ]; then
+    NO_PKGNAME=yes
+fi;
 
 if [ -f packaging.sh ]; then
     . ./packaging.sh
@@ -15,6 +18,8 @@ else
 	exit 2;
     fi;
 fi;
+
+dbgmsg "debtool ACTION=${ACTION} PKGNAME=${PKGNAME}";
 
 DEBINFO=${PACKAGING_ROOT}/debinfo
 DPKGNAME=${PKGNAME}
@@ -219,8 +224,8 @@ case ${ACTION} in
 	    debpush $* && echo ${XVERSION} > output/${PKGNAME}/PUSHED;
 	fi;
 	;;
-    update)
-	${SUDO} apt upgrade ${PKGNAME};
+    latest)
+	${SUDO} apt install ${PKGNAME};
 	APTVERSION=$(u8_aptversion ${PKGNAME});
 	if [ "${APTVERSION}" != "${VERSION}" ]; then
 	    ./setsource ${PKGNAME} && 

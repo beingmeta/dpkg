@@ -2,6 +2,11 @@
 
 ACTION=$1; shift;
 
+PKG_REVISION=1
+if [ -f state/PKGNAME ]; then
+    NO_PKGNAME=yes
+fi;
+
 if [ -f packaging.sh ]; then
     . ./packaging.sh
 else
@@ -13,6 +18,8 @@ else
 	exit 2;
     fi;
 fi;
+
+dbgmsg "rpmtool ACTION=${ACTION} PKGNAME=${PKGNAME}";
 
 export RPMINFO=${PACKAGING_ROOT}/rpminfo
 export BUILDRPM=$(which rpmbuild)
