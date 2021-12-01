@@ -1,7 +1,7 @@
-Source: kno-rocksdb
+!Source: kno-rocksdb
 Priority: optional
 Maintainer: Ken Haase <kh@beingmeta.com>
-Build-Depends: debhelper (>= 8.0.0), autotools-dev, debsigs, devscripts, libu8-dev, librocksdb-dev, kno-dev (>= @KNO_MAJOR@.0.0)
+Build-Depends: debhelper (>= 8.0.0), autotools-dev, debsigs, devscripts, libu8-dev, librocksdb-dev, kno-dev (>= @KNO_MAJOR@.@KNO_MINOR@.0)
 Standards-Version: 3.9.4
 Section: libs
 Homepage: http://www.beingmeta.com/
@@ -9,6 +9,6 @@ Homepage: http://www.beingmeta.com/
 Package: kno-rocksdb
 Section: libdevel
 Architecture: any
-Depends: librocksdb | librocksdb5.8 | librocksdb5.17, kno-core (>= @KNO_MAJOR@.0.0) 
+Depends: librocksdb | librocksdb5.8 | librocksdb5.17, kno-core (>= @KNO_MAJOR@.@KNO_MINOR@.0) 
 Description: ODBC module for KNO
 
