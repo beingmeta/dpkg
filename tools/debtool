@@ -2,6 +2,14 @@
 
 ACTION=$1; shift;
 
+if [ -n "${ADDAPT}" ] && which addapt; then
+    addapt ${ADDAPT};
+fi;
+
+if [ -n "${ADDAPT2}" ] && which addapt; then
+    addapt ${ADDAPT2};
+fi;
+
 PKG_REVISION=1
 if [ -f state/PKGNAME ]; then
     NO_PKGNAME=yes
