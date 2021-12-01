@@ -225,7 +225,7 @@ case ${ACTION} in
 	fi;
 	;;
     update|latest)
-	(${SUDO} apt install ${PKGNAME}) || (echo "Install failed");
+	(${SUDO} apt install ${PKGNAME}) || (echo "Install of ${PKGNAME} failed");
 	APTVERSION=$(u8_aptversion ${PKGNAME});
 	if [ "${APTVERSION}" != "${VERSION}" ]; then
 	    ./setsource ${PKGNAME} && 
