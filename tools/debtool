@@ -224,8 +224,8 @@ case ${ACTION} in
 	    debpush $* && echo ${XVERSION} > output/${PKGNAME}/PUSHED;
 	fi;
 	;;
-    latest)
-	${SUDO} apt install ${PKGNAME};
+    update|latest)
+	(${SUDO} apt install ${PKGNAME}) || (echo "Install failed");
 	APTVERSION=$(u8_aptversion ${PKGNAME});
 	if [ "${APTVERSION}" != "${VERSION}" ]; then
 	    ./setsource ${PKGNAME} && 
