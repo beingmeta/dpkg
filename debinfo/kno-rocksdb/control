@@ -1,4 +1,4 @@
-!Source: kno-rocksdb
+Source: kno-rocksdb
 Priority: optional
 Maintainer: Ken Haase <kh@beingmeta.com>
 Build-Depends: debhelper (>= 8.0.0), autotools-dev, debsigs, devscripts, libu8-dev, librocksdb-dev, kno-dev (>= @KNO_MAJOR@.@KNO_MINOR@.0)
