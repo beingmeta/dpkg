@@ -10,6 +10,10 @@ if [ -f state/PKGNAME ]; then
     curpkg=$(cat state/PKGNAME);
 fi;
 
+if [ -n "${SKIP}" ]; then
+    for pkg in ${SKIP}; do touch skip/${pkg}; done;
+fi;
+
 case $1 in
     start|source)
 	if [ -n "$2" ]; then
@@ -49,6 +53,9 @@ case $1 in
 		name=$(basename ${src});
 		if [ "${name}" = libu8 ] || [ "${name}" = kno ]; then
 		   :;
+		elif [ -f "skip/${name}" ]; then
+		    echo "# Skipping ${op} for ${name}";
+		    :;
 		elif [ "${name%~}" = "${name}" ]; then 
 		    echo "# Applying ${op} to ${name}";
 		    pkg ${op} ${name};
