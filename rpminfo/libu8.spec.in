@@ -75,6 +75,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 %doc
 %{_libdir}/*.so.*
+%{_libdir}/*.so
 %{_bindir}/u8run
 %{_bindir}/u8ctl
 %{_bindir}/u8_xsubst
@@ -221,7 +222,6 @@ rm -rf $RPM_BUILD_ROOT
 %doc %{_mandir}/man1/*
 %doc %{_mandir}/man3/*
 %{_includedir}/*
-%{_libdir}/*.so
 %{_libdir}/*.a
 %{_bindir}/u8_install_shared
 %{_datadir}/pkgconfig/*
@@ -232,11 +232,4 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/*.a
 
 %changelog
-* Mon Mar 3 2014 Ken Haase <kh@beingmeta.com> 2.4
-Reorganize headers
-* Sun Jan 15 2014 Ken Haase <kh@beingmeta.com> 2.3
-Reorganize headers
-* Sun Aug 19 2012 Ken Haase <kh@beingmeta.com> 2.2
-Support for more asynchronous servers.
-Numerous API extensions
 
