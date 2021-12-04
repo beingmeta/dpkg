@@ -67,7 +67,7 @@ rpmpackage() {
     local arch_dir=$(mkpath "${staging_dir}" "${ARCH}");
     local output_dir=$(mkpath "output" "${PKGNAME}");
     ("cd" ${workdir};
-     ${BUILDRPM} ${RPMFLAGS} \
+     ${BUILDRPM} ${RPMFLAGS} --noclean \
 		 --define="_rpmdir ${RPMDIR}" \
 		 --define="_srcrpmdir ${RPMDIR}" \
 		 --nodeps -ta ../${PKGNAME}-${VERSION}.tar.gz) &&
@@ -82,6 +82,7 @@ rpmpackage() {
 	(mv ${arch_dir}/${PKGNAME}*-${VERSION}*.${ARCH}.rpm ${output_dir})
 }
 rpminstall() {
+    echo arch=${ARCH} pkgname=${PKGNAME} VERSION=${VERSION};
     local packages="$(ls output/${PKGNAME}/${PKGNAME}*-${VERSION}*.${ARCH}.rpm 2>/dev/null)";
     ${SUDO} rpm -Uvh ${packages};
 }
@@ -127,6 +128,12 @@ case ${ACTION} in
 	;;
     push)
 	rpmpush $*;
+	;;
+    clean)
+	echo Removing "${PKGNAME}-${VERSION}.tar.gz"
+	rm -f "${PKGNAME}-${VERSION}.tar.gz"
+	;;
+    cleanall)
 	;;
     update)
 	./setsource ${PKGNAME} ${BRANCH}

@@ -205,6 +205,10 @@ case ${ACTION} in
 	    echo "Version ${VERSION} of ${PKGNAME} needs to be built";
 	fi;
 	;;
+    clean)
+	rm -rf ${PKGNAME} ${PKGNAME}.tar;
+	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
+	;;
     cleanout)
 	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
 	("cd" output/${PKGNAME}; rm -f FILES INSTALLED PUSHED);
