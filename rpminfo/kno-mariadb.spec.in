@@ -10,7 +10,7 @@ Source0:        @PKGNAME@-@VERSION@.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  libu8-devel kno-devel mariadb-c-connector-devel
-Requires:       libu8 >= 3.0 kno >= 2106 mariadb-c-connector
+Requires:       libu8 >= 3.0 kno >= 2106 (mariadb-connector-c or mariadb-c-connector)
 
 %description
 This provides KNO wrappers for the MariaDB/MYSql C connectors

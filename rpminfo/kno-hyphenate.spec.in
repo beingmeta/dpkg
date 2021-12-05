@@ -1,4 +1,4 @@
-Name:           kno-@PKGNAME@
+Name:           @PKGNAME@
 Version:        @VERSION@
 Release:        1%{?dist}
 Summary:        Hyphenation library for Kno
@@ -35,7 +35,7 @@ rm -rf $RPM_BUILD_ROOT
 %postun -p /sbin/ldconfig
 
 %files
-%{_libdir}/kno/hyphenate@LIBNAME@.so*
+%{_libdir}/kno/@LIBNAME@.so*
 %{_datadir}/kno/data/hyph_en_US.dic
 %doc
 

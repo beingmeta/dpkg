@@ -104,7 +104,7 @@ case ${ACTION} in
     prep)
 	rpmprep $*;
 	;;
-    package|pkg|mkpkg|makepkg)
+    package|pkg|mkpkg|makepkg|build)
 	if [ "${LOGFILE}" = none ]; then
 	    rpmpackage $@;
 	elif [ -n "${LOGFILE}" ]; then
