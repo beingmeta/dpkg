@@ -19,7 +19,7 @@ This provides API bindings, extensions, and pool/index drivers for MongoDB
 %setup -q
 
 %build
-make %{?_smp_mflags} MONGOCINSTALL=mongoc
+make %{?_smp_mflags}
 
 %pre
 

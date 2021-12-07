@@ -19,7 +19,7 @@ This provides API bindings for the NNG networking library
 %setup -q
 
 %build
-make %{?_smp_mflags} NNGINSTALL=libnng
+make %{?_smp_mflags}
 
 %pre
 
