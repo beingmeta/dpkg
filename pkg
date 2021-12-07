@@ -1,5 +1,7 @@
 #!/bin/sh
 
+UPDATE_CURRENT=false
+
 # Update the packaging directory at least once
 if [ ! -f .updated ]; then
     git pull && touch .updated;
@@ -138,6 +140,9 @@ case $1 in
 	echo ${valstring} > state/${varname};
 	exit;
 	;;
+    remake|remake+|remake++)
+	UPDATE_CURRENT=true
+	;;
     *)
 	upper=$(echo $1 | tr [a-z] [A-Z]);
 	if [ -f state/${upper} ]; then
@@ -152,11 +157,14 @@ if [ -f "sources/$1" ]; then
     # Note that sourcing packaging.sh will consume the first argument and shift
     if [ -z "${PACKAGING_ROOT}" ]; then
 	. ./packaging.sh;
-    elif [ "${curpkg}" != "$1" ]; then
+    elif [ "${curpkg}" != "$1" ] || ${UPDATE_CURRENT}; then
 	. ./packaging.sh;
     fi;
     # ./setsource if the current package has changed
-    if [ "${PKGNAME}" != "${curpkg}" ]; then
+    if [ "${PKGNAME}" != "${curpkg}" ] || ${UPDATE_CURRENT}; then
+	if ${UPDATE_CURRENT}; then
+	    rm -rf ${curpkg} ${curpkg}.tar ${curpkg}*.tar.gz
+	fi;
 	./setsource ${PKGNAME};
     fi;
     if [ $# -gt 1 ]; then
@@ -164,12 +172,16 @@ if [ -f "sources/$1" ]; then
 	shift;
     else
 	echo "Current package is now ${PKGNAME}";
-x	# We've just changed the default package and there aren't any
+	# We've just changed the default package and there aren't any
 	# more arguments, so we exit
 	exit;
     fi;
 else
     ACTION=$1; shift;
+    if ${UPDATE_CURRENT} && [ -n "${curpkg}" ]; then
+	rm -rf ${curpkg} ${curpkg}.tar ${curpkg}*.tar.gz;
+	./setsource "${curpkg}";
+    fi;
     # Note that sourcing packaging.sh will consume the package name if is provided after ${ACTION}
     . ./packaging.sh;
 fi;
@@ -232,16 +244,16 @@ case ${ACTION} in
 	echo "# Contents of output/${PKGNAME}";
 	ls -l output/${PKGNAME}
 	;;
-    make)
+    make|remake)
 	done=
 	${PKGTOOL} prep && ${PKGTOOL} package && SUCCESS=yes;
 	pkg_done;
 	;;
-    make+|make+install)
+    make+|make+install|remake+)
 	${PKGTOOL} prep && ${PKGTOOL} package && ${PKGTOOL} install && SUCCESS=yes;
 	pkg_done;
 	;;
-    make++|make+install+push)
+    make++|make+install+push|remake++)
 	${PKGTOOL} prep && ${PKGTOOL} package && ${PKGTOOL} install && ${PKGTOOL} push && SUCCESS=yes;
 	pkg_done;
 	;;

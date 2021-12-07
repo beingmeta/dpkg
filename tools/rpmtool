@@ -66,8 +66,8 @@ rpmpackage() {
     local staging_dir="${RPMDIR}";
     local arch_dir=$(mkpath "${staging_dir}" "${ARCH}");
     local output_dir=$(mkpath "output" "${PKGNAME}");
-    ("cd" ${workdir};
-     ${BUILDRPM} ${RPMFLAGS} --noclean \
+    ("cd" ${workdir}; # --noclean
+     ${BUILDRPM} ${RPMFLAGS}  \
 		 --define="_rpmdir ${RPMDIR}" \
 		 --define="_srcrpmdir ${RPMDIR}" \
 		 --nodeps -ta ../${PKGNAME}-${VERSION}.tar.gz) &&

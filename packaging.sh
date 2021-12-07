@@ -22,6 +22,34 @@ dbgmsg () {
 export SUDO
 if [ "$(id -u)" != "0" ]; then SUDO=sudo; fi;
 
+set_pkg_state() {
+    local state=$1;
+    if [ -z "${PKGNAME}" ]; then
+	echo "# No current package! set_pkg_state ${state}" >&2;
+	return -1
+    else
+	if [ -n "${state}" ]; then
+	    rm -f *.sourced *.prepped *.packaged *.installed *.pushed;
+	fi;
+	touch ${PKGNAME}.${state};
+	return 0;
+    fi;
+}
+
+get_pkg_state() {
+    local state=$1;
+    if [ -z "${PKGNAME}" ]; then
+	echo "# No current package! get_pkg_state" >&2;
+    else
+	for state in sourced prepped packaged installed pushed; do
+	    if [ -f "${PKGNAME}.${state}" ]; then
+		echo ${state};
+		return;
+	    fi;
+	done;
+    fi;
+}
+
 mkpath () {
     local root=$1;
     local path=$2;
@@ -126,10 +154,10 @@ fi;
 get_state() {
     local file=$1;
     if [ -f ${file} ]; then
-	$(cat ${file});
-    else echo; fi
+	cat ${file};
+    else echo;
+    fi;
 }
-	
 
 import_state() {
     local dir=${1:-${STATE_ROOT}};
