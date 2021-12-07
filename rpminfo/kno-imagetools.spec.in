@@ -1,4 +1,4 @@
-Name:           kno-@PKGNAME@
+Name:           @PKGNAME@
 Version:        @VERSION@
 Release:        1%{?dist}
 Summary:        Image manipulation bindngs for kno based on several open source libraries

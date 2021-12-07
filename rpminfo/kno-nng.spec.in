@@ -25,7 +25,7 @@ make %{?_smp_mflags} NNGINSTALL=libnng
 
 %install
 rm -rf $RPM_BUILD_ROOT
-make install SUDO= DESTDIR=$RPM_BUILD_ROOT NNGINSTALL=libnng
+make install SUDO= DESTDIR=$RPM_BUILD_ROOT
 
 %clean
 rm -rf $RPM_BUILD_ROOT

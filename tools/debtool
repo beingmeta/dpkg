@@ -199,7 +199,7 @@ case ${ACTION} in
     prep)
 	debprep $*;
 	;;
-    package|pkg|mkpkg|makepkg)
+    package|pkg|mkpkg|makepkg|build)
 	if debcheck; then
 	    echo "Nothing to do";
 	    exit;

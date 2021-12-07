@@ -1,4 +1,4 @@
-Name:           kno-@PKGNAME@
+Name:           @PKGNAME@
 Version:        @VERSION@
 Release:        1%{?dist}
 Summary:        ODBC bindings for kno
@@ -25,7 +25,7 @@ make %{?_smp_mflags} MONGOCINSTALL=mongoc
 
 %install
 rm -rf $RPM_BUILD_ROOT
-make install SUDO= DESTDIR=$RPM_BUILD_ROOT MONGOCINSTALL=mongoc
+make install SUDO= DESTDIR=$RPM_BUILD_ROOT
 
 %clean
 rm -rf $RPM_BUILD_ROOT

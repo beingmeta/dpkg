@@ -88,6 +88,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/u8_dupload
 %{_bindir}/u8_aptversion
 %{_bindir}/u8_gzinstall
+%{_bindir}/u8_install_version
 %{_datadir}/libu8/encodings/CP1125
 %{_datadir}/libu8/encodings/CP1251
 %{_datadir}/libu8/encodings/CP1252

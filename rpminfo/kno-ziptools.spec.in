@@ -6,11 +6,11 @@ Summary:        ODBC bindings for kno
 Group:          System Environment/Libraries
 License:        GNU GPL
 URL:            http://www.beingmeta.com/
-Source0:        @PKGNAME@-@VERSION@.tar
+Source0:        @PKGNAME@-@VERSION@.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  libu8-devel kno-devel
-Requires:       libu8 >= 3.0 kno >= 2106
+Requires:       libu8 >= 3.0 kno >= 2111.0.0
 
 %description
 This provides API bindings for libzip
@@ -25,7 +25,7 @@ make %{?_smp_mflags} LIBZIPINSTALL=libzip
 
 %install
 rm -rf $RPM_BUILD_ROOT
-make install SUDO= DESTDIR=$RPM_BUILD_ROOT LIBZIPINSTALL=libzip
+make install SUDO= DESTDIR=$RPM_BUILD_ROOT
 
 %clean
 rm -rf $RPM_BUILD_ROOT
