@@ -141,6 +141,8 @@ case $1 in
 	exit;
 	;;
     remake|remake+|remake++)
+	#rm -rf ${curpkg} ${curpkg}.tar ${curpkg}*.tar.gz;
+	#./setsource "${curpkg}";
 	UPDATE_CURRENT=true
 	;;
     *)
@@ -152,37 +154,26 @@ case $1 in
 	;;
 esac;
 
-# This is the case where the first argument is the name of a package
-if [ -f "sources/$1" ]; then
+if [ ! -f "sources/$1" ]; then
+    dmgmsg "Got action $1";
+    ACTION=$1; shift;
+fi;
+
+if [ $# -gt 0 ] && [ -f "sources/$1" ]; then
+    echo "Got source $1, cur=$1";
     # Note that sourcing packaging.sh will consume the first argument and shift
+    if [ "${curpkg}" != "$1" ] || ${UPDATE_CURRENT}; then
+	./setsource $1;
+	. ./packaging.sh
+    elif [ -z "${VERSION}" ]; then
+	dbgmsg "No VERSION, updating version data"
+	./setsource $1;
+	. ./packaging.sh
+    fi;
     if [ -z "${PACKAGING_ROOT}" ]; then
 	. ./packaging.sh;
-    elif [ "${curpkg}" != "$1" ] || ${UPDATE_CURRENT}; then
-	. ./packaging.sh;
-    fi;
-    # ./setsource if the current package has changed
-    if [ "${PKGNAME}" != "${curpkg}" ] || ${UPDATE_CURRENT}; then
-	if ${UPDATE_CURRENT}; then
-	    rm -rf ${curpkg} ${curpkg}.tar ${curpkg}*.tar.gz
-	fi;
-	./setsource ${PKGNAME};
-    fi;
-    if [ $# -gt 1 ]; then
-	ACTION=$1;
-	shift;
-    else
-	echo "Current package is now ${PKGNAME}";
-	# We've just changed the default package and there aren't any
-	# more arguments, so we exit
-	exit;
     fi;
 else
-    ACTION=$1; shift;
-    if ${UPDATE_CURRENT} && [ -n "${curpkg}" ]; then
-	rm -rf ${curpkg} ${curpkg}.tar ${curpkg}*.tar.gz;
-	./setsource "${curpkg}";
-    fi;
-    # Note that sourcing packaging.sh will consume the package name if is provided after ${ACTION}
     . ./packaging.sh;
 fi;
 
@@ -246,6 +237,7 @@ case ${ACTION} in
 	;;
     make|remake)
 	done=
+	echo "make PKGNAME=${PKGNAME} VERSION=${VERSION} $*";
 	${PKGTOOL} prep && ${PKGTOOL} package && SUCCESS=yes;
 	pkg_done;
 	;;

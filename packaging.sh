@@ -1,4 +1,4 @@
-#!/bin/sh
+G#!/bin/sh
 
 export PACKAGING_ROOT STATE_ROOT PATH LOGFILE LIBNAME TOOLS OUTPUT
 export PKGNAME VERSION REL_VERSION BRANCH CHANNEL FULL_VERSION
@@ -10,14 +10,16 @@ export CODENAME DISTRO STATUS ARCH URGENCY
 PKGLOG=${PKGLOG:-/dev/null}
 
 logmsg () {
-    echo "pkg: $1" >&2;
+    echo "pkg ($$@$(pwd)) $1" >&2;
 }
 
 dbgmsg () {
     if [ -n "${DEBUGGING}" ]; then
-	echo "pkg: $1" >&2;
+	echo "pkgdebug ($$@$(pwd)) $1" >&2;
     fi;
 }
+
+dbgmsg "Sourcing packaging.sh into $$";
 
 export SUDO
 if [ "$(id -u)" != "0" ]; then SUDO=sudo; fi;

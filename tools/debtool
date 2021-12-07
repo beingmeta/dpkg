@@ -200,6 +200,7 @@ case ${ACTION} in
 	debprep $*;
 	;;
     package|pkg|mkpkg|makepkg|build)
+	import_state;
 	if debcheck; then
 	    echo "Nothing to do";
 	    exit;
@@ -215,7 +216,7 @@ case ${ACTION} in
 	;;
     make)
 	if ! debcheck; then
-	    ./setsource ${PKGNAME} && debprep ${PKGNAME} && debpackage ${PKGNAME};
+	    ./setsource ${PKGNAME} && import_state && debprep ${PKGNAME} && debpackage ${PKGNAME};
 	fi;
 	;;
     install)

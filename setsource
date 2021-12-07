@@ -2,11 +2,14 @@
 
 UPDATE_CURRENT=${UPDATE_CURRENT:-false};
 
-logmsg () {
-    echo "pkg: $1" >&2;
-}
+ARG1=$1
 
+# Read $1, git branch, etc
 . ./packaging.sh
+
+if [ -n "${DEBUG}" ]; then
+    echo setsource ARG1=${ARG} PKGNAME=${PKGNAME} VERSION=${VERSION};
+fi;
 
 for opt in $@; do
     case ${opt} in

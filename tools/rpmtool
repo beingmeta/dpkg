@@ -3,7 +3,8 @@
 ACTION=$1; shift;
 
 PKG_REVISION=1
-if [ -f state/PKGNAME ]; then
+if [ ! -f state/PKGNAME ]; then
+    echo "rpmtool with no current package";
     NO_PKGNAME=yes
 fi;
 
@@ -19,7 +20,7 @@ else
     fi;
 fi;
 
-dbgmsg "rpmtool ACTION=${ACTION} PKGNAME=${PKGNAME}";
+echo "rpmtool $$ $(pwd) ACTION=${ACTION} PKGNAME=${PKGNAME} VERSION=${VERSION}";
 
 export RPMINFO=${PACKAGING_ROOT}/rpminfo
 export BUILDRPM=$(which rpmbuild)
@@ -102,9 +103,11 @@ case ${ACTION} in
 	./setsource $*;
 	;;
     prep)
+	import_state;
 	rpmprep $*;
 	;;
     package|pkg|mkpkg|makepkg|build)
+	import_state;
 	if [ "${LOGFILE}" = none ]; then
 	    rpmpackage $@;
 	elif [ -n "${LOGFILE}" ]; then
@@ -121,13 +124,13 @@ case ${ACTION} in
 	fi;
 	;;
     make)
-	./setsource ${PKGNAME} && rpmprep ${PKGNAME} && rpmpackage ${PKGNAME};
+	./setsource ${PKGNAME} && import_state && rpmprep ${PKGNAME} && rpmpackage ${PKGNAME};
 	;;
     install)
-	rpminstall $*;
+	import_state && rpminstall $*;
 	;;
     push)
-	rpmpush $*;
+	import_state && rpmpush $*;
 	;;
     clean)
 	echo Removing "${PKGNAME}-${VERSION}.tar.gz"

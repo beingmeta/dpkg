@@ -1,19 +1,19 @@
 Name:           @PKGNAME@
 Version:        @VERSION@
 Release:        1%{?dist}
-Summary:        KNO bindings for the RocksDB database library
+Summary:        KNO bindings for the POSTGRES database library
 
 Group:          System Environment/Libraries
 License:        GNU GPL
 URL:            http://www.beingmeta.com/
-Source0:        @PKGNAME@-@VERSION@.tar
+Source0:        @PKGNAME@-@VERSION@.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:  libu8-devel kno-devel leveldb-devel
-Requires:       libu8 >= 3.0 kno >= 2106 leveldb
+BuildRequires:  libu8-devel kno-devel postgresql-devel
+Requires:       libu8 >= 3.0 kno >= 2106  postgresql-libs
 
 %description
-This provides KNO wrappers for the RocksDB database library
+This provides KNO wrappers for the Postgres SQL library
 
 %prep
 %setup -q
@@ -35,8 +35,6 @@ rm -rf $RPM_BUILD_ROOT
 %postun -p /sbin/ldconfig
 
 %files
-%{_libdir}/kno/exif.so*
-%{_libdir}/kno/qrcode.so*
-%{_libdir}/kno/imagick.so*
+%{_libdir}/kno/postgres.so*
 %doc
 
