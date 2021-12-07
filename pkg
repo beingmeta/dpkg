@@ -147,20 +147,31 @@ case $1 in
 	;;
 esac;
 
+# This is the case where the first argument is the name of a package
 if [ -f "sources/$1" ]; then
+    # Note that sourcing packaging.sh will consume the first argument and shift
     if [ -z "${PACKAGING_ROOT}" ]; then
 	. ./packaging.sh;
     elif [ "${curpkg}" != "$1" ]; then
 	. ./packaging.sh;
     fi;
-    ACTION=$1; shift;
+    # ./setsource if the current package has changed
+    if [ "${PKGNAME}" != "${curpkg}" ]; then
+	./setsource ${PKGNAME};
+    fi;
+    if [ $# -gt 1 ]; then
+	ACTION=$1;
+	shift;
+    else
+	echo "Current package is now ${PKGNAME}";
+x	# We've just changed the default package and there aren't any
+	# more arguments, so we exit
+	exit;
+    fi;
 else
     ACTION=$1; shift;
+    # Note that sourcing packaging.sh will consume the package name if is provided after ${ACTION}
     . ./packaging.sh;
-fi;
-
-if [ "${PKGNAME}" != "${curpkg}" ]; then
-    ./setsource ${PKGNAME};
 fi;
 
 export SUCCESS
