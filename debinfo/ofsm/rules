@@ -11,10 +11,11 @@ export DH_OPTIONS
 	dh $@ --parallel
 
 override_dh_auto_build:
-	make binary
+	make binary lexdata
 
 override_dh_auto_install:
-	make DESTDIR=$(shell pwd)/debian/tmp SUDO= install install-lexdata install-kno-modules
+	make DESTDIR=$(shell pwd)/debian/tmp SUDO= install-shared install-headers \
+		 install-kno-modules install-lexdata install-kno-modules
 
 override_dh_shlibdeps:
 	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info

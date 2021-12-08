@@ -1,4 +1,5 @@
 usr/lib/kno/ofsm.so.*
 usr/lib/kno/ofsm.so
+usr/include/kno/ofsm.h
 usr/share/kno/modules/installed/ofsm/bench/*.scm
 usr/share/kno/modules/installed/ofsm/misc/*.scm

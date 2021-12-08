@@ -1,5 +1,3 @@
-usr/include/kno/ofsm.h
-usr/lib/libofsm.a
 usr/share/kno/modules/installed/ofsm/dev/*.scm
 usr/share/kno/modules/installed/ofsm/dev/en/*.scm
 usr/share/kno/modules/installed/ofsm/dev/english/*.scm

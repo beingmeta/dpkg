@@ -21,7 +21,7 @@ Depends: kno-core (>= @KNO_MAJOR@.@KNO_MINOR@.0)
 Description: Natural language processing development environment
 
 Package: ofsm-dev
-Architecture: any
+Architecture: all
 Depends: ofsm
 Description: Natural language processing development environment
 
@@ -32,7 +32,7 @@ Depends: ofsm
 Description: Debug symbols for beingmeta-ofsm
 
 Package: ofsm-lexdata
-Architecture: any
+Architecture: all
 Depends: ofsm
 Description: Lexical data for use by the beingmeta tagger
 
