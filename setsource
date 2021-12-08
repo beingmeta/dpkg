@@ -94,5 +94,9 @@ else
         VERSION BASE_VERSION FULL_VERSION VERSION);
 fi;
 
+if [ ! -d output/${PKGNAME} ]; then
+    mkdir ${PACKAGING_ROOT}/output/${PKGNAME};
+fi;
+
 echo "Package ${PKGNAME}(${BRANCH}) version ${VERSION}"
 
