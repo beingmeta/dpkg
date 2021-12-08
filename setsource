@@ -2,41 +2,37 @@
 
 UPDATE_CURRENT=${UPDATE_CURRENT:-false};
 
-ARG1=$1
-
-# Read $1, git branch, etc
 . ./packaging.sh
 
-if [ -n "${DEBUG}" ]; then
-    echo setsource ARG1=${ARG} PKGNAME=${PKGNAME} VERSION=${VERSION};
+branch=
+curpkg=
+pkgname=$1;
+stripped="${pkgname%#*}"
+if [ "${stripped}" != "${pkgname}" ]; then
+    branch="${pkgname#*#}";
+    pkgname=${stripped}
+fi;
+if [ ! -f "sources/${pkgname}" ]; then
+    echo "setsource: ${pkgname} is not a known package name";
+    exit;
+fi;
+if [ ! -f ${STATE_ROOT}/PKGNAME ]; then curpkg=$(cat ${STATE_ROOT}/PKGNAME); else curpkg=; fi
+if [ "${curpkg}" = "${pkgname}" ] && ! ${UPDATE_CURRENT}; then
+    exit;
+fi
+if [ -n "${curpkg}" ]; then echo "Switching from ${curpkg} to ${pkgname}"; fi;
+PKGNAME=${pkgname};
+rm -f ${STATE_ROOT}/*;
+echo "${pkgname}" > ${STATE_ROOT}/PKGNAME;
+if [ -n "${branch}" ]; then echo "${branch}" > ${STATE_ROOT}/BRANCH; fi;
+cp ${PACKAGING_ROOT}/defaults/* ${STATE_ROOT} 2> /dev/null;
+if [ -d ${PACKAGING_ROOT}/defaults/${pkgname} ]; then
+    cp ${PACKAGING_ROOT}/defaults/${pkgname}/* ${STATE_ROOT} 2> /dev/null;
 fi;
 
-for opt in $@; do
-    case ${opt} in
-	channel=*)
-	    CHANNEL=${opt#channel=};
-	    echo ${CHANNEL} > ${STATE_ROOT}/CHANNEL;
-	    ;;
-	CHANNEL=*)
-	    CHANNEL=${opt#CHANNEL=};
-	    echo ${CHANNEL} > ${STATE_ROOT}/CHANNEL;
-	    ;;
-	branch=*)
-	    BRANCH=${opt#branch=}
-	    echo ${BRANCH} > ${STATE_ROOT}/BRANCH;
-	    ;;
-	BRANCH=*)
-	    BRANCH=${opt#BRANCH=}
-	    echo ${BRANCH} > ${STATE_ROOT}/BRANCH;
-	    ;;
-	nosource|NOSOURCE)
-	    echo ${opt} > ${STATE_ROOT}/NOSOURCE;
-	    ;;
-	*)
-	    echo "Unhandled option ${opt}" >&2;
-	    ;;
-    esac;
-done;
+if [ -n "${DEBUG}" ]; then
+    echo setsource PKGNAME=${PKGNAME} BRANCH=${BRANCH} VERSION=${VERSION};
+fi;
 
 tarfile=${PKGNAME}.tar
 srcurl=$(cat sources/${PKGNAME})
@@ -53,15 +49,14 @@ else ("cd" ${srcdir};
       if [ -n "${BRANCH}" ]; then git checkout ${BRANCH}; fi;
       git pull;
       git submodule init; 
-     git submodule update;
+      git submodule update;
       if [ -z "${GIT_NO_LFS}" ]; then
 	  git lfs fetch;
 	  git lfs pull;
       fi;);
 fi
 
-if [ -z "${KNO_MAJOR}" ]; then KNO_MAJOR=$(knoconfig major); fi;
-if [ -z "${KNO_MINOR}" ]; then KNO_MINOR=$(knoconfig minor); fi;
+# This should be consistent with branch
 if [ -d ${srcdir}/.git ]; then
     BRANCH=$("cd" ${srcdir}; u8_gitbranch);
     echo ${BRANCH} > ${STATE_ROOT}/BRANCH;

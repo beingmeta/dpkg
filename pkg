@@ -8,12 +8,16 @@ if [ ! -f .updated ]; then
     exec $0 $*;
 fi;
 
-if [ -f state/PKGNAME ]; then
-    curpkg=$(cat state/PKGNAME);
-fi;
+. ./packaging.sh
 
 if [ -n "${SKIP}" ]; then
-    for pkg in ${SKIP}; do touch skip/${pkg}; done;
+    for pkg in ${SKIP}; do 
+	if [ -f sources/${pkg} ]; then
+	    touch sources/${pkg}.skip;
+	else
+	    echo "Bad SKIP arg ${pkg}";
+	fi;
+    done;
 fi;
 
 case $1 in
@@ -55,7 +59,7 @@ case $1 in
 		name=$(basename ${src});
 		if [ "${name}" = libu8 ] || [ "${name}" = kno ]; then
 		   :;
-		elif [ -f "skip/${name}" ]; then
+		elif [ -f "${src}.skip" ]; then
 		    echo "# Skipping ${op} for ${name}";
 		    :;
 		elif [ "${name%~}" = "${name}" ]; then 
@@ -154,28 +158,27 @@ case $1 in
 	;;
 esac;
 
-if [ ! -f "sources/$1" ]; then
-    dmgmsg "Got action $1";
-    ACTION=$1; shift;
+if [ -f state/PKGNAME ]; then
+    curpkg=$(cat state/PKGNAME);
 fi;
 
-if [ $# -gt 0 ] && [ -f "sources/$1" ]; then
-    echo "Got source $1, cur=$1";
-    # Note that sourcing packaging.sh will consume the first argument and shift
-    if [ "${curpkg}" != "$1" ] || ${UPDATE_CURRENT}; then
-	./setsource $1;
-	. ./packaging.sh
-    elif [ -z "${VERSION}" ]; then
-	dbgmsg "No VERSION, updating version data"
-	./setsource $1;
-	. ./packaging.sh
-    fi;
-    if [ -z "${PACKAGING_ROOT}" ]; then
-	. ./packaging.sh;
-    fi;
+if [ -f "sources/$1" ]; then
+    forpkg=$1; shift; ACTION=$1;
 else
-    . ./packaging.sh;
+    ACTION=$1; shift;
+    if [ -f "sources/$1" ]; then forpkg=$1; shift; fi;
+fi
+
+if [ -z "${forpkg}" ]; then forpkg=${curpkg}; fi
+
+if [ -z "${ACTION}" ]; then
+    ./setsource ${forpkg};
+    exit;
+elif [ "${curpkg}" != "${forpkg}" ] || ${UPDATE_CURRENT}; then
+    ./setsource ${forpkg};
 fi;
+
+import_state
 
 export SUCCESS
 

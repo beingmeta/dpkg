@@ -102,37 +102,6 @@ if [ -f state/PKGNAME ]; then
     curpkg=$(cat state/PKGNAME);
 fi;
 
-if [ $# -gt 0 ]  && [ -z "${NO_PKGNAME}" ]; then
-    pkgname=$1;
-    stripped="${pkgname%#*}"
-    if [ "${stripped}" != "${pkgname}" ]; then
-	branch="${pkgname#*#}";
-	pkgname=${stripped}
-    fi;
-    if [ -f "sources/${pkgname}" ]; then
-	if [ ! -f ${STATE_ROOT}/PKGNAME ]; then
-	    curpkg=$(cat ${STATE_ROOT}/PKGNAME);
-	else curpkg=; fi
-	if [ "${curpkg}" = "${pkgname}" ]; then
-	    PKGNAME=${curpkg};
-	else
-	    if [ -n "${curpkg}" ]; then
-		echo "Switching from ${curpkg} to ${pkgname}";
-	    fi;
-	    PKGNAME=${pkgname};
-	    rm -f ${STATE_ROOT}/*;
-	    echo "${pkgname}" > ${STATE_ROOT}/PKGNAME;
-	    if [ -n "${branch}" ]; then echo "${branch}" > ${STATE_ROOT}/BRANCH; fi;
-	    cp ${PACKAGING_ROOT}/defaults/* ${STATE_ROOT} 2> /dev/null;
-	    if [ -d ${PACKAGING_ROOT}/defaults/${pkgname} ]; then
-		cp ${PACKAGING_ROOT}/defaults/${pkgname}/* ${STATE_ROOT} 2> /dev/null;
-	    fi;
-	fi;
-	# Discard the package name (usually)
-	if [ -z "${KEEP_PKG_ARG}" ]; then shift; fi;
-    fi;
-fi;
-
 # Handle defaults from the environment
 
 if [ -n "${DEFAULT_REPO}" ]; then
