@@ -1,0 +1,49 @@
+upsource (0.5-9) beingmeta; urgency=medium
+
+  * Change distribution to 'beingmeta'
+
+ -- Ken Haase <kh@beingmeta.com>  Tue, 16 May 2017 21:36:10 +0000
+
+upsource (0.5-8) unstable; urgency=medium
+
+  * Fixed bugs with rename
+
+ -- Ken Haase <kh@beingmeta.com>  Tue, 16 May 2017 21:36:10 +0000
+
+upsource (0.5-7) unstable; urgency=medium
+
+  * Renamed UPSOURCE_OWNER, etc and made BRANCH configuration work
+
+ -- Ken Haase <kh@beingmeta.com>  Tue, 16 May 2017 03:10:45 +0000
+
+upsource (0.5-6) unstable; urgency=medium
+
+  * Remove After=cloud-final from upsource systemd config
+
+ -- Ken Haase <kh@beingmeta.com>  Sun, 15 Jan 2017 00:10:53 +0000
+
+upsource (0.5-5) stable; urgency=medium
+
+  * Make stable and fix build directions
+
+ -- Ken Haase <kh@beingmeta.com>  Sat, 14 Jan 2017 23:24:44 +0000
+
+upsource (0.5-4) unstable; urgency=medium
+
+  * Added systemd upsource.target unit for after upsource.service has been
+    run at least once.
+
+ -- Ken Haase <kh@beingmeta.com>  Sat, 14 Jan 2017 18:34:52 +0000
+
+upsource (0.5-3) stable; urgency=medium
+
+  * Various updates
+
+ -- Ken Haase <kh@beingmeta.com>  Sat, 14 Jan 2017 02:46:19 +0000
+
+upsource (0.5-1) stable; urgency=low
+
+  * Am I stable now?
+
+ -- Ken Haase <kh@beingmeta.com>  Sun, 09 Oct 2016 17:50:05 -0400
+

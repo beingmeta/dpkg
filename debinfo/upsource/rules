@@ -1,0 +1,16 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+# This has to be exported to make some magic below work.
+export DH_OPTIONS
+
+%:
+	dh $@ --with systemd --parallel
+
+override_dh_auto_configure:
+	make PREFIX=/usr RUN=/var/run ETC=/etc
+
+override_dh_auto_install:
+	dh_auto_install -- install-config install-inits install-dirs
+
+

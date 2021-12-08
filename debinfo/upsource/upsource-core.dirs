@@ -1,0 +1,6 @@
+etc
+etc/upsource.d
+usr/bin
+usr/lib
+usr/lib/upsource
+usr/lib/upsource/handlers
