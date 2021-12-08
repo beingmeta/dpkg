@@ -1,0 +1,70 @@
+Name:           ofsm
+Version:        @VERSION@
+Release:        1%{?dist}
+Summary:        beingmetas high speed NLP analyzer
+
+Group:          System Environment/Libraries
+License:        GNU GPL
+URL:            http://www.beingmeta.com/
+Source0:        @PKGNAME@-@VERSION@.tar.gz
+BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+
+BuildRequires:  libu8-devel kno-devel
+Requires:       libu8 >= 3.0 kno >= 2111
+
+%description
+OFSM is an implementation of optimizing finite state machines for high speech natural language analysis
+
+%package        devel
+BuildArch:      noarch
+Summary:        Lexicon/grammar development files for OFSM
+Group:          Development/Libraries
+Requires:       %{name} = %{version}-%{release}
+
+%description    devel
+This package contains Scheme code for extending the OFSM grammar and lexicon
+
+%package        lexdata
+BuildArch:      noarch
+Summary:        Lexical data for OFSM
+Group:          Development/Libraries
+Requires:       %{name} = %{version}-%{release} python3
+
+%description    lexdata
+This package contains lexical data used by the parser
+
+%prep
+%setup -q
+
+%build
+make %{?_smp_mflags}
+
+%pre
+
+%install
+rm -rf $RPM_BUILD_ROOT
+make SUDO= DESTDIR=$RPM_BUILD_ROOT install-shared install-headers \
+     install-kno-modules install-lexdata
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%post -p /sbin/ldconfig
+
+%postun -p /sbin/ldconfig
+
+%files
+%{_libdir}/kno/ofsm.so*
+%{_includedir}/kno/ofsm.h
+%doc
+
+%files lexdata
+%{_datadir}/kno/data/ofsm/*
+
+%files devel
+%{_datadir}/kno/modules/installed/ofsm/bench
+%{_datadir}/kno/modules/installed/ofsm/dev/*.scm
+%{_datadir}/kno/modules/installed/ofsm/dev/en/*
+%{_datadir}/kno/modules/installed/ofsm/dev/english/*
+%{_datadir}/kno/modules/installed/ofsm/misc/*.scm
+
