@@ -4,7 +4,7 @@ export PACKAGING_ROOT STATE_ROOT PATH LOGFILE LIBNAME TOOLS OUTPUT
 export PKGNAME VERSION REL_VERSION BRANCH CHANNEL FULL_VERSION
 export BASE_VERSION MAJOR_VERSION MINOR_VERSION RELEASE_VERSION
 export KNO_VERSION KNO_MAJOR KNO_MINOR
-export REPOMAN REPO_URL REPO_LOGIN REPO_CURLOPTS
+export REPOMAN REPO_SYSTEM REPO_HOST REPO_URL REPO_LOGIN
 export CODENAME DISTRO STATUS ARCH URGENCY
 
 PKGLOG=${PKGLOG:-/dev/null}
@@ -104,12 +104,41 @@ fi;
 
 # Handle defaults from the environment
 
-if [ -n "${DEFAULT_REPO}" ]; then
-    echo ${DEFAULT_REPO} > repos/default;
+if [ -n "${DISTRO}" ]; then
+    :;
+elif [ -f ${STATE_ROOT}/DISTRO ]; then
+    DISTRO=$(cat ${STATE_ROOT}/DISTRO);
+else
+    DISTRO=$(lsb_release -s -c || echo release);
 fi;
 
-if [ -n "${DEFAULT_LOGIN}" ]; then
-    echo ${DEFAULT_LOGIN} > repos/default-login;
+if [ -n "${ARCH}" ]; then
+    :;
+elif [ -f ${STATE_ROOT}/ARCH ]; then
+    ARCH=$(cat ${STATE_ROOT}/ARCH);
+else
+    ARCH=$(uname -p || echo x86_64);
+fi;
+
+DISTRIBUTOR=$(lsb_release -i -s);
+
+if [ -n "${REPO_SYSTEM}" ]; then
+    :;
+elif [ -f ${STATE_ROOT}/REPO_SYSTEM ]; then
+    REPO_SYSTEM=$(cat ${STATE_ROOT}/REPO_SYSTEM);
+elif [ -f defaults/REPO_SYSTEM ]; then
+    REPO_SYSTEM=$(cat defaults/REPO_SYSTEM);
+else case "${DISTRIBUTOR}" in
+	 Fedora|Centos)
+	     REPO_SYSTEM="yum";
+	     ;;
+	 Debian|Mint|Ubuntu)
+	     REPO_SYSTEM="apt";
+	     ;;
+	 *)
+	     REPO_SYSTEM="apt";
+	     ;;
+     esac;
 fi;
 
 if [ -n "${DEFAULT_BRANCH}" ]; then
@@ -155,16 +184,6 @@ import_state() {
     MAJOR_VERSION=$(echo $VERSION | cut -d. -f 1);
     MINOR_VERSION=$(echo $VERSION | cut -d. -f 2);
     RELEASE_VERSION=$(echo $VERSION | cut -d. -f 3);
-    if [ -f ${STATE_ROOT}/DISTRO ]; then
-	DISTRO=$(cat ${STATE_ROOT}/DISTRO);
-    else
-	DISTRO=$(lsb_release -s -c || echo release);
-    fi;
-    if [ -f ${STATE_ROOT}/ARCH ]; then
-	ARCH=$(cat ${STATE_ROOT}/ARCH);
-    else
-	ARCH=$(uname -p || echo x86_64);
-    fi;
     if [ -f ${STATE_ROOT}/CHANNEL ]; then
 	CHANNEL=$(cat ${STATE_ROOT}/CHANNEL);
     elif [ "${BRANCH}" != "${BRANCH%-test}" ]; then
@@ -255,8 +274,7 @@ else
 	fi;
     done;
     if [ -z "${PKGTOOL}" ] && which lsb_release 1>/dev/null 2>/dev/null; then
-	release_type="$(lsb_release -s -i)";
-	case ${release_type} in
+	case ${DISTRIBUTOR} in
 	    Ubuntu|Debian)
 		PKGTOOL=${PACKAGING_ROOT}/tools/debtool;
 		;;
@@ -285,60 +303,60 @@ else
     REPOMAN="Repository Manager <repoman@beingmeta.com>"
 fi;
 
-if [ -n "${REPO_URL}" ]; then
+if [ -n "${REPO_HOST}" ]; then
     # If we already have an URL in the environment assume everything
     # else has been set appropriately
     :
-elif [ -f ${STATE_ROOT}/REPO_URL ]; then
-    REPO_URL=$(cat ${STATE_ROOT}/REPO_URL);
-    REPO_LOGIN=$(cat ${STATE_ROOT}/REPO_LOGIN 2>/dev/null || \
-		     cat repos/default-login 2>/dev/null || \
-		     echo);
-    REPO_CURLOPTS=$(cat ${STATE_ROOT}/REPO_CURLOPTS 2>/dev/null || \
-			cat repos/default-curlopts 2>/dev/null || \
-			echo);
 else
     for probe in ${PROBES}; do
-	if [ -z "${REPO_URL}" ] && [ -f repos/${probe} ]; then
-	    REPO_URL=$(cat repos/${probe});
+	if [ -z "${REPO_HOST}" ] && [ -f repos/${probe} ]; then
+	    REPO_HOST=$(cat repos/${probe});
 	    if [ -f repos/${probe}-login ]; then
 		REPO_LOGIN=$(cat repos/${probe}-login ); fi;
-	    if [ -f repos/${probe}-curl ]; then
-		REPO_CURL_OPTS=$(cat repos/${probe}-curlopts); fi;
 	fi;
     done;
 fi;
 		   
-if [ -z "${REPO_URL}" ] && [ -f repos/default ]; then
-    REPO_URL=$(cat repos/default);
-    REPO_LOGIN=$(cat ${STATE_ROOT}/REPO_LOGIN 2>/dev/null || cat repos/default-login 2>/dev/null || echo);
-    REPO_CURL_OPTS=$(cat ${STATE_ROOT}/REPO_CURLOPTS 2>/dev/null || cat repos/default-curlopts 2>/dev/null || echo);
+if [ -z "${REPO_HOST}" ] && [ -f repos/default ]; then
+    REPO_HOST=$(cat repos/default);
 fi;
 
-if [ -n "${REPO_URL}" ] && [ -f "repos/${REPO_URL}" ]; then
-    REPO_URL=$(cat "repos/${REPO_URL}");
+if [ -f repos//default-login ]; then
+    REPO_LOGIN=$(cat repos/default-login);
 fi;
 
-if [ -n "${REPO_LOGIN}" ] && [ -f "repos/${REPO_LOGIN}" ]; then
-    REPO_LOGIN=$(cat "repos/${REPO_LOGIN}");
+if [ -z "${REPO_HOST}" ]; then
+    echo "Warning: No REPO_HOST";
+else
+    if [ -f repos/${REPO_HOST}-login ]; then
+	REPO_LOGIN=$(cat "repos/${REPO_URL}-login");
+    fi;
+    if [ -f "repos/${REPO_HOST}.${REPO_SYSTEM}" ]; then
+	REPO_URL=$(cat "repos/${REPO_HOST}.${REPO_SYSTEM}");
+	if [ -f "repos/${REPO_HOST}.${REPO_SYSTEM}-login" ]; then
+	    REPO_LOGIN=$(cat "repos/${REPO_URL}.${REPO_SYSTEM}-login"); fi;
+    elif [ -f "repos/${REPO_HOST}" ]; then
+	REPO_URL=$(cat "repos/${REPO_HOST}.${REPO_SYSTEM}");
+    else
+	REPO_URL="${REPO_HOST}";
+    fi;	
 fi;
 
 if [ -n "${DISTRO}" ]; then
-    REPO_URL=$(echo ${REPO_URL} | sed - -e "s/@DISTRO@/-${DISTRO}/");
+    REPO_URL=$(echo ${REPO_URL} | sed - -e "s/-@DISTRO@/-${DISTRO}/");
+    REPO_URL=$(echo ${REPO_URL} | sed - -e "s|/@DISTRO@|/${DISTRO}|");
 else
-    REPO_URL=$(echo ${REPO_URL} | sed - -e "s/@CHANNEL@//");
+    REPO_URL=$(echo ${REPO_URL} | sed - -e "s/-@DISTRO@/-universal/");
+    REPO_URL=$(echo ${REPO_URL} | sed - -e "s|/@DISTRO@|/universal|");
 fi;
 
 if [ -n "${CHANNEL}" ]; then
-    REPO_URL=$(echo ${REPO_URL} | sed - -e "s/@CHANNEL@/-${CHANNEL}/");
+    REPO_URL=$(echo ${REPO_URL} | sed - -e "s/-@CHANNEL@/-${CHANNEL}/");
+    REPO_URL=$(echo ${REPO_URL} | sed - -e "s|/@CHANNEL@|/${CHANNEL}|");
 else
-    REPO_URL=$(echo ${REPO_URL} | sed - -e "s/@CHANNEL@//");
+    REPO_URL=$(echo ${REPO_URL} | sed - -e "s/-@CHANNEL@//");
+    REPO_URL=$(echo ${REPO_URL} | sed - -e "s|/@CHANNEL@|/stable|");
 fi;
-
-if [ -n "${REPO_URL}" ]; then echo "${REPO_URL}" > ${STATE_ROOT}/REPO_URL; fi
-if [ -n "${REPO_OPTS}" ]; then echo "${REPO_OPTS}" > ${STATE_ROOT}/REPO_OPTS; fi
-if [ -n "${REPO_LOGIN}" ]; then echo "${REPO_LOGIN}" > ${STATE_ROOT}/REPO_LOGIN; fi
-
 
 if [ -f ${STATE_ROOT}/OUTDIR ]; then OUTDIR=$(cat ${STATE_ROOT}/OUTDIR); fi;
 

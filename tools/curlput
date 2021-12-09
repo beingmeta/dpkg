@@ -14,7 +14,7 @@ PUSH_URL=${REPO_URL}
 PUSH_LOGIN=${REPO_LOGIN}
 CURL=$(which curl 2>/dev/null)
 if [ -z "${CURL}" ]; then
-    echo "Usage: curlpush [http..] [user:pass] [files...]";
+    echo "Usage: curlput [http..] [user:pass] [files...]";
     echo " No curl executable found!!";
     exit;
 fi;
@@ -50,14 +50,17 @@ for arg in $*; do
     esac
 done;
 
-CURLOPTS=${REPO_CURLOPTS}
+if [ -z "${PUSH_LOGIN}" ]; then
+    echo "Warning! No login info";
+    exit;
+fi;
 
 for file in ${FILES}; do \
     done=no
     (if [ -z "${PUSH_LOGIN}" ]; then
 	 ${DEBUG_CURLPUSH} ${CURL} ${CURLOPTS}  --upload-file "${file}" ${PUSH_URL}/$(basename ${file});
      else
-	 ${DEBUG_CURLPUSH} ${CURL} -u "${PUSH_LOGIN}" ${CURLOPTS} --upload-file "${file}" ${PUSH_URL}/$(basename ${file});
+	 ${DEBUG_CURLPUSH} ${CURL} -u "${PUSH_LOGIN}" --upload-file "${file}" ${PUSH_URL}/$(basename ${file});
      fi) && done='yes';
     if [ "${done}" = yes ]; then
 	echo "## Successfully pushed ${file} to ${PUSH_URL}" >&2;
