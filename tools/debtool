@@ -132,25 +132,24 @@ debinstall() {
     if [ -z "${decl_packages}" ]; then 
 	head_package="output/${PKGNAME}/${DPKGNAME}_${VERSION}*.deb";
 	install_packages="${head_package} $(ls output/${PKGNAME}/*-*_${VERSION}*.deb 2>/dev/null)";
-	${SUDO} dpkg -i ${install_packages};
     else
 	for package in ${decl_packages}; do
 	    match="$(ls output/${PKGNAME}/${package}_${VERSION}*.deb 2>/dev/null)";
 	    if [ -n "${match}" ]; then
-		${SUDO} dpkg -i ${match}
+		install_packages="${install_packages} ${match}";
 	    fi;
 	done;
     fi;
+    ${SUDO} dpkg -i ${install_packages};
 }
 
 debpush() {
-    local repo=$1
-    local head_package="output/${PKGNAME}/${PKGNAME}_${VERSION}*.deb";
-    local sub_packages="$(ls output/${PKGNAME}/${PKGNAME}-*_${VERSION}*.deb 2>/dev/null)";
+    local head_package="output/${PKGNAME}/${DPKGNAME}_${VERSION}*.deb";
+    local install_packages="${head_package} $(ls output/${PKGNAME}/*-*_${VERSION}*.deb 2>/dev/null)";
     if [ -z "${REPO}" ]; then
-	${TOOLS}/curlpush ${head_package} ${sub_packages};
+	${TOOLS}/curlpush ${install_packages};
     else
-	${TOOLS}/curlpush ${head_package} ${sub_packages} repo=${repo};
+	${TOOLS}/curlpush ${install_packages} repo=${REPO};
     fi;
 }
 
