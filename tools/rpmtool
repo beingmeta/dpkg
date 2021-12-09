@@ -97,9 +97,9 @@ rpminstallsrc() {
 }
 
 rpmpush() {
-    local head_package="output/${PKGNAME}/${PKGNAME}_${VERSION}*.deb";
-    local sub_packages="$(ls output/${PKGNAME}/${PKGNAME}-*_${VERSION}*.deb 2>/dev/null)";
-    ./curlpush ${head_package} ${sub_packages};
+    local head_package="output/${PKGNAME}/${PKGNAME}-${VERSION}*.rpm";
+    local sub_packages="$(ls output/${PKGNAME}/${PKGNAME}-*-${VERSION}*.rpm 2>/dev/null)";
+    ./tools/curlput ${head_package} ${sub_packages};
 }
 
 case ${ACTION} in

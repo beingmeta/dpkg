@@ -1,0 +1,68 @@
+#!/bin/sh
+
+# Pushes a packaged artifact to a web endpoint, typically a repository server.
+# Examples of REPO_URL:
+#  http://nex.beingmeta.com/repository/kno/
+#  http://packager:password@nex.beingmeta.com/repository/kno/
+
+export NO_PKGNAME=yes
+
+. ./packaging.sh
+
+FILES=
+PUSH_URL=${REPO_URL}
+PUSH_LOGIN=${REPO_LOGIN}
+CURL=$(which curl 2>/dev/null)
+if [ -z "${CURL}" ]; then
+    echo "Usage: curlpush [http..] [user:pass] [files...]";
+    echo " No curl executable found!!";
+    exit;
+fi;
+for arg in $*; do
+    case ${arg} in
+	http:*|https:*)
+	    PUSH_URL=${arg};
+	    ;;
+	*:*)
+	    PUSH_LOGIN=${arg};
+	    ;;
+	repo=*)
+	    repo=${arg%repo=};
+	    if [ -f repos/${repo} ]; then
+		PUSH_URL=$(cat repos/${repo});
+		if [ -f repos/${repo}.login ]; then
+		    PUSH_LOGIN=$(cat repos/${repo}.login);
+		fi;
+	    else
+		PUSH_URL=${repo};
+	    fi;
+	    ;;
+	login=*)
+	    PUSH_LOGIN=${arg%repo=};
+	    ;;
+	*)
+	    if [ -z "${FILES}" ]; then
+		FILES="${arg}";
+	    else 
+		FILES="${FILES} ${arg}";
+	    fi;
+	    ;;
+    esac
+done;
+
+CURLOPTS=${REPO_CURLOPTS}
+
+for file in ${FILES}; do \
+    done=no
+    (if [ -z "${PUSH_LOGIN}" ]; then
+	 ${DEBUG_CURLPUSH} ${CURL} ${CURLOPTS}  --upload-file "${file}" ${PUSH_URL}/$(basename ${file});
+     else
+	 ${DEBUG_CURLPUSH} ${CURL} -u "${PUSH_LOGIN}" ${CURLOPTS} --upload-file "${file}" ${PUSH_URL}/$(basename ${file});
+     fi) && done='yes';
+    if [ "${done}" = yes ]; then
+	echo "## Successfully pushed ${file} to ${PUSH_URL}" >&2;
+    else
+	echo "## Failed to push ${file} to ${PUSH_URL}" >&2;
+	exit 2;
+    fi;
+done;
