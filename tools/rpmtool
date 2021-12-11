@@ -68,7 +68,7 @@ rpmpackage() {
     local arch_dir=$(mkpath "${staging_dir}" "${ARCH}");
     local noarch_dir=$(mkpath "${staging_dir}" "noarch");
     local output_dir=$(mkpath "output" "${PKGNAME}");
-    local noarch_files=;
+    local all_files=;
     ("cd" ${workdir}; # --noclean
      ${BUILDRPM} ${RPMFLAGS}  \
 		 --define="_rpmdir ${RPMDIR}" \
@@ -81,10 +81,10 @@ rpmpackage() {
 		 ${arch_dir}/${PKGNAME}*-${VERSION}*.${ARCH}.rpm;
 	 fi) &&
 	(touch ${output_dir}/rpm.done) &&
-	(mv ${RPMDIR}/${PKGNAME}-${VERSION}*.src.rpm ${output_dir}) &&
-	(mv ${arch_dir}/${PKGNAME}*-${VERSION}*.${ARCH}.rpm ${output_dir}) &&
-	(if [ -d "${noarch}" ]; then noarch_files=$(ls ${noarch_dir}/${PKGNAME}*-${VERSION}*.noarch.rpm); fi; \
-	 if [ -n "${noarch_files}" ]; then mv ${noarch_files}  ${output_dir}; fi)
+	(all_files=$(ls ${RPMDIR}/${PKGNAME}-${VERSION}*.src.rpm \
+			${arch_dir}/${PKGNAME}*-${VERSION}*.${ARCH}.rpm \
+			${noarch_dir}/${PKGNAME}*-${VERSION}*.noarch.rpm);
+	 mv ${all_files} ${output_dir});
 }
 rpminstall() {
     echo arch=${ARCH} pkgname=${PKGNAME} VERSION=${VERSION};
