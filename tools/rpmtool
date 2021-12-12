@@ -83,16 +83,20 @@ rpmpackage() {
 	(touch ${output_dir}/rpm.done) &&
 	(all_files=$(ls ${RPMDIR}/${PKGNAME}-${VERSION}*.src.rpm \
 			${arch_dir}/${PKGNAME}*-${VERSION}*.${ARCH}.rpm \
-			${noarch_dir}/${PKGNAME}*-${VERSION}*.noarch.rpm);
+			${noarch_dir}/${PKGNAME}*-${VERSION}*.noarch.rpm \
+			2>/dev/null);
 	 mv ${all_files} ${output_dir});
 }
 rpminstall() {
     echo arch=${ARCH} pkgname=${PKGNAME} VERSION=${VERSION};
-    local packages="$(ls output/${PKGNAME}/${PKGNAME}*-${VERSION}*.${ARCH}.rpm 2>/dev/null)";
+    local packages="$(ls output/${PKGNAME}/${PKGNAME}*-${VERSION}*.${ARCH}.rpm \
+    	  		 output/${PKGNAME}/${PKGNAME}*-${VERSION}*.noarch.rpm \
+			 2>/dev/null)";
     ${SUDO} rpm -Uvh --force ${packages};
 }
 rpminstallsrc() {
-    local packages="$(ls output/${PKGNAME}/${PKGNAME}-*-${VERSION}*.${ARCH}.rpm 2>/dev/null)";
+    local packages="$(ls output/${PKGNAME}/${PKGNAME}-*-${VERSION}*.${ARCH}.rpm \
+    	  		 2>/dev/null)";
     ${SUDO} rpm -Uvh output/${PKGNAME}/${PKGNAME}-${VERSION}*.src.rpm
 }
 
