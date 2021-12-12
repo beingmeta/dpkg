@@ -1,6 +1,6 @@
 Name:           upsource
 Version:        @VERSION@
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        utility/compatability for Unicode and other functions
 Group:          System Environment/Libraries
 License:        GNU LGPL
@@ -15,14 +15,6 @@ Packager:       reopman@beingmeta.com
 %description
 Provides for a configuration file which maps file system 
 locations to various sources (e.g. git or svn).
-
-%package        core
-Summary:        Basic functionality
-Group:          Development/Libraries
-Requires:       %{name} = %{version}-%{release}
-
-%description    core
-The %{name}-core package contains the basic executables and directory structure for upsource but without some common handlers (for git, svn, s3, etc)
 
 %package        git
 Summary:        GIT handlers/support for upsource
@@ -85,7 +77,7 @@ make install install-config install-inits DESTDIR=$RPM_BUILD_ROOT
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%files core
+%files
 %{_bindir}/upsource
 /usr/lib/upsource/sourcetab.awk
 /usr/lib/upsource/handlers/link.upsource
