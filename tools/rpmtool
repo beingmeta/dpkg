@@ -20,7 +20,8 @@ else
     fi;
 fi;
 
-echo "rpmtool $$ $(pwd) ACTION=${ACTION} PKGNAME=${PKGNAME} VERSION=${VERSION}";
+#echo "rpmtool $$ $(pwd) ACTION=${ACTION} PKGNAME=${PKGNAME} VERSION=${VERSION} BRANCH=${BRANCH}";
+logmsg "rmptool ACTION=${ACTION} PKGNAME=${PKGNAME} VERSION=${VERSION} BRANCH=${BRANCH}";
 
 export RPMINFO=${PACKAGING_ROOT}/rpminfo
 export BUILDRPM=$(which rpmbuild)

@@ -27,7 +27,7 @@ else
     fi;
 fi;
 
-dbgmsg "debtool ACTION=${ACTION} PKGNAME=${PKGNAME}";
+logmsg "debtool ACTION=${ACTION} PKGNAME=${PKGNAME} VERSION=${VERSION} BRANCH=${BRANCH}";
 
 DEBINFO=${PACKAGING_ROOT}/debinfo
 DPKGNAME=${PKGNAME}
