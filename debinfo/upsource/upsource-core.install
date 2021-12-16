@@ -3,4 +3,6 @@ usr/lib/upsource/sourcetab.awk
 usr/lib/upsource/handlers/link.upsource
 usr/lib/upsource/handlers/pre.sh
 usr/lib/upsource/handlers/post.sh
+usr/lib/upsource/handlers/git.upsource
+usr/lib/upsource/handlers/s3.upsource
 etc/upsource.d/config
