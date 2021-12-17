@@ -1,0 +1,156 @@
+#!/bin/sh
+
+ACTION=$1; shift;
+
+PKG_REVISION=1
+if [ ! -f state/PKGNAME ]; then
+    echo "rpmtool with no current package";
+    NO_PKGNAME=yes
+fi;
+
+if [ -f packaging.sh ]; then
+    . ./packaging.sh
+else
+    script_root=$(dirname $0);
+    if [ -f ${script_root}/packaging.sh ]; then
+	. ${script_root}/packaging.sh;
+    else
+	echo "Can't find packaging.sh init";
+	exit 2;
+    fi;
+fi;
+
+#echo "rpmtool $$ $(pwd) ACTION=${ACTION} PKGNAME=${PKGNAME} VERSION=${VERSION} BRANCH=${BRANCH}";
+logmsg "rmptool ACTION=${ACTION} PKGNAME=${PKGNAME} VERSION=${VERSION} BRANCH=${BRANCH}";
+
+export APKINFO=${PACKAGING_ROOT}/apkinfo/
+export BUILDRPM=abuild
+export REPOROOT=${PACKAGING_ROOT}/staging/
+
+apkprep() {
+    local workdir=${1:-${PKGNAME}}
+    local tarball="${PKGNAME}-${VERSION}.tar.gz"
+    local build_root="alpine/${PKGNAME}";
+    local build_repo="alpine/repo";
+    if [ ! -d "alpine" ]; then mkdir alpine; fi;
+    if [ ! -d "${build_root}" ]; then mkdir ${build_root}; fi;
+    if [ ! -d "${build_repo}" ]; then mkdir ${build_repo}; fi;
+    if [ ! -d "${build_repo}/alpine" ]; then mkdir ${build_repo}/alpine; fi;
+    if [ ! -d "${build_repo}/alpine/${ARCH}" ]; then mkdir ${build_repo}/alpine/${ARCH}; fi;
+    (if [ -d ${workdir} ]; then
+	 logmsg "Removing existing build directory ${workdir}";
+	 rm -rf ${workdir};
+     fi) &&
+	(logmsg "Creating tarball ${tarball} for ${workdir}") &&
+	(rm -rf ${workdir}; mkdir ${workdir}; "cd" ${workdir}; tar xf ../${PKGNAME}.tar) &&
+	(tar czf ${tarball} ${workdir}; mv ${tarball} ${build_root}) &&
+	(if [ -f ${APKINFO}/${PKGNAME}/APKBUILD.in ]; then
+	     ${TOOLS}/u8_xsubst ${APKINFO}/${PKGNAME}/APKBUILD.in ${build_root}/APKBUILD \
+		       "PKGNAME" "${PKGNAME}" \
+		       "LIBNAME" "${LIBNAME}" \
+		       "VERSION" "${VERSION}" \
+		       "MAJOR_VERSION" "${MAJOR_VERSION}" \
+		       "MINOR_VERSION" "${MINOR_VERSION}" \
+     		       "RELEASE_VERSION" "${RELEASE_VERSION}";
+	 else
+	     echo "No ABUILD info for ${PKGNAME}";
+	     exit;
+	 fi) &&
+	("cd" ${build_root}; abuild -P ../${build_repo} checksum) &&
+	(logmsg "Establishing workdir ${workdir}"); 
+}
+
+rpmpackage() {
+    local workdir=${1:-${PKGNAME}};
+    local staging_dir="${RPMDIR}";
+    local arch_dir=$(mkpath "${staging_dir}" "${ARCH}");
+    local noarch_dir=$(mkpath "${staging_dir}" "noarch");
+    local output_dir=$(mkpath "output" "${PKGNAME}");
+    local all_files=;
+    ("cd" ${workdir}; # --noclean
+     ${BUILDRPM} ${RPMFLAGS}  \
+		 --define="_rpmdir ${RPMDIR}" \
+		 --define="_srcrpmdir ${RPMDIR}" \
+		 --nodeps -ta ../${PKGNAME}-${VERSION}.tar.gz) &&
+	(if [ -n "${GPGID}" ]; then
+	     rpm --addsign --define="_gpg_name ${GPGID}" \
+		 --define="__gpg_sign_cmd ${RPMGPG}" \
+		 ${RPMDIR}/${PKGNAME}-${VERSION}*.src.rpm \
+		 ${arch_dir}/${PKGNAME}*-${VERSION}*.${ARCH}.rpm;
+	 fi) &&
+	(touch ${output_dir}/rpm.done) &&
+	(all_files=$(ls ${RPMDIR}/${PKGNAME}-${VERSION}*.src.rpm \
+			${arch_dir}/${PKGNAME}*-${VERSION}*.${ARCH}.rpm \
+			${noarch_dir}/${PKGNAME}*-${VERSION}*.noarch.rpm \
+			2>/dev/null);
+	 mv ${all_files} ${output_dir});
+}
+rpminstall() {
+    echo arch=${ARCH} pkgname=${PKGNAME} VERSION=${VERSION};
+    local packages="$(ls output/${PKGNAME}/${PKGNAME}*-${VERSION}*.${ARCH}.rpm \
+    	  		 output/${PKGNAME}/${PKGNAME}*-${VERSION}*.noarch.rpm \
+			 2>/dev/null)";
+    ${SUDO} rpm -Uvh --force ${packages};
+}
+rpminstallsrc() {
+    local packages="$(ls output/${PKGNAME}/${PKGNAME}-*-${VERSION}*.${ARCH}.rpm \
+    	  		 2>/dev/null)";
+    ${SUDO} rpm -Uvh output/${PKGNAME}/${PKGNAME}-${VERSION}*.src.rpm
+}
+
+rpmpush() {
+    local head_package="output/${PKGNAME}/${PKGNAME}-${VERSION}*.rpm";
+    local sub_packages="$(ls output/${PKGNAME}/${PKGNAME}-*-${VERSION}*.rpm 2>/dev/null)";
+    ./tools/curlput ${head_package} ${sub_packages};
+}
+
+case ${ACTION} in
+    start|getsource|source|setsource)
+	./setsource $*;
+	;;
+    prep)
+	import_state;
+	apkprep $*;
+	;;
+    package|pkg|mkpkg|makepkg|build)
+	import_state;
+	if [ "${LOGFILE}" = none ]; then
+	    rpmpackage $@;
+	elif [ -n "${LOGFILE}" ]; then
+	    rpmpackage $* > ${LOGFILE};
+	else
+	    rm -f output/${PKGNAME}/LOG
+	    rpmpackage $* 1> output/${PKGNAME}/LOG 2> output/${PKGNAME}/LOG;
+	fi;
+	if [ -f output/${PKGNAME}/rpm.done ]; then
+	    ls -l output/${PKGNAME}/
+	else
+	    echo "Error: Packaging failed!";
+	    exit 2;
+	fi;
+	;;
+    make)
+	./setsource ${PKGNAME} && import_state && rpmprep ${PKGNAME} && rpmpackage ${PKGNAME};
+	;;
+    install)
+	import_state && rpminstall $*;
+	;;
+    push)
+	import_state && rpmpush $*;
+	;;
+    clean)
+	echo Removing "${PKGNAME}-${VERSION}.tar.gz"
+	rm -f "${PKGNAME}-${VERSION}.tar.gz"
+	;;
+    cleanall)
+	;;
+    update)
+	./setsource ${PKGNAME} ${BRANCH}
+	;;
+    clean)
+	rm -rf ${PKGNAME} ${PKGNAME}.tar;
+	;;
+    *)
+	logmsg "Unknown command '${ACTION}'";
+	;;
+esac

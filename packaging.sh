@@ -120,7 +120,7 @@ else
     ARCH=$(uname -p || echo x86_64);
 fi;
 
-DISTRIBUTOR=$(lsb_release -i -s);
+DISTRIBUTOR=$(lsb_release -i -s | sed - -e 's|Distributor ID:\t||g');
 
 if [ -n "${REPO_SYSTEM}" ]; then
     :;
@@ -134,6 +134,9 @@ else case "${DISTRIBUTOR}" in
 	     ;;
 	 Debian|Mint|Ubuntu)
 	     REPO_SYSTEM="apt";
+	     ;;
+	 Alpine)
+	     REPO_SYSTEM="apk";
 	     ;;
 	 *)
 	     REPO_SYSTEM="apt";
@@ -280,6 +283,9 @@ else
 		;;
 	    Fedora|RHEL|CENTOS)
 		PKGTOOL=${PACKAGING_ROOT}/tools/rpmtool;
+		;;
+	    Alpine)
+		PKGTOOL=${PACKAGING_ROOT}/tools/apktool;
 		;;
 	    *)
 		PKGTOOL=
