@@ -70,6 +70,19 @@ mkpath () {
    fi;
 }
 
+make_dirs () {
+    local path=$1;
+    local dir=$(dirname $1);
+    if [ -z "${path}" ]; then
+	:;
+    elif [ -d "${path}" ]; then
+	:;
+    else
+	make_dirs ${dir};
+	mkdir ${path};
+    fi;
+}
+
 if [ "$(basename $0)" = "packaging.sh" ]; then
     echo "This file should be loaded (sourced) rather than run by itself";
     exit;

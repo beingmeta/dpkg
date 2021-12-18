@@ -2,9 +2,16 @@
 
 ACTION=$1; shift;
 
+export SUCCESS;
+
+ALPINE_VERSION=unknown
+if [ -f /etc/alpine-release ]; then
+    ALPINE_VERSION=$(cat /etc/alpine-release);
+fi;
+
 PKG_REVISION=1
 if [ ! -f state/PKGNAME ]; then
-    echo "rpmtool with no current package";
+    echo "apktool with no current package";
     NO_PKGNAME=yes
 fi;
 
@@ -20,8 +27,7 @@ else
     fi;
 fi;
 
-#echo "rpmtool $$ $(pwd) ACTION=${ACTION} PKGNAME=${PKGNAME} VERSION=${VERSION} BRANCH=${BRANCH}";
-logmsg "rmptool ACTION=${ACTION} PKGNAME=${PKGNAME} VERSION=${VERSION} BRANCH=${BRANCH}";
+logmsg "apktool ACTION=${ACTION} PKGNAME=${PKGNAME} VERSION=${VERSION} BRANCH=${BRANCH}";
 
 export APKINFO=${PACKAGING_ROOT}/apkinfo/
 export BUILDRPM=abuild
@@ -30,20 +36,16 @@ export REPOROOT=${PACKAGING_ROOT}/staging/
 apkprep() {
     local workdir=${1:-${PKGNAME}}
     local tarball="${PKGNAME}-${VERSION}.tar.gz"
-    local build_root="alpine/${PKGNAME}";
-    local build_repo="alpine/repo";
-    if [ ! -d "alpine" ]; then mkdir alpine; fi;
-    if [ ! -d "${build_root}" ]; then mkdir ${build_root}; fi;
-    if [ ! -d "${build_repo}" ]; then mkdir ${build_repo}; fi;
-    if [ ! -d "${build_repo}/alpine" ]; then mkdir ${build_repo}/alpine; fi;
-    if [ ! -d "${build_repo}/alpine/${ARCH}" ]; then mkdir ${build_repo}/alpine/${ARCH}; fi;
+    local alpine_root="staging/alpine/${ALPINE_VERSION}";
+    local build_root="${alpine_root}/${PKGNAME}";
+    make_dirs ${build_root};
     (if [ -d ${workdir} ]; then
 	 logmsg "Removing existing build directory ${workdir}";
 	 rm -rf ${workdir};
      fi) &&
 	(logmsg "Creating tarball ${tarball} for ${workdir}") &&
 	(rm -rf ${workdir}; mkdir ${workdir}; "cd" ${workdir}; tar xf ../${PKGNAME}.tar) &&
-	(tar czf ${tarball} ${workdir}; mv ${tarball} ${build_root}) &&
+	tar czf ${build_root}/${tarball} ${workdir} &&
 	(if [ -f ${APKINFO}/${PKGNAME}/APKBUILD.in ]; then
 	     ${TOOLS}/u8_xsubst ${APKINFO}/${PKGNAME}/APKBUILD.in ${build_root}/APKBUILD \
 		       "PKGNAME" "${PKGNAME}" \
@@ -52,39 +54,46 @@ apkprep() {
 		       "MAJOR_VERSION" "${MAJOR_VERSION}" \
 		       "MINOR_VERSION" "${MINOR_VERSION}" \
      		       "RELEASE_VERSION" "${RELEASE_VERSION}";
+	 elif [ -f ${APKINFO}/${PKGNAME}.APKBUILD.in ]; then
+	     ${TOOLS}/u8_xsubst ${APKINFO}/${PKGNAME}.APKBUILD.in ${build_root}/APKBUILD \
+		     "PKGNAME" "${PKGNAME}" \
+		     "LIBNAME" "${LIBNAME}" \
+		     "VERSION" "${VERSION}" \
+		     "MAJOR_VERSION" "${MAJOR_VERSION}" \
+		     "MINOR_VERSION" "${MINOR_VERSION}" \
+     		     "RELEASE_VERSION" "${RELEASE_VERSION}";
 	 else
-	     echo "No ABUILD info for ${PKGNAME}";
+	     echo "No alpine build info for ${PKGNAME} in apkinfo";
 	     exit;
 	 fi) &&
-	("cd" ${build_root}; abuild -P ../${build_repo} checksum) &&
+	("cd" ${build_root}; 
+	 abuild clean cleancache &&
+	     (abuild cleanpkg 1>/dev/null 2>/dev/null || echo "New build of ${PKGNAME}") &&
+	     abuild checksum) &&
+	(rm -f output/${PKGNAME}/apk.done) &&
 	(logmsg "Establishing workdir ${workdir}"); 
 }
 
-rpmpackage() {
-    local workdir=${1:-${PKGNAME}};
-    local staging_dir="${RPMDIR}";
-    local arch_dir=$(mkpath "${staging_dir}" "${ARCH}");
-    local noarch_dir=$(mkpath "${staging_dir}" "noarch");
-    local output_dir=$(mkpath "output" "${PKGNAME}");
-    local all_files=;
-    ("cd" ${workdir}; # --noclean
-     ${BUILDRPM} ${RPMFLAGS}  \
-		 --define="_rpmdir ${RPMDIR}" \
-		 --define="_srcrpmdir ${RPMDIR}" \
-		 --nodeps -ta ../${PKGNAME}-${VERSION}.tar.gz) &&
-	(if [ -n "${GPGID}" ]; then
-	     rpm --addsign --define="_gpg_name ${GPGID}" \
-		 --define="__gpg_sign_cmd ${RPMGPG}" \
-		 ${RPMDIR}/${PKGNAME}-${VERSION}*.src.rpm \
-		 ${arch_dir}/${PKGNAME}*-${VERSION}*.${ARCH}.rpm;
-	 fi) &&
-	(touch ${output_dir}/rpm.done) &&
-	(all_files=$(ls ${RPMDIR}/${PKGNAME}-${VERSION}*.src.rpm \
-			${arch_dir}/${PKGNAME}*-${VERSION}*.${ARCH}.rpm \
-			${noarch_dir}/${PKGNAME}*-${VERSION}*.noarch.rpm \
-			2>/dev/null);
-	 mv ${all_files} ${output_dir});
+apkpackage() {
+    local workdir=${1:-${PKGNAME}}
+    echo "Building package ${PKGNAME} for alpine";
+    local tarball="${PKGNAME}-${VERSION}.tar.gz"
+    local build_root="staging/alpine/${ALPINE_VERSION}/${PKGNAME}";
+    local repo="staging/alpine/${ALPINE_VERSION}/repo";
+    ("cd" ${build_root};
+     if abuild; then
+	 logmsg "built ${PKGNAME}"; 
+	 date > apk.done;
+     else
+	 errmsg "failed build ${PKGNAME}";
+     fi);
+    if [ -f ${build_root}/apk.done ]; then
+	cp ${build_root}/apk.done output/${PKGNAME}/apk.done;
+	find ~/packages/${ALPINE_VERSION}/ -name "${PKGNAME}*.apk" | \
+	    xargs -L1 -I_pkg cp _pkg output/${PKGNAME}/;
+    fi;
 }
+
 rpminstall() {
     echo arch=${ARCH} pkgname=${PKGNAME} VERSION=${VERSION};
     local packages="$(ls output/${PKGNAME}/${PKGNAME}*-${VERSION}*.${ARCH}.rpm \
@@ -114,15 +123,17 @@ case ${ACTION} in
 	;;
     package|pkg|mkpkg|makepkg|build)
 	import_state;
-	if [ "${LOGFILE}" = none ]; then
-	    rpmpackage $@;
+	if [ -f "output/${PKGNAME}/apk.done" ]; then
+	    :;
+	elif [ "${LOGFILE}" = none ]; then
+	    apkpackage $@;
 	elif [ -n "${LOGFILE}" ]; then
-	    rpmpackage $* > ${LOGFILE};
+	    apkpackage $* > ${LOGFILE};
 	else
 	    rm -f output/${PKGNAME}/LOG
-	    rpmpackage $* 1> output/${PKGNAME}/LOG 2> output/${PKGNAME}/LOG;
+	    apkpackage $* 1> output/${PKGNAME}/LOG 2> output/${PKGNAME}/LOG;
 	fi;
-	if [ -f output/${PKGNAME}/rpm.done ]; then
+	if [ -f output/${PKGNAME}/apk.done ]; then
 	    ls -l output/${PKGNAME}/
 	else
 	    echo "Error: Packaging failed!";
@@ -130,7 +141,7 @@ case ${ACTION} in
 	fi;
 	;;
     make)
-	./setsource ${PKGNAME} && import_state && rpmprep ${PKGNAME} && rpmpackage ${PKGNAME};
+	./setsource ${PKGNAME} && import_state && rpmprep ${PKGNAME} && apkpackagels / ${PKGNAME};
 	;;
     install)
 	import_state && rpminstall $*;
