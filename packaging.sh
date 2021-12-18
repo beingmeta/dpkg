@@ -111,6 +111,10 @@ if [ -z "${PACKAGING_ROOT}" ]; then
     fi;
 fi;
 
+if [ -d "${PACKAGING_ROOT}/output" ]; then
+    mkdir "${PACKAGING_ROOT}/output";
+fi;
+
 if [ -f state/PKGNAME ]; then
     curpkg=$(cat state/PKGNAME);
 fi;
