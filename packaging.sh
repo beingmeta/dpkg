@@ -111,7 +111,7 @@ if [ -z "${PACKAGING_ROOT}" ]; then
     fi;
 fi;
 
-if [ -d "${PACKAGING_ROOT}/output" ]; then
+if [ ! -d "${PACKAGING_ROOT}/output" ]; then
     mkdir "${PACKAGING_ROOT}/output";
 fi;
 
