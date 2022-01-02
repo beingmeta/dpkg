@@ -30,6 +30,17 @@ if [ -d ${PACKAGING_ROOT}/defaults/${pkgname} ]; then
     cp ${PACKAGING_ROOT}/defaults/${pkgname}/* ${STATE_ROOT} 2> /dev/null;
 fi;
 
+if [ -z "${branch}" ]; then
+    if [ -f defaults/${pkgname}/BRANCH ]; then
+	BRANCH=$(cat defaults/${pkgname}/BRANCH);
+	branch=${BRANCH};
+    elif [ -f defaults/BRANCH ]; then
+	BRANCH=$(cat defaults/BRANCH);
+	branch=${BRANCH};
+    fi;
+fi
+if [ -n "${branch}" ]; then echo ${branch} > state/BRANCH; fi;
+
 if [ -n "${DEBUG}" ]; then
     echo setsource PKGNAME=${PKGNAME} BRANCH=${BRANCH} VERSION=${VERSION};
 fi;
@@ -87,10 +98,10 @@ import_state;
 logmsg "Creating source tarball ${tarfile} with version info";
 
 if [ -x ${srcdir}/make_source_tar ]; then
-    ("cd" ${srcdir}; ./make_source_tar ../../${tarfile});
+    ("cd" ${srcdir}; ./make_source_tar ../../work/${tarfile});
 else 
-    ("cd" ${srcdir}; git archive -o ../../${tarfile} HEAD );
-    ("cd" state; tar -rf ../${tarfile} \
+    ("cd" ${srcdir}; git archive -o ../../work/${tarfile} HEAD );
+    ("cd" state; tar -rf ../work/${tarfile} \
         VERSION BASE_VERSION FULL_VERSION VERSION);
 fi;
 

@@ -36,7 +36,7 @@ if [ -f ${DEBINFO}/${PKGNAME}/dpkgname.prop ]; then
 fi
 
 debprep() {
-    local workdir=${1:-${PKGNAME}}
+    local workdir=${1:-work/${PKGNAME}}
     if [ -d ${workdir} ]; then
 	logmsg "Removing existing build directory ${workdir}";
 	rm -rf ${workdir};
@@ -45,8 +45,8 @@ debprep() {
     mkdir ${workdir}; ("cd" ${workdir}; tar xf ../${PKGNAME}.tar);
     if [ ! -f state/NOSOURCE ]; then
 	srctar=${PKGNAME}_${VERSION}.orig.tar.gz;
-	logmsg "Creating source tarball at ${srctar}";
-	tar -czf ${srctar} ${workdir};
+	logmsg "Creating source tarball at work/${srctar}";
+	("cd" work; tar -czf ${srctar} ${PKGNAME});
     fi;
     if [ -d ${workdir}/debian ]; then rm -rf ${workdir}/debian; fi
     mkdir ${workdir}/debian
@@ -95,21 +95,21 @@ debpackage() {
     local output_dir="output/${PKGNAME}/";
     local buildopt=
     if [ -f state/NOSOURCE ]; then buildopt=-b; fi
-    local workdir="${1:-${PKGNAME}}"
+    local workdir="${1:-work/${PKGNAME}}"
     ("cd" ${workdir};
      dpkg-buildpackage ${buildopt} -us -uc -sa -rfakeroot)
     if [ ! -z "${GPGID}" ]; then
 	#    debsign -p${GPG} --re-sign -k${GPGID} dist/kno_@KNO_VERSION@*.changes && touch $@;
-	debsign --re-sign -k${GPGID} ${PKGNAME}_${VERSION}*.changes
+	debsign --re-sign -k${GPGID} work/${PKGNAME}_${VERSION}*.changes
     fi;
     rm -f ${output_dir}/FILES ${output_dir}/${PKGNAME}*;
-    local changes_file="$(ls ${DPKGNAME}_${VERSION}*.changes)";
+    local changes_file="$(ls work/${DPKGNAME}_${VERSION}*.changes)";
     grep "^ [0-9a-f]* [0-9]* [^ ]*$" ${changes_file} | \
     	cut - -d' ' -f 4 > ${output_dir}/FILES;
     for file in $(cat ${output_dir}/FILES); do
-	if [ -f "${file}" ]; then mv ${file} ${output_dir}; fi; done;
+	if [ -f "work/${file}" ]; then mv work/${file} ${output_dir}; fi; done;
     echo ${FULL_VERSION} > ${output_dir}/FULL_VERSION
-    mv ${changes_file} ${output_dir};
+    mv work/${changes_file} ${output_dir};
 }
 
 debcheck() {
