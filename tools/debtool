@@ -108,6 +108,7 @@ debpackage() {
     	cut - -d' ' -f 4 > ${output_dir}/FILES;
     for file in $(cat ${output_dir}/FILES); do
 	if [ -f "${file}" ]; then mv ${file} ${output_dir}; fi; done;
+    echo ${FULL_VERSION} > ${output_dir}/FULL_VERSION
     mv ${changes_file} ${output_dir};
 }
 
@@ -233,6 +234,10 @@ case ${ACTION} in
 	fi;
 	;;
     update|latest)
+	if [ -f output/${PKGNAME}/FULL_VERSION ] &&
+	       [ "${FULL_VERSION}" = "$(cat output/${PKGNAME}/FULL_VERSION)" ]; then
+	    debinstall;
+	fi;
 	(${SUDO} apt install ${PKGNAME}) || (echo "Install of ${PKGNAME} failed");
 	APTVERSION=$(u8_aptversion ${PKGNAME});
 	if [ "${APTVERSION}" != "${VERSION}" ]; then
