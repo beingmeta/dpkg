@@ -34,7 +34,7 @@ export BUILDRPM=abuild
 export REPOROOT=${PACKAGING_ROOT}/staging/
 
 apkprep() {
-    local workdir=${1:-${PKGNAME}}
+    local workdir=${1:-work/${PKGNAME}}
     local tarball="${PKGNAME}-${VERSION}.tar.gz"
     local alpine_root="staging/alpine/${ALPINE_VERSION}";
     local build_root="${alpine_root}/${PKGNAME}";
@@ -45,7 +45,7 @@ apkprep() {
      fi) &&
 	(logmsg "Creating tarball ${tarball} for ${workdir}") &&
 	(rm -rf ${workdir}; mkdir ${workdir}; "cd" ${workdir}; tar xf ../${PKGNAME}.tar) &&
-	tar czf ${build_root}/${tarball} ${workdir} &&
+	("cd" work; tar czf ../${build_root}/${tarball} ${PKGNAME} ) &&
 	(if [ -f ${APKINFO}/${PKGNAME}/APKBUILD.in ]; then
 	     ${TOOLS}/u8_xsubst ${APKINFO}/${PKGNAME}/APKBUILD.in ${build_root}/APKBUILD \
 		       "PKGNAME" "${PKGNAME}" \
@@ -75,7 +75,7 @@ apkprep() {
 }
 
 apkpackage() {
-    local workdir=${1:-${PKGNAME}}
+    local workdir=${1:-work/${PKGNAME}}
     echo "Building package ${PKGNAME} for alpine";
     local tarball="${PKGNAME}-${VERSION}.tar.gz"
     local build_root="staging/alpine/${ALPINE_VERSION}/${PKGNAME}";

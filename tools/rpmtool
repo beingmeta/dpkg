@@ -28,8 +28,15 @@ export BUILDRPM=$(which rpmbuild)
 export RPMDIR=${PACKAGING_ROOT}/staging/
 export RPMFLAGS=
 
+yum_version() {
+    local pkg=$1;
+    local info=$(dnf info --installed ${pkg} | grep "Version *:");
+    local version=${info#*:};
+    echo ${version};
+}
+
 rpmprep() {
-    local workdir=${1:-${PKGNAME}}
+    local workdir=${1:-work/${PKGNAME}}
     local tarball="${PKGNAME}-${VERSION}.tar.gz"
     local rpm_root="${PKGNAME}-${VERSION}";
     (if [ -d ${workdir} ]; then
@@ -37,9 +44,12 @@ rpmprep() {
 	 rm -rf ${workdir};
      fi) &&
 	(logmsg "Creating tarball ${tarball} for ${rpm_root}") &&
-	(rm -rf ${rpm_root}; mkdir ${rpm_root}; "cd" ${rpm_root}; tar xf ../${PKGNAME}.tar) &&
+	(rm -rf work/${rpm_root}; mkdir work/${rpm_root};
+	 "cd" work/${rpm_root};
+	 tar xf ../${PKGNAME}.tar;
+	 find . -name "*.spec" -exec rm '{}' \;) &&
 	(if [ -f ${RPMINFO}/${PKGNAME}/${PKGNAME}.spec.in ]; then
-	     ${TOOLS}/u8_xsubst ${RPMINFO}/${PKGNAME}/${PKGNAME}.spec.in ${rpm_root}/${PKGNAME}.spec \
+	     ${TOOLS}/u8_xsubst ${RPMINFO}/${PKGNAME}/${PKGNAME}.spec.in work/${rpm_root}/${PKGNAME}.spec \
 		       "PKGNAME" "${PKGNAME}" \
 		       "LIBNAME" "${LIBNAME}" \
 		       "VERSION" "${VERSION}" \
@@ -47,7 +57,7 @@ rpmprep() {
 		       "MINOR_VERSION" "${MINOR_VERSION}" \
      		       "RELEASE_VERSION" "${RELEASE_VERSION}";
 	 elif [ -f ${RPMINFO}/${PKGNAME}.spec.in ]; then
-	     ${TOOLS}/u8_xsubst ${RPMINFO}/${PKGNAME}.spec.in ${rpm_root}/${PKGNAME}.spec \
+	     ${TOOLS}/u8_xsubst ${RPMINFO}/${PKGNAME}.spec.in work/${rpm_root}/${PKGNAME}.spec \
 		       "PKGNAME" "${PKGNAME}" \
 		       "LIBNAME" "${LIBNAME}" \
 		       "VERSION" "${VERSION}" \
@@ -58,13 +68,13 @@ rpmprep() {
 	     echo "No RPM info for ${PKGNAME}";
 	     exit;
 	 fi) &&
-	(tar cf ${tarball} ${rpm_root}) &&
+	("cd" work; tar cf ${tarball} ${rpm_root}) &&
 	(logmsg "Establishing workdir ${workdir}") &&
-	(mv ${rpm_root} ${workdir}); 
+	(mv work/${rpm_root} ${workdir}); 
 }
 
 rpmpackage() {
-    local workdir=${1:-${PKGNAME}};
+    local workdir=${1:-work/${PKGNAME}};
     local staging_dir="${RPMDIR}";
     local arch_dir=$(mkpath "${staging_dir}" "${ARCH}");
     local noarch_dir=$(mkpath "${staging_dir}" "noarch");
@@ -142,13 +152,26 @@ case ${ACTION} in
 	import_state && rpmpush $*;
 	;;
     clean)
-	echo Removing "${PKGNAME}-${VERSION}.tar.gz"
-	rm -f "${PKGNAME}-${VERSION}.tar.gz"
+	echo Restoring to pre-prep state
+	rm -rf "work/${PKGNAME}-${VERSION}.tar.gz" "work/${PKGNAME}"
 	;;
     cleanall)
 	;;
-    update)
-	./setsource ${PKGNAME} ${BRANCH}
+    update|latest)
+	if [ -f output/${PKGNAME}/FULL_VERSION ] &&
+	       [ "${FULL_VERSION}" = "$(cat output/${PKGNAME}/FULL_VERSION)" ]; then
+	    rpminstall;
+	fi;
+	(${SUDO} dnf upgrade ${PKGNAME}) || (echo "Install of ${PKGNAME} failed");
+	YUMVERSION=$(yum_version ${PKGNAME});
+	echo yumv=${YUMVERSION};
+	if [ "${YUMVERSION}" != "${VERSION}" ]; then
+	    ./setsource ${PKGNAME} && 
+		rpmprep ${PKGNAME} && 
+		rpmpackage ${PKGNAME} &&
+		rpminstall ${PKGNAME} && 
+		rpmpush ${PKGNAME};
+	fi;
 	;;
     clean)
 	rm -rf ${PKGNAME} ${PKGNAME}.tar;
