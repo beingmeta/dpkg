@@ -99,10 +99,15 @@ rpmpackage() {
 	 mv ${all_files} ${output_dir});
 }
 rpminstall() {
-    echo arch=${ARCH} pkgname=${PKGNAME} VERSION=${VERSION};
-    local packages="$(ls output/${PKGNAME}/${PKGNAME}*-${VERSION}*.${ARCH}.rpm \
-    	  		 output/${PKGNAME}/${PKGNAME}*-${VERSION}*.noarch.rpm \
+    local instpkgs=$(cat rpminfo/${PKGNAME}.install 2>/dev/null||echo ${PKGNAME});
+    local packages=;
+    local matches=;
+    for pkgname in ${instpkgs}; do
+	matches="$(ls output/${PKGNAME}/${pkgname}-${VERSION}*.${ARCH}.rpm \
+    	  		 output/${PKGNAME}/${pkgname}-${VERSION}*.noarch.rpm \
 			 2>/dev/null)";
+	if [ -n "${matches}" ]; then packages="${packages} ${matches}"; fi;
+    done;
     ${SUDO} rpm -Uvh --force ${packages};
 }
 rpminstallsrc() {
@@ -180,7 +185,8 @@ case ${ACTION} in
 		rpminstall $* && echo ${XVERSION} > work/${PKGNAME}/INSTALLED;
 	    fi;
 	fi;
-	(${SUDO} dnf -yq upgrade ${PKGNAME}) || (echo "Upgrade of ${PKGNAME} failed");
+	instpkgs=$(cat rpminfo/${PKGNAME}.install 2>/dev/null||echo ${PKGNAME});
+	(${SUDO} dnf -yq upgrade ${instpkgs}) || (echo "Upgrade of ${instpkgs} failed");
 	YUMVERSION=$(yum_version ${PKGNAME});
 	# Check whether we need to build the package, then do it
 	if [ "${YUMVERSION}" != "${VERSION}" ]; then
