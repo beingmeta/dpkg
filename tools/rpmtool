@@ -149,7 +149,14 @@ case ${ACTION} in
 	import_state && rpminstall $*;
 	;;
     push)
-	import_state && rpmpush $*;
+	import_state;
+	PUSHED=$(cat output/${PKGNAME}/PUSHED 2>/dev/null||echo)
+	XVERSION="${VERSION}-${CHANNEL}"
+	if [ $# -gt 0 ] || [ "${PUSHED}" != "${XVERSION}" ]; then
+	    rpmpush $* && echo ${XVERSION} > output/${PKGNAME}/PUSHED;
+	else
+	    echo "Already pushed ${PKGNAME} version ${XVERSION}";
+	fi;
 	;;
     clean)
 	echo Restoring to pre-prep state
@@ -157,20 +164,27 @@ case ${ACTION} in
 	;;
     cleanall)
 	;;
-    update|latest)
+    update|latest|pushup)
+	import_state;
 	if [ -f output/${PKGNAME}/FULL_VERSION ] &&
 	       [ "${FULL_VERSION}" = "$(cat output/${PKGNAME}/FULL_VERSION)" ]; then
-	    rpminstall;
+	    # If the version we are building is already built in `output`, check if it's installed
+	    INSTALLED=$(cat run/INSTALLED.${PKGNAME} 2>/dev/null||echo)
+	    if [ "${INSTALLED}" != "${FULL_VERSION}" ]; then
+		rpminstall $* && echo ${XVERSION} > work/${PKGNAME}/INSTALLED;
+	    fi;
 	fi;
-	(${SUDO} dnf upgrade ${PKGNAME}) || (echo "Install of ${PKGNAME} failed");
+	(${SUDO} dnf upgrade ${PKGNAME}) || (echo "Upgrade of ${PKGNAME} failed");
 	YUMVERSION=$(yum_version ${PKGNAME});
-	echo yumv=${YUMVERSION};
+	# Check whether we need to build the package, then do it
 	if [ "${YUMVERSION}" != "${VERSION}" ]; then
 	    ./setsource ${PKGNAME} && 
 		rpmprep ${PKGNAME} && 
 		rpmpackage ${PKGNAME} &&
-		rpminstall ${PKGNAME} && 
-		rpmpush ${PKGNAME};
+		rpminstall ${PKGNAME} &&
+ 		(if [ ${ACTION} = "pushup" ]; then rpmpush ${PKGNAME}; fi);
+	else
+	    echo "COOL! The package ${PKGNAME} doesn't need to be updated";
 	fi;
 	;;
     clean)

@@ -220,10 +220,12 @@ case ${ACTION} in
 	fi;
 	;;
     install)
-	INSTALLED=$(cat output/${PKGNAME}/INSTALLED 2>/dev/null||echo)
-	XVERSION="${VERSION}-${CHANNEL}"
-	if [ "${INSTALLED}" != "${XVERSION}" ]; then
-	    debinstall $* && echo ${XVERSION} > output/${PKGNAME}/INSTALLED;
+	import_state;
+	INSTALLED=$(cat run/INSTALLED.${PKGNAME} 2>/dev/null||echo)
+	if [ "${INSTALLED}" != "${FULL_VERSION}" ]; then
+	    debinstall $* && echo ${FULL_VERSION} > run/INSTALLED.${PKGNAME};
+	else
+	    echo "The currently built version of ${PKGNAME} is already installed!";
 	fi;
 	;;
     push)
@@ -231,21 +233,30 @@ case ${ACTION} in
 	XVERSION="${VERSION}-${CHANNEL}"
 	if [ $# -gt 0 ] || [ "${PUSHED}" != "${XVERSION}" ]; then
 	    debpush $* && echo ${XVERSION} > output/${PKGNAME}/PUSHED;
+	else
+	    echo "Already pushed ${PKGNAME} version ${XVERSION}";
 	fi;
 	;;
-    update|latest)
+    update|latest|pushup)
+	import_state;
 	if [ -f output/${PKGNAME}/FULL_VERSION ] &&
 	       [ "${FULL_VERSION}" = "$(cat output/${PKGNAME}/FULL_VERSION)" ]; then
-	    debinstall;
+	    # If the version we are building is already built in `output`, check if it's installed
+	    INSTALLED=$(cat run/INSTALLED.${PKGNAME} 2>/dev/null||echo)
+	    if [ "${INSTALLED}" != "${FULL_VERSION}" ]; then
+		debinstall $* && echo ${FULL_VERSION} > run/INSTALLED.${PKGNAME};
+	    fi;
 	fi;
-	(${SUDO} apt install ${PKGNAME}) || (echo "Install of ${PKGNAME} failed");
+	(${SUDO} apt upgrade ${PKGNAME}) || (echo "Upgrade of ${PKGNAME} failed");
 	APTVERSION=$(u8_aptversion ${PKGNAME});
 	if [ "${APTVERSION}" != "${VERSION}" ]; then
 	    ./setsource ${PKGNAME} && 
 		debprep ${PKGNAME} && 
 		debpackage ${PKGNAME} &&
-		debinstall ${PKGNAME} && 
-		debpush ${PKGNAME};
+		debinstall ${PKGNAME}  && 
+		(if [ ${ACTION} = "pushup" ]; then debpush ${PKGNAME}; fi);
+	else
+	    echo "COOL! The package ${PKGNAME} doesn't need to be updated";
 	fi;
 	;;
     clean)
