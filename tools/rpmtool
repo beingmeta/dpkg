@@ -146,7 +146,13 @@ case ${ACTION} in
 	./setsource ${PKGNAME} && import_state && rpmprep ${PKGNAME} && rpmpackage ${PKGNAME};
 	;;
     install)
-	import_state && rpminstall $*;
+	import_state;
+	INSTALLED=$(cat run/INSTALLED.${PKGNAME} 2>/dev/null||echo)
+	if [ "${INSTALLED}" != "${FULL_VERSION}" ]; then
+	    rpminstall $* && echo ${FULL_VERSION} > run/INSTALLED.${PKGNAME};
+	else
+	    echo "The currently built version of ${PKGNAME} is already installed!";
+	fi;
 	;;
     push)
 	import_state;
