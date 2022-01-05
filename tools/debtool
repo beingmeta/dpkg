@@ -36,7 +36,7 @@ if [ -f ${DEBINFO}/${PKGNAME}/dpkgname.prop ]; then
 fi
 
 debprep() {
-    local workdir=${1:-work/${PKGNAME}}
+    local workdir=work/${PKGNAME}
     if [ -d ${workdir} ]; then
 	logmsg "Removing existing build directory ${workdir}";
 	rm -rf ${workdir};
@@ -216,7 +216,7 @@ case ${ACTION} in
 	;;
     make)
 	if ! debcheck; then
-	    ./setsource ${PKGNAME} && import_state && debprep ${PKGNAME} && debpackage ${PKGNAME};
+	    ./setsource ${PKGNAME} && import_state && debprep && debpackage;
 	fi;
 	;;
     install)
@@ -251,10 +251,7 @@ case ${ACTION} in
 	(${SUDO} apt-get -yq install ${instpkgs}) || (echo "Upgrade of ${instpkgs} failed");
 	APTVERSION=$(u8_aptversion ${PKGNAME});
 	if [ "${APTVERSION}" != "${VERSION}" ]; then
-	    ./setsource ${PKGNAME} && 
-		debprep ${PKGNAME} && 
-		debpackage ${PKGNAME} &&
-		debinstall ${PKGNAME}  && 
+	    ./setsource ${PKGNAME} && debprep && debpackage && debinstall && 
 		(if [ ${ACTION} = "pushup" ]; then debpush ${PKGNAME}; fi);
 	else
 	    echo "COOL! The package ${PKGNAME} doesn't need to be updated";

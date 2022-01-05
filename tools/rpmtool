@@ -36,7 +36,7 @@ yum_version() {
 }
 
 rpmprep() {
-    local workdir=${1:-work/${PKGNAME}}
+    local workdir=work/${PKGNAME}
     local tarball="${PKGNAME}-${VERSION}.tar.gz"
     local rpm_root="${PKGNAME}-${VERSION}";
     (if [ -d ${workdir} ]; then
@@ -148,7 +148,7 @@ case ${ACTION} in
 	fi;
 	;;
     make)
-	./setsource ${PKGNAME} && import_state && rpmprep ${PKGNAME} && rpmpackage ${PKGNAME};
+	./setsource ${PKGNAME} && import_state && rpmprep && rpmpackage;
 	;;
     install)
 	import_state;
@@ -190,10 +190,7 @@ case ${ACTION} in
 	YUMVERSION=$(yum_version ${PKGNAME});
 	# Check whether we need to build the package, then do it
 	if [ "${YUMVERSION}" != "${VERSION}" ]; then
-	    ./setsource ${PKGNAME} && 
-		rpmprep ${PKGNAME} && 
-		rpmpackage ${PKGNAME} &&
-		rpminstall ${PKGNAME} &&
+	    ./setsource ${PKGNAME} && rpmprep && rpmpackage && rpminstall &&
  		(if [ ${ACTION} = "pushup" ]; then rpmpush ${PKGNAME}; fi);
 	else
 	    echo "COOL! The package ${PKGNAME} doesn't need to be updated";
