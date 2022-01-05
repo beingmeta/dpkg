@@ -180,7 +180,7 @@ case ${ACTION} in
 		rpminstall $* && echo ${XVERSION} > work/${PKGNAME}/INSTALLED;
 	    fi;
 	fi;
-	(${SUDO} dnf upgrade ${PKGNAME}) || (echo "Upgrade of ${PKGNAME} failed");
+	(${SUDO} dnf -yq upgrade ${PKGNAME}) || (echo "Upgrade of ${PKGNAME} failed");
 	YUMVERSION=$(yum_version ${PKGNAME});
 	# Check whether we need to build the package, then do it
 	if [ "${YUMVERSION}" != "${VERSION}" ]; then
