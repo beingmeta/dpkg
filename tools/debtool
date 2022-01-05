@@ -247,7 +247,8 @@ case ${ACTION} in
 		debinstall $* && echo ${FULL_VERSION} > run/INSTALLED.${PKGNAME};
 	    fi;
 	fi;
-	(${SUDO} apt-get -yq install ${PKGNAME}) || (echo "Upgrade of ${PKGNAME} failed");
+	local instpkgs="$(cat debinfo/${PKGNAME}/install.prop 2>/dev/null||echo ${PKGNAME})";
+	(${SUDO} apt-get -yq install ${instpkgs}) || (echo "Upgrade of ${PKGNAME} failed");
 	APTVERSION=$(u8_aptversion ${PKGNAME});
 	if [ "${APTVERSION}" != "${VERSION}" ]; then
 	    ./setsource ${PKGNAME} && 
