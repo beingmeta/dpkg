@@ -104,12 +104,18 @@ debpackage() {
     fi;
     rm -f ${output_dir}/FILES ${output_dir}/${PKGNAME}*;
     local changes_file="$(ls work/${DPKGNAME}_${VERSION}*.changes)";
-    grep "^ [0-9a-f]* [0-9]* [^ ]*$" ${changes_file} | \
-    	cut - -d' ' -f 4 > ${output_dir}/FILES;
-    for file in $(cat ${output_dir}/FILES); do
-	if [ -f "work/${file}" ]; then mv work/${file} ${output_dir}; fi; done;
-    echo ${FULL_VERSION} > ${output_dir}/FULL_VERSION
-    mv work/${changes_file} ${output_dir};
+    if [ -n "${changes_file}" ] && [ -f "${changes_file}" ]; then
+	grep "^ [0-9a-f]* [0-9]* [^ ]*$" ${changes_file} | \
+    	    cut - -d' ' -f 4 > ${output_dir}/FILES;
+	for file in $(cat ${output_dir}/FILES); do
+	    if [ -f "work/${file}" ]; then mv work/${file} ${output_dir}; fi; done;
+	echo ${FULL_VERSION} > ${output_dir}/FULL_VERSION
+	mv ${changes_file} ${output_dir};
+	return 0;
+    else
+	echo "No changes file for ${DPKG_NAME} (${VERSION})";
+	return -1
+    fi;
 }
 
 debcheck() {
