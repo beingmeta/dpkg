@@ -51,22 +51,20 @@ case $1 in
     forall)
 	op=$2; shift; shift;
 	if [ $# -eq 0 ]; then
-	    echo "# Applying ${op} to libu8";
-	    pkg ${op} libu8;
-	    echo "# Applying ${op} to kno";
-	    pkg ${op} kno;
-	    for src in sources/*; do
-		name=$(basename ${src});
-		if [ "${name}" = libu8 ] || [ "${name}" = kno ]; then
-		   :;
-		elif [ -f "${src}.skip" ]; then
-		    echo "# Skipping ${op} for ${name}";
-		    :;
-		elif [ "${name%~}" = "${name}" ]; then 
-		    echo "# Applying ${op} to ${name}";
-		    pkg ${op} ${name};
-		fi;
-	    done;
+	    (echo "# Applying ${op} to libu8"; pkg ${op} libu8) &&
+		(echo "# Applying ${op} to kno"; pkg ${op} kno) &&
+		(for src in sources/*; do
+		     name=$(basename ${src});
+		     if [ "${name}" = libu8 ] || [ "${name}" = kno ]; then
+			 :;
+		     elif [ -f "${src}.skip" ]; then
+			 echo "# Skipping ${op} for ${name}";
+			 :;
+		     elif [ "${name%~}" = "${name}" ]; then 
+			 echo "# Applying ${op} to ${name}";
+			 pkg ${op} ${name};
+		     fi;
+		 done);
 	else
 	    for src in $@; do
 		if [ -f "sources/${src}" ]; then
