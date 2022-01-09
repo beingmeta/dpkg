@@ -19,7 +19,7 @@ This provides API bindings for libzip
 %setup -q
 
 %build
-make -d %{?_smp_mflags}
+make %{?_smp_mflags}
 
 %pre
 
