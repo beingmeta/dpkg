@@ -52,7 +52,7 @@ done;
 
 if [ -z "${PUSH_LOGIN}" ]; then
     echo "Warning! No login info";
-    exit;
+    exit 2;
 fi;
 
 for file in ${FILES}; do \
