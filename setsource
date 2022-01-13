@@ -108,7 +108,7 @@ fi;
 if [ ! -d output/${PKGNAME} ]; then
     mkdir ${PACKAGING_ROOT}/output/${PKGNAME};
 fi;
-rm -f ${PACKAGING_ROOT}/output/${PKGNAME}/_.*;
+rm -f ${PACKAGING_ROOT}/output/${PKGNAME}/_.* run/INSTALLED.${PKGNAME};
 touch ${PACKAGING_ROOT}/output/${PKGNAME}/_.STARTED;
 
 echo "Package ${PKGNAME}(${BRANCH}) version ${VERSION}"

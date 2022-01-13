@@ -161,10 +161,10 @@ case ${ACTION} in
 	;;
     push)
 	import_state;
-	PUSHED=$(cat output/${PKGNAME}/PUSHED 2>/dev/null||echo)
+	PUSHED=$(cat output/${PKGNAME}/_.PUSHED 2>/dev/null||echo)
 	XVERSION="${VERSION}-${CHANNEL}"
 	if [ $# -gt 0 ] || [ "${PUSHED}" != "${XVERSION}" ]; then
-	    rpmpush $* && echo ${XVERSION} > output/${PKGNAME}/PUSHED;
+	    rpmpush $* && echo ${XVERSION} > output/${PKGNAME}/_.PUSHED;
 	else
 	    echo "Already pushed ${PKGNAME} version ${XVERSION}";
 	fi;
