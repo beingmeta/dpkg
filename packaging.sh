@@ -338,7 +338,9 @@ else
 	if [ -z "${REPO_HOST}" ] && [ -f repos/${probe} ]; then
 	    REPO_HOST=$(cat repos/${probe});
 	    if [ -f repos/${probe}-login ]; then
-		REPO_LOGIN=$(cat repos/${probe}-login ); fi;
+		REPO_LOGIN=$(cat repos/${probe}-login );
+	    fi;
+	    echo "Found ${REPO_HOST} for ${probe}";
 	fi;
     done;
 fi;
@@ -347,7 +349,7 @@ if [ -z "${REPO_HOST}" ] && [ -f repos/default ]; then
     REPO_HOST=$(cat repos/default);
 fi;
 
-if [ -f repos//default-login ]; then
+if [ -z "${REPO_LOGIN} ] && [ -f repos//default-login ]; then
     REPO_LOGIN=$(cat repos/default-login);
 fi;
 
