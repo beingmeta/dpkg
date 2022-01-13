@@ -191,7 +191,7 @@ case ${ACTION} in
 	    ./setsource ${PKGNAME} && rpmprep && rpmpackage && rpminstall &&
  		(if [ ${ACTION} = "pushup" ]; then rpmpush ${PKGNAME}; fi);
 	else
-	    echo "COOL! The package ${PKGNAME} doesn't need to be updated";
+	    logmsg "COOL! The package ${PKGNAME} doesn't need to be updated";
 	fi;
 	;;
     *)

@@ -256,7 +256,7 @@ case ${ACTION} in
 	    ./setsource ${PKGNAME} && debprep && debpackage && debinstall && 
 		(if [ ${ACTION} = "pushup" ]; then debpush ${PKGNAME}; fi);
 	else
-	    echo "COOL! The package ${PKGNAME} doesn't need to be updated";
+	    logmsg "COOL! The package ${PKGNAME} doesn't need to be updated";
 	fi;
 	;;
     cleanout)
