@@ -250,15 +250,15 @@ case ${ACTION} in
     make|remake)
 	done=
 	${PKGTOOL} prep && ${PKGTOOL} package && SUCCESS=yes;
-	pkg_done MAKE;
+	pkg_done BUILD;
 	;;
     make+|make+install|remake+)
 	${PKGTOOL} prep && ${PKGTOOL} package && ${PKGTOOL} install && SUCCESS=yes;
-	pkg_done MAKE+;
+	pkg_done BUILD;
 	;;
     make++|make+install+push|remake++)
 	${PKGTOOL} prep && ${PKGTOOL} package && ${PKGTOOL} install && ${PKGTOOL} push && SUCCESS=yes;
-	pkg_done MAKE++;
+	pkg_done BUILD;
 	;;
 esac
    
