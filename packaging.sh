@@ -329,6 +329,8 @@ else
     REPOMAN="Repository Manager <repoman@beingmeta.com>"
 fi;
 
+echo "REPO_HOST=${REPO_HOST} PROBES=${PROBES} REPO_URL=${REPO_URL}";
+
 if [ -n "${REPO_URL}" ]; then
     # If we already have an URL in the environment assume everything
     # else has been set appropriately
