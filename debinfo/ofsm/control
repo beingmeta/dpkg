@@ -6,7 +6,6 @@ Build-Depends:
 	       debhelper(>= 8.0.0),
 	       autotools-dev,
 	       equivs,
-	       dh-systemd,
 	       debsigs,
 	       devscripts,
 	       sqlite3,
