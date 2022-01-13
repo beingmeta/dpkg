@@ -182,7 +182,7 @@ case ${ACTION} in
 	    # If the version we are building is already built in `output`, check if it's installed
 	    INSTALLED=$(cat run/INSTALLED.${PKGNAME} 2>/dev/null||echo)
 	    if [ "${INSTALLED}" != "${FULL_VERSION}" ]; then
-		rpminstall $* && echo ${XVERSION} > work/${PKGNAME}/INSTALLED;
+		rpminstall $* && echo ${XVERSION} > run/INSTALLED.${PKGNAME};
 	    fi;
 	fi;
 	instpkgs=$(cat rpminfo/${PKGNAME}.install 2>/dev/null||echo ${PKGNAME});
