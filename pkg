@@ -52,20 +52,20 @@ case $1 in
 	op=$2; shift; shift;
 	if [ $# -eq 0 ]; then
 	    (echo "# Applying ${op} to libu8"; pkg ${op} libu8) &&
-		(echo "# Applying ${op} to kno"; pkg ${op} kno) &&
+		(echo "##### Applying ${op} to kno"; pkg ${op} kno) &&
 		(for src in sources/*; do
 		     name=$(basename ${src});
 		     if [ "${name}" = libu8 ] || [ "${name}" = kno ]; then
 			 :;
 		     elif [ -f "${src}.skip" ]; then
-			 echo "# (${DISTRO}) Skipping ${op} for ${name}";
+			 echo "##### (${DISTRO}) Skipping ${op} for ${name}";
 			 :;
 		     elif [ "${name%~}" = "${name}" ]; then 
-			 echo "# (${DISTRO}) Applying ${op} to ${name}";
+			 echo "##### (${DISTRO}) Applying ${op} to ${name}";
 			 if pkg ${op} ${name}; then
-			     echo "# (${DISTRO}) Successfully applied ${op} to ${name}";			     
+			     echo "##### (${DISTRO}) Successfully applied ${op} to ${name}";			     
 			 else
-			     echo "# (${DISTRO}) Failed to apply ${op} to ${name}";			     
+			     echo "##### (${DISTRO}) Failed to apply ${op} to ${name}";			     
 			     exit 2;
 			 fi;
 		     fi;
@@ -73,14 +73,14 @@ case $1 in
 	else
 	    for src in $@; do
 		if [ -f "sources/${src}" ]; then
-		    echo "# (${DISTRO}) Applying ${op} to ${src}";
+		    echo "##### (${DISTRO}) Applying ${op} to ${src}";
 		    if pkg ${op} ${src}; then
-			echo "# (${DISTRO}) Successfully applied ${op} to ${src}";
+			echo "##### (${DISTRO}) Successfully applied ${op} to ${src}";
 		    else
-			echo "# (${DISTRO}) Failed to apply ${op} to ${name}";
+			echo "##### (${DISTRO}) Failed to apply ${op} to ${name}";
 			exit 2;
 		    fi;
-		else echo "Not a known package: ${src}";
+		else echo "#### (${DISTRO}) Not a known package: ${src}";
 		fi;
 	    done;
 	fi;	
