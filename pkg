@@ -58,18 +58,28 @@ case $1 in
 		     if [ "${name}" = libu8 ] || [ "${name}" = kno ]; then
 			 :;
 		     elif [ -f "${src}.skip" ]; then
-			 echo "# Skipping ${op} for ${name}";
+			 echo "# (${DISTRO}) Skipping ${op} for ${name}";
 			 :;
 		     elif [ "${name%~}" = "${name}" ]; then 
-			 echo "# Applying ${op} to ${name}";
-			 pkg ${op} ${name};
+			 echo "# (${DISTRO}) Applying ${op} to ${name}";
+			 if pkg ${op} ${name}; then
+			     echo "# (${DISTRO}) Successfully applied ${op} to ${name}";			     
+			 else
+			     echo "# (${DISTRO}) Failed to apply ${op} to ${name}";			     
+			     exit 2;
+			 fi;
 		     fi;
 		 done);
 	else
 	    for src in $@; do
 		if [ -f "sources/${src}" ]; then
-		    echo "# Applying ${op} to ${name}";
-		    pkg ${op} ${src};
+		    echo "# (${DISTRO}) Applying ${op} to ${src}";
+		    if pkg ${op} ${src}; then
+			echo "# (${DISTRO}) Successfully applied ${op} to ${src}";
+		    else
+			echo "# (${DISTRO}) Failed to apply ${op} to ${name}";
+			exit 2;
+		    fi;
 		else echo "Not a known package: ${src}";
 		fi;
 	    done;
