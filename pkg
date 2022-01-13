@@ -242,16 +242,6 @@ case ${ACTION} in
 	fi;
 	;;
     clean)
-	rm -rf ${PKGNAME} ${PKGNAME}.tar;
-	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
-	;;
-    cleanout)
-	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
-	("cd" output/${PKGNAME}; rm -f FILES INSTALLED PUSHED);
-	echo "# Contents of output/${PKGNAME}";
-	ls -l output/${PKGNAME}
-	;;
-    cleanall)
 	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
 	("cd" output/${PKGNAME}; rm -f FILES INSTALLED PUSHED);
 	echo "# Contents of output/${PKGNAME}";

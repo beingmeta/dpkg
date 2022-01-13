@@ -173,8 +173,6 @@ case ${ACTION} in
 	echo Restoring to pre-prep state
 	rm -rf "work/${PKGNAME}-${VERSION}.tar.gz" "work/${PKGNAME}"
 	;;
-    cleanall)
-	;;
     update|latest|pushup)
 	import_state;
 	if [ -f output/${PKGNAME}/FULL_VERSION ] &&
@@ -195,9 +193,6 @@ case ${ACTION} in
 	else
 	    echo "COOL! The package ${PKGNAME} doesn't need to be updated";
 	fi;
-	;;
-    clean)
-	rm -rf ${PKGNAME} ${PKGNAME}.tar;
 	;;
     *)
 	logmsg "Unknown command '${ACTION}'";

@@ -189,10 +189,6 @@ cleanout() {
     local sub_packages="$(ls output/${PKGNAME}/${PKGNAME}-*_${VERSION}*.deb 2>/dev/null)";
     local files="$(ls output/${PKGNAME}/${PKGNAME}_${VERSION}* 2>/dev/null)";
     rm -f ${head_package} ${sub_packages} ${files};
-}
-
-cleanall() {
-    cleanout;
     rm -f output/${PKGNAME}/*.deb output/${PKGNAME}/*.ddeb \
        output/${PKGNAME}/*.changes output/${PKGNAME}/*.dsc \
        output/${PKGNAME}/*.buildinfo output/${PKGNAME}/*.tar.*
@@ -263,14 +259,8 @@ case ${ACTION} in
 	    echo "COOL! The package ${PKGNAME} doesn't need to be updated";
 	fi;
 	;;
-    clean)
-	dbgmsg "No debian cleanup for ${PKGNAME}";
-	;;
     cleanout)
 	cleanout;
-	;;
-    cleanall)
-	cleanall;
 	;;
     saveout)
 	saveout $*;

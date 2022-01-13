@@ -153,13 +153,8 @@ case ${ACTION} in
 	echo Removing "${PKGNAME}-${VERSION}.tar.gz"
 	rm -f "${PKGNAME}-${VERSION}.tar.gz"
 	;;
-    cleanall)
-	;;
     update)
 	./setsource ${PKGNAME} ${BRANCH}
-	;;
-    clean)
-	rm -rf ${PKGNAME} ${PKGNAME}.tar;
 	;;
     *)
 	logmsg "Unknown command '${ACTION}'";
