@@ -386,6 +386,8 @@ fi;
 
 if [ -f ${STATE_ROOT}/OUTDIR ]; then OUTDIR=$(cat ${STATE_ROOT}/OUTDIR); fi;
 
+dbgmsg "REPO HOST=${REPO_HOST} URL=${REPO_URL} REPO_LOGIN=${REPO_LOGIN}";
+
 if [ -f ${STATE_ROOT}/GIT_NO_LFS ]; then
     GIT_NO_LFS=$(cat ${STATE_ROOT}/GIT_NO_LFS);
 elif ! git lfs status 2>/dev/null 1>/dev/null; then
