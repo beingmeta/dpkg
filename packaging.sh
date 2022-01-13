@@ -11,12 +11,12 @@ export CODENAME DISTRO STATUS ARCH URGENCY
 PKGLOG=${PKGLOG:-/dev/null}
 
 logmsg () {
-    echo "pkg ($$@$(pwd)) $1" >&2;
+    echo "pkg ($$@$(pwd):${DISTRO}) $1" >&2;
 }
 
 dbgmsg () {
     if [ -n "${DEBUGGING}" ]; then
-	echo "pkgdebug ($$@$(pwd)) $1" >&2;
+	echo "pkgdebug ($$@$(pwd):${DISTRO}) $1" >&2;
     fi;
 }
 
