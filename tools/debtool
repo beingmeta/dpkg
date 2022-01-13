@@ -121,13 +121,13 @@ debpackage() {
 debcheck() {
     local buildinfo=$(ls output/${PKGNAME}/${PKGNAME}_${VERSION}-${DISTRO}*.buildinfo 2>/dev/null);
     if [ -z "${buildinfo}" ]; then
-	dbgmsg "No buildinfo found for output/${PKGNAME}/${PKGNAME}_${VERSION}-${DISTRO}...";
+	errmsg "No buildinfo found for output/${PKGNAME}/${PKGNAME}_${VERSION}-${DISTRO}...";
 	return 1;
     elif [ -f "${buildinfo}" ]; then
 	dbgmsg "File ${buildinfo} found";
 	return 0;
     else
-	dbgmsg "File ${buildinfo} not found";
+	errmsg "File ${buildinfo} not found";
 	return 1;
     fi;
 }

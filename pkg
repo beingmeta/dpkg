@@ -181,10 +181,13 @@ import_state
 export SUCCESS
 
 pkg_done() {
+    local op=$1;
     if [ -z "${SUCCESS}" ]; then
 	echo "Failed '${ACTION}' for ${PKGNAME}";
+	if [ -n "${op}" ]; then touch ${PACKAGING_ROOT}/output/${PKGNAME}/_-failed.${op}; fi;
     else
 	echo "Success with '${ACTION}' for ${PKGNAME}";
+	if [ -n "${op}" ]; then touch ${PACKAGING_ROOT}/output/${PKGNAME}/_.${op}; fi;
     fi;
     exit;
 }
@@ -201,17 +204,25 @@ if [ -z "${PKGTOOL}" ]; then
 fi;
 
 case ${ACTION} in
-    deb|debian)
-	debtool ${curpkg} $@ && SUCCESS=yes;
-	pkg_done;
-	;;
-    rpm|redhat)
-	rpmtool ${curpkg} $@ && SUCCESS=yes;
-	pkg_done;
-	;;
-    prep|prepare|pkg|package|install|push|make|update|latest|build)
+    prep|prepare)
 	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
-	pkg_done;
+	pkg_done PREP;
+	;;
+    build|pkg|package)
+	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
+	pkg_done BUILD;
+	;;
+    install)
+	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
+	pkg_done INSTALL;
+	;;
+    push)
+	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
+	pkg_done PUSHED;
+	;;
+    update|latest)
+	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
+	pkg_done UPDATED;
 	;;
     check)
 	if ${PKGTOOL} check $@; then
@@ -238,17 +249,16 @@ case ${ACTION} in
 	;;
     make|remake)
 	done=
-	echo "make PKGNAME=${PKGNAME} VERSION=${VERSION} $*";
 	${PKGTOOL} prep && ${PKGTOOL} package && SUCCESS=yes;
-	pkg_done;
+	pkg_done MAKE;
 	;;
     make+|make+install|remake+)
 	${PKGTOOL} prep && ${PKGTOOL} package && ${PKGTOOL} install && SUCCESS=yes;
-	pkg_done;
+	pkg_done MAKE+;
 	;;
     make++|make+install+push|remake++)
 	${PKGTOOL} prep && ${PKGTOOL} package && ${PKGTOOL} install && ${PKGTOOL} push && SUCCESS=yes;
-	pkg_done;
+	pkg_done MAKE++;
 	;;
 esac
    
