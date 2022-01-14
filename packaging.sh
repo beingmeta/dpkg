@@ -238,6 +238,9 @@ import_state() {
     if [ -f ${dir}/REPO_LOGIN ]; then
 	REPO_LOGIN=$(cat ${dir}/REPO_LOGIN);
     fi;
+    if [ -f "${STATE_ROOT}/REPOMAN" ]; then
+	REPOMAN=$(cat "${STATE_ROOT}/REPOMAN");
+    fi;
 }
 import_state;
 
