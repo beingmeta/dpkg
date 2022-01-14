@@ -61,9 +61,9 @@ push_probe() {
     fi;
 }
 push_probe "${PKGNAME}";
-push_probe "${PKGNAME}.${DISTRO}.${CHANNEL}";
 push_probe "${PKGNAME}.${CHANNEL}";
 push_probe "${PKGNAME}.${DISTRO}";
+push_probe "${PKGNAME}.${DISTRO}.${CHANNEL}";
 
 # Getting information about repos
 
