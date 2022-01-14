@@ -67,8 +67,6 @@ push_probe "${PKGNAME}.${DISTRO}";
 
 # Getting information about repos
 
-echo "REPO_HOST=${REPO_HOST} PROBES=${PROBES} REPO_URL=${REPO_URL}";
-
 REPOMAN=
 REPO_HOST=${USE_REPO_HOST}
 REPO_LOGIN=${USE_REPO_LOGIN}
@@ -91,7 +89,7 @@ done;
 if [ -z "${REPO_HOST}" ] && [ -f repos/default ]; then
     REPO_HOST=$(cat repos/default);
 else
-    REPO_HOST=default
+    REPO_HOST=kno
 fi;
 
 if [ -z "${REPO_HOST}" ]; then
@@ -142,6 +140,8 @@ fi;
 echo ${REPO_URL} > state/REPO_URL;
 echo ${REPO_LOGIN} > state/REPO_LOGIN;
 echo ${REPOMAN} > state/REPOMAN;
+
+dbgmsg "REPO_HOST=${REPO_HOST} PROBES=${PROBES} REPO_URL=${REPO_URL} REPOMAN=${REPOMAN}";
 
 # Getting sources
 
