@@ -232,27 +232,15 @@ import_state() {
     fi;
     CODENAME=${DISTRO};
     if [ -n "${CHANNEL}" ]; then CODENAME=${CODENAME}-${CHANNEL}; fi;
+    if [ -f ${dir}/REPO_URL ]; then
+	REPO_URL=$(cat ${dir}/REPO_URL);
+    fi;
+    if [ -f ${dir}/REPO_LOGIN ]; then
+	REPO_LOGIN=$(cat ${dir}/REPO_LOGIN);
+    fi;
 }
 import_state;
 
-
-# These are used to probe for specific settings
-PROBES=
-push_probe() {
-    local probe=$1
-    if [ -n "${probe}" ] &&
-	   [ "${probe}" = "${probe%.}" ] &&
-	   [ "${probe}" = "${probe%..*}" ]; then
-	if [ -z "${PROBES}" ]; then
-	    PROBES="${probe}";
-	else PROBES="${probe} ${PROBES}";
-	fi;
-    fi;
-}
-push_probe "${PKGNAME}";
-push_probe "${PKGNAME}.${DISTRO}.${CHANNEL}";
-push_probe "${PKGNAME}.${CHANNEL}";
-push_probe "${PKGNAME}.${DISTRO}";
 
 # Log files
 
@@ -315,77 +303,6 @@ else
 	    echo ${PKGTOOL} > ${STATE_ROOT}/PKGTOOL;
 	fi;
     fi;
-fi;
-
-# Getting information about repos
-
-if [ -f "${STATE_ROOT}/REPOMAN" ]; then
-    REPOMAN=$(cat "${STATE_ROOT}/REPOMAN");
-elif [ -f "defaults/${PKGNAME}/REPOMAN" ]; then
-    REPOMAN=$(cat "defaults/${PKGNAME}/REPOMAN");
-elif [ -f "defaults/REPOMAN" ]; then
-    REPOMAN=$(cat "defaults/REPOMAN");
-else
-    REPOMAN="Repository Manager <repoman@beingmeta.com>"
-fi;
-
-echo "REPO_HOST=${REPO_HOST} PROBES=${PROBES} REPO_URL=${REPO_URL}";
-
-if [ -n "${REPO_URL}" ]; then
-    # If we already have an URL in the environment assume everything
-    # else has been set appropriately
-    :
-else
-    for probe in ${PROBES}; do
-	if [ -z "${REPO_HOST}" ] && [ -f repos/${probe} ]; then
-	    REPO_HOST=$(cat repos/${probe});
-	    if [ -f repos/${probe}-login ]; then
-		REPO_LOGIN=$(cat repos/${probe}-login );
-	    fi;
-	    echo "Found ${REPO_HOST} for ${probe}";
-	fi;
-    done;
-fi;
-		   
-if [ -z "${REPO_HOST}" ] && [ -f repos/default ]; then
-    REPO_HOST=$(cat repos/default);
-fi;
-
-if [ -z "${REPO_LOGIN}" ] && [ -f repos//default-login ]; then
-    REPO_LOGIN=$(cat repos/default-login);
-fi;
-
-if [ -z "${REPO_HOST}" ]; then
-    echo "Warning: No REPO_HOST";
-else
-    if [ -f repos/${REPO_HOST}-login ]; then
-	REPO_LOGIN=$(cat "repos/${REPO_URL}-login");
-    fi;
-    if [ -f "repos/${REPO_HOST}.${REPO_SYSTEM}" ]; then
-	REPO_URL=$(cat "repos/${REPO_HOST}.${REPO_SYSTEM}");
-	if [ -f "repos/${REPO_HOST}.${REPO_SYSTEM}-login" ]; then
-	    REPO_LOGIN=$(cat "repos/${REPO_URL}.${REPO_SYSTEM}-login"); fi;
-    elif [ -f "repos/${REPO_HOST}" ]; then
-	REPO_URL=$(cat "repos/${REPO_HOST}.${REPO_SYSTEM}");
-    else
-	REPO_URL="${REPO_HOST}";
-    fi;	
-fi;
-
-if [ -n "${DISTRO}" ]; then
-    REPO_URL=$(echo ${REPO_URL} | sed - -e "s/-@DISTRO@/-${DISTRO}/");
-    REPO_URL=$(echo ${REPO_URL} | sed - -e "s|/@DISTRO@|/${DISTRO}|");
-else
-    REPO_URL=$(echo ${REPO_URL} | sed - -e "s/-@DISTRO@/-universal/");
-    REPO_URL=$(echo ${REPO_URL} | sed - -e "s|/@DISTRO@|/universal|");
-fi;
-
-if [ -n "${CHANNEL}" ]; then
-    REPO_URL=$(echo ${REPO_URL} | sed - -e "s/-@CHANNEL@/-${CHANNEL}/");
-    REPO_URL=$(echo ${REPO_URL} | sed - -e "s|/@CHANNEL@|/${CHANNEL}|");
-else
-    REPO_URL=$(echo ${REPO_URL} | sed - -e "s/-@CHANNEL@//");
-    REPO_URL=$(echo ${REPO_URL} | sed - -e "s|/@CHANNEL@|/stable|");
 fi;
 
 if [ -f ${STATE_ROOT}/OUTDIR ]; then OUTDIR=$(cat ${STATE_ROOT}/OUTDIR); fi;
