@@ -95,7 +95,7 @@ else
 fi;
 
 if [ -z "${REPO_HOST}" ]; then
-    echo "Warning: No REPO_HOST";
+    echo "Warning: No REPO_HOST, assuming KNO";
 else
     if [ -f repos/${REPO_HOST}-login ]; then
 	REPO_LOGIN=$(cat "repos/${REPO_HOST}-login");
@@ -133,6 +133,10 @@ fi;
 
 if [ -z "${REPOMAN}" ]; then
     REPOMAN="Repository Manager <repoman@beingmeta.com>";
+fi;
+
+if [ -z "${REPO_LOGIN}" ] && [ -f repos/default-login ]; then
+    REPO_LOGIN=$(cat repos/default-login);
 fi;
 
 echo ${REPO_URL} > state/REPO_URL;
