@@ -58,9 +58,9 @@ fi;
 for file in ${FILES}; do \
     done=no
     (if [ -z "${PUSH_LOGIN}" ]; then
-	 ${DEBUG_CURLPUSH} ${CURL} -H "Content-Type: multipart/form-data" --data-binary "@${file}" ${PUSH_URL};
+	 ${DEBUG_CURLPUSH} ${CURL} -f ${CURLOPTS} -H "Content-Type: multipart/form-data" --data-binary "@${file}" ${PUSH_URL};
      else
-	 ${DEBUG_CURLPUSH} ${CURL} -u "${PUSH_LOGIN}" -H "Content-Type: multipart/form-data" --data-binary "@${file}" ${PUSH_URL};
+	 ${DEBUG_CURLPUSH} ${CURL} -f -u "${PUSH_LOGIN}" ${CURLOPTS} -H "Content-Type: multipart/form-data" --data-binary "@${file}" ${PUSH_URL};
      fi) && done='yes';
     if [ "${done}" = yes ]; then
 	echo "## Successfully pushed ${file} to ${PUSH_URL}" >&2;
