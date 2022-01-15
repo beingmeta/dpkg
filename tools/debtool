@@ -150,6 +150,35 @@ debinstall() {
     ${SUDO} dpkg -i ${install_packages};
 }
 
+debrequire() {
+    local decl_packages="$(cat debinfo/${PKGNAME}/install.prop 2>/dev/null)";
+    local head_package=""
+    local install_files=""
+    local install_packages=""
+    if [ -z "${decl_packages}" ]; then 
+	head_package="output/${PKGNAME}/${DPKGNAME}_${VERSION}*.deb";
+	install_files="${head_package} $(ls output/${PKGNAME}/*-*_${VERSION}*.deb 2>/dev/null)";
+	install_packages=${DPKGNAME:-${PKGNAME}}
+    else
+	for package in ${decl_packages}; do
+	    match="$(ls output/${PKGNAME}/${package}_${VERSION}*.deb 2>/dev/null)";
+	    if [ -n "${match}" ]; then
+		install_files="${install_packages} ${match}";
+	    fi;
+	done;
+	install_packages=${decl_packages};
+    fi;
+    if [ -n "${install_files}" ]; then
+	${SUDO} dpkg -i ${install_files};
+    elif ${SUDO} apt-get install ${install_packages}; then
+	echo "#### (${PKGNAME} Installed ${install_packages}";
+    else
+	echo echo "#!!# (${PKGNAME} Failed to install ${install_packages}"
+	( (./pkg prep) && (./pkg make) && (./pkg install) ) ||
+	    (echo echo "#!!# (${PKGNAME} Failed to build/install ${PKGNAME}");
+    fi;
+}
+
 debpush() {
     local head_package="output/${PKGNAME}/${DPKGNAME}_${VERSION}*.deb";
     local install_packages="${head_package} $(ls output/${PKGNAME}/*-*_${VERSION}*.deb 2>/dev/null)";
@@ -229,6 +258,10 @@ case ${ACTION} in
 	else
 	    echo "The currently built version of ${PKGNAME} is already installed!";
 	fi;
+	;;
+    require)
+	import_state;
+	debrequire;
 	;;
     push)
 	PUSHED=$(cat output/${PKGNAME}/_.PUSHED 2>/dev/null||echo)

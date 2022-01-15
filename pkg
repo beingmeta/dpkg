@@ -222,7 +222,7 @@ case ${ACTION} in
 	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
 	pkg_done BUILD;
 	;;
-    install)
+    install|require)
 	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
 	pkg_done INSTALL;
 	;;

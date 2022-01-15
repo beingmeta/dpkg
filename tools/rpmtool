@@ -116,6 +116,26 @@ rpminstallsrc() {
     ${SUDO} rpm -Uvh output/${PKGNAME}/${PKGNAME}-${VERSION}*.src.rpm
 }
 
+rpmrequire() {
+    local instpkgs=$(cat rpminfo/${PKGNAME}.install 2>/dev/null||echo ${PKGNAME});
+    local files=;
+    local matches=;
+    for pkgname in ${instpkgs}; do
+	matches="$(ls output/${PKGNAME}/${pkgname}-${VERSION}*.${ARCH}.rpm \
+    	  		 output/${PKGNAME}/${pkgname}-${VERSION}*.noarch.rpm \
+			 2>/dev/null)";
+	if [ -n "${matches}" ]; then files="${files} ${matches}"; fi;
+    done;
+    if [ -n "${files}" ]; then
+	${SUDO} rpm -Uvh --force ${files};
+    elif ${SUDO} dnf install ${instpkgs};
+	 echo "Installed ${PKGNAME} from repo: ${instpkgs}";
+    else 
+	echo echo "#!!# (${PKGNAME} Failed to install ${instpkgs}"
+	( (./pkg prep) && (./pkg make) && (./pkg install) ) ||
+	    (echo echo "#!!# (${PKGNAME} Failed to build/install ${PKGNAME}");
+}
+
 rpmpush() {
     local head_package="output/${PKGNAME}/${PKGNAME}-${VERSION}*.rpm";
     local sub_packages="$(ls output/${PKGNAME}/${PKGNAME}-*-${VERSION}*.rpm 2>/dev/null)";
