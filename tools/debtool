@@ -163,7 +163,7 @@ debrequire() {
 	for package in ${decl_packages}; do
 	    match="$(ls output/${PKGNAME}/${package}_${VERSION}*.deb 2>/dev/null)";
 	    if [ -n "${match}" ]; then
-		install_files="${install_packages} ${match}";
+		install_files="${install_files} ${match}";
 	    fi;
 	done;
 	install_packages=${decl_packages};
