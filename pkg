@@ -20,10 +20,43 @@ if [ -n "${SKIP}" ]; then
     done;
 fi;
 
+handle_bundle() {
+    local op=;
+    local pkgs=;
+    local elt=;
+    for elt in $*; do
+	case ${elt} in
+	    require|make+|prep|build|install|push)
+		if [ -n "${op}" ] && [ -n "${pkgs}" ]; then
+		    for pkg in ${pkgs}; do
+			./setsource ${pkg} && ./pkg ${op}; done; fi;
+		op=${elt};
+		pkgs=;
+		;;
+	    *)
+		if [ -f sources/${elt} ]; then
+		    if [ -z "${pkgs}" ]; then
+			pkgs="${elt}";
+		    else pkgs="${pkgs} ${elt}"; fi;
+		else
+		    echo "#!!# Error '${elt}' for '${op}' is not a known package";
+		    exit;
+		fi;
+		;;
+	esac;
+    done;
+    if [ -n "${op}" ] && [ -n "${pkgs}" ]; then
+	for pkg in ${pkgs}; do
+	    ./setsource ${pkg} && ./pkg ${op}; done; fi;
+}
+
+
+
 case $1 in
     start|source)
-	if [ -n "$2" ]; then
+	if [ -n "$2" ] && [ -f sources/$2 ]; then
 	    ./setsource $2;
+	    rm -rf work/$2;
 	    exit;
 	else
 	    echo "Usage: pkg start *pkgname*";
@@ -33,9 +66,10 @@ case $1 in
     setup)
 	if [ $# -eq 1 ]; then
 	    for src in sources/*; do
-		if [ -f ${src} ]; then
+		if [ -f ${src} ] && [ "${src%~}" = "${src}" ]; then
+		    # Skip versioned files
 		    name=$(basename ${src});
-		    if [ "${name%~}" = "${name}" ]; then ./setsource ${name}; fi;
+		    ./setsource ${name};
 		fi;
 	    done;
 	else
@@ -84,6 +118,10 @@ case $1 in
 		fi;
 	    done;
 	fi;	
+	exit;
+	;;
+    bundle)
+	handle_bundle $@;
 	exit;
 	;;
     pull|getsources|udpate_sources)
