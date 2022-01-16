@@ -76,7 +76,7 @@ debprep() {
 		       "MAJOR_VERSION" "${MAJOR_VERSION}";
 	 fi;
      done);
-    for suffix in ${DISTRO}.${CHANNEL} ${DISTRO}.${PROFILE} ${DISTRO} ${CHANNEL}; do
+    for suffix in ${DISTRO}.${CHANNEL}.${VARIANT} ${DISTRO}.${CHANNEL} ${DISTRO}.${VARIANT} ${DISTRO} ${CHANNEL} ${VARIANT}; do
 	for custom in ${workdir}/debian/*.${suffix}; do
 	    if [ -f ${custom} ]; then
 		base=$(basename ${custom});

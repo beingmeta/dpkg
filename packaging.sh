@@ -2,7 +2,7 @@
 
 export PACKAGING_ROOT STATE_ROOT SOURCE_ROOT WORK_ROOT
 export PATH LOGFILE LIBNAME TOOLS OUTPUT
-export PKGNAME VERSION REL_VERSION BRANCH CHANNEL PROFILE FULL_VERSION
+export PKGNAME VERSION REL_VERSION BRANCH CHANNEL VARIANT FULL_VERSION
 export BASE_VERSION MAJOR_VERSION MINOR_VERSION RELEASE_VERSION
 export KNO_VERSION KNO_MAJOR KNO_MINOR
 export REPOMAN REPO_SYSTEM REPO_HOST REPO_URL REPO_LOGIN
@@ -172,8 +172,8 @@ if [ -n "${DEFAULT_CHANNEL}" ]; then
     echo ${DEFAULT_CHANNEL} > defaults/CHANNEL;
 fi;
 
-if [ -n "${DEFAULT_PROFILE}" ]; then
-    echo ${DEFAULT_PROFILE} > defaults/PROFILE;
+if [ -n "${DEFAULT_VARIANT}" ]; then
+    echo ${DEFAULT_VARIANT} > defaults/VARIANT;
 fi;
 
 # This is all information which should come from getsource
@@ -219,9 +219,11 @@ import_state() {
 	CHANNEL="${BRANCH}";
     else CHANNEL=;
     fi;
-    if [ -f ${STATE_ROOT}/PROFILE ]; then
-	PROFILE=$(cat ${STATE_ROOT}/PROFILE);
-    else PROFILE=;
+    if [ -f ${STATE_ROOT}/VARIANT ]; then
+	VARIANT=$(cat ${STATE_ROOT}/VARIANT);
+    elif [ -f defaults/VARIANT ]; then
+	VARIANT=$(cat defaults/VARIANT);
+    else VARIANT=;
     fi;
     if [ -f ${dir}/LIBNAME ]; then
 	LIBNAME=$(cat ${dir}/LIBNAME);
@@ -237,10 +239,6 @@ import_state() {
     if [ -f ${dir}/CHANNEL ]; then
 	CHANNEL=$(cat ${dir}/CHANNEL);
     else CHANNEL=;
-    fi;
-    if [ -f ${dir}/PROFILE ]; then
-	PROFILE=$(cat ${dir}/PROFILE);
-    else PROFILE=;
     fi;
     CODENAME=${DISTRO};
     if [ -n "${CHANNEL}" ]; then CODENAME=${CODENAME}-${CHANNEL}; fi;
