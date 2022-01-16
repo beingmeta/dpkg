@@ -20,18 +20,44 @@ if [ -n "${SKIP}" ]; then
     done;
 fi;
 
-handle_bundle() {
-    local op=;
-    local pkgs=;
-    local elt=;
+pkg_op( ) {
+    local pkgop="$1";
+    local pkglist="$2";
+    if [ -n "${pkgop}" ] && [ -n "${pkglist}" ]; then
+	for pkg in ${pkglist}; do
+	    ./setsource ${pkg} && ./pkg ${pkgop}; done; fi;
+}    
+
+get_all_pkgs( ) {
+    local all='libu8 kno';
+    local p='';
+    local nm='';
+    for p in sources/*; do
+	if  [ "${p%~}" = "${p}" ]; then
+	    nm=$(basename ${p});
+	    if ! ( [ nm = "libu8" ] || [ nm == "kno" ] ); then
+		all="${all} ${nm}"; fi;
+	fi;
+    done;
+    echo ${all};
+}
+
+handle_bundle( ) {
+    local op='';
+    local pkgs='';
+    local elt='';
     for elt in $*; do
 	case ${elt} in
-	    require|make+|prep|build|install|push)
-		if [ -n "${op}" ] && [ -n "${pkgs}" ]; then
-		    for pkg in ${pkgs}; do
-			./setsource ${pkg} && ./pkg ${op}; done; fi;
+	    require|make+|prep|build|install|push|update|latest|pushup)
+		pkg_op ${op} "${pkgs}"; 
 		op=${elt};
-		pkgs=;
+		pkgs='';
+		;;
+	    all)
+		if [ -z "${pkgs}" ]; then
+		    pkgs=$(get_all_pkgs);
+		    else pkgs="${pkgs} ${elt}"; fi;
+		shift;
 		;;
 	    *)
 		if [ -f sources/${elt} ]; then
@@ -44,13 +70,10 @@ handle_bundle() {
 		fi;
 		;;
 	esac;
+	echo "Handled ${elt}";
     done;
-    if [ -n "${op}" ] && [ -n "${pkgs}" ]; then
-	for pkg in ${pkgs}; do
-	    ./setsource ${pkg} && ./pkg ${op}; done; fi;
+    pkg_op ${op} "${pkgs}"; 
 }
-
-
 
 case $1 in
     start|source)
@@ -121,6 +144,7 @@ case $1 in
 	exit;
 	;;
     bundle)
+	shift;
 	handle_bundle $@;
 	exit;
 	;;
