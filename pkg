@@ -25,6 +25,7 @@ pkg_op( ) {
     local pkglist="$2";
     if [ -n "${pkgop}" ] && [ -n "${pkglist}" ]; then
 	for pkg in ${pkglist}; do
+	    logmsg "Applying ${pkgop} to ${pkg}";
 	    ./setsource ${pkg} && ./pkg ${pkgop}; done; fi;
 }    
 
@@ -70,7 +71,6 @@ handle_bundle( ) {
 		fi;
 		;;
 	esac;
-	echo "Handled ${elt}";
     done;
     pkg_op ${op} "${pkgs}"; 
 }

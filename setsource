@@ -86,7 +86,7 @@ done;
 		   
 if [ -z "${REPO_HOST}" ] && [ -f repos/default ]; then
     REPO_HOST=$(cat repos/default);
-else
+elif [ -z "${REPO_HOST}" ]; then
     REPO_HOST=kno
 fi;
 
