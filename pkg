@@ -48,7 +48,7 @@ handle_bundle( ) {
     local elt='';
     for elt in $*; do
 	case ${elt} in
-	    require|make+|prep|build|install|push|update|latest|pushup)
+	    require|make|make+|make++|prep|build|install|push|update|latest|pushup)
 		pkg_op ${op} "${pkgs}"; 
 		op=${elt};
 		pkgs='';
