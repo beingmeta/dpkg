@@ -61,9 +61,7 @@ push_probe() {
     fi;
 }
 push_probe "${PKGNAME}";
-push_probe "${PKGNAME}.${CHANNEL}";
 push_probe "${PKGNAME}.${DISTRO}";
-push_probe "${PKGNAME}.${DISTRO}.${CHANNEL}";
 
 # Getting information about repos
 
@@ -121,12 +119,12 @@ else
     REPO_URL=$(echo ${REPO_URL} | sed - -e "s|/@DISTRO@|/universal|");
 fi;
 
-if [ -n "${CHANNEL}" ]; then
-    REPO_URL=$(echo ${REPO_URL} | sed - -e "s/-@CHANNEL@/-${CHANNEL}/");
-    REPO_URL=$(echo ${REPO_URL} | sed - -e "s|/@CHANNEL@|/${CHANNEL}|");
+if [ -n "${VARIANT}" ]; then
+    REPO_URL=$(echo ${REPO_URL} | sed - -e "s/-@VARIANT@/-${VARIANT}/");
+    REPO_URL=$(echo ${REPO_URL} | sed - -e "s|/@VARIANT@|/${VARIANT}|");
 else
-    REPO_URL=$(echo ${REPO_URL} | sed - -e "s/-@CHANNEL@//");
-    REPO_URL=$(echo ${REPO_URL} | sed - -e "s|/@CHANNEL@|/stable|");
+    REPO_URL=$(echo ${REPO_URL} | sed - -e "s/-@VARIANT@//");
+    REPO_URL=$(echo ${REPO_URL} | sed - -e "s|/@VARIANT@|/stable|");
 fi;
 
 if [ -z "${REPOMAN}" ]; then

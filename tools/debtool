@@ -28,6 +28,7 @@ else
 fi;
 
 logmsg "debtool ACTION=${ACTION} PKGNAME=${PKGNAME} VERSION=${VERSION} BRANCH=${BRANCH}";
+logmsg "   VARIANT=${VARIANT} REPO_HOST=${REPO_HOST}";
 
 DEBINFO=${PACKAGING_ROOT}/debinfo
 DPKGNAME=${PKGNAME}
@@ -64,7 +65,6 @@ debprep() {
 	     echo "Generating ../../${workdir}/debian/${file} from ${file}" > ../../output/${PKGNAME}/LOG;
 	     ${TOOLS}/u8_xsubst -q ${file} ../../${workdir}/debian/${file} \
 		       "VERSION" "${VERSION}"              \
-		       "CHANNEL" "${CHANNEL}"                  \
 		       "BRANCH" "${BRANCH}"                    \
 		       "DISTRO" "${DISTRO}"                    \
 		       "KNO_VERSION" "${KNO_VERSION}"          \
@@ -76,8 +76,7 @@ debprep() {
 		       "MAJOR_VERSION" "${MAJOR_VERSION}";
 	 fi;
      done);
-    for suffix in ${DISTRO}.${CHANNEL}.${VARIANT} ${DISTRO}.${CHANNEL} ${DISTRO}.${VARIANT} \
-			   ${DISTRO} ${CHANNEL} ${VARIANT}; do
+    for suffix in ${DISTRO}.${VARIANT} ${DISTRO} ${VARIANT}; do
 	for custom in ${workdir}/debian/*.${suffix}; do
 	    if [ -f ${custom} ]; then
 		base=$(basename ${custom});
@@ -278,11 +277,9 @@ case ${ACTION} in
 	;;
     push)
 	PUSHED=$(cat output/${PKGNAME}/_.PUSHED 2>/dev/null||echo)
-	if [ -n "${CHANNEL}" ]; then
-	    XVERSION="${VERSION}-${CHANNEL}";
-	elif [ -n "${VARIANT}" ]; then
-	    XVERSION="${VERSION}-${VARIANT}";
-	else XVERSION="${VERSION}";
+	if [ -n "${VARIANT}" ]; then
+	    VERSION="${VERSION}-${VARIANT}-${REPO_HOST}";
+	else XVERSION="${VERSION}-${REPO_HOST}";
 	fi;
 	if [ $# -gt 0 ] || [ "${PUSHED}" != "${XVERSION}" ]; then
 	    debpush $* && echo ${XVERSION} > output/${PKGNAME}/_.PUSHED;

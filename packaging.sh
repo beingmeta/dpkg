@@ -2,7 +2,7 @@
 
 export PACKAGING_ROOT STATE_ROOT SOURCE_ROOT WORK_ROOT
 export PATH LOGFILE LIBNAME TOOLS OUTPUT
-export PKGNAME VERSION REL_VERSION BRANCH CHANNEL VARIANT FULL_VERSION
+export PKGNAME VERSION REL_VERSION BRANCH VARIANT FULL_VERSION
 export BASE_VERSION MAJOR_VERSION MINOR_VERSION RELEASE_VERSION
 export KNO_VERSION KNO_MAJOR KNO_MINOR
 export REPOMAN REPO_SYSTEM REPO_HOST REPO_URL REPO_LOGIN
@@ -168,10 +168,6 @@ if [ -n "${DEFAULT_BRANCH}" ]; then
     echo ${DEFAULT_BRANCH} > defaults/BRANCH;
 fi;
 
-if [ -n "${DEFAULT_CHANNEL}" ]; then
-    echo ${DEFAULT_CHANNEL} > defaults/CHANNEL;
-fi;
-
 if [ -n "${DEFAULT_VARIANT}" ]; then
     echo ${DEFAULT_VARIANT} > defaults/VARIANT;
 fi;
@@ -211,14 +207,6 @@ import_state() {
     MAJOR_VERSION=$(echo $VERSION | cut -d. -f 1);
     MINOR_VERSION=$(echo $VERSION | cut -d. -f 2);
     RELEASE_VERSION=$(echo $VERSION | cut -d. -f 3);
-    if [ -f ${STATE_ROOT}/CHANNEL ]; then
-	CHANNEL=$(cat ${STATE_ROOT}/CHANNEL);
-    elif [ "${BRANCH}" != "${BRANCH%-test}" ]; then
-	CHANNEL="${BRANCH%-test}";
-    elif [ "${BRANCH}" = "edge" ] || [ "${BRANCH}" = "prod" ] || [ "${BRANCH}" = "LTS" ]; then
-	CHANNEL="${BRANCH}";
-    else CHANNEL=;
-    fi;
     if [ -f ${STATE_ROOT}/VARIANT ]; then
 	VARIANT=$(cat ${STATE_ROOT}/VARIANT);
     elif [ -f defaults/VARIANT ]; then
@@ -236,12 +224,11 @@ import_state() {
 	URGENCY=$(cat ${dir}/URGENCY);
     else URGENCY=normal;
     fi;
-    if [ -f ${dir}/CHANNEL ]; then
-	CHANNEL=$(cat ${dir}/CHANNEL);
-    else CHANNEL=;
-    fi;
     CODENAME=${DISTRO};
-    if [ -n "${CHANNEL}" ]; then CODENAME=${CODENAME}-${CHANNEL}; fi;
+    # if [ -n "${VARIANT}" ]; then CODENAME=${CODENAME}-${VARIANT}; fi;
+    if [ -f ${dir}/REPO_HOST ]; then
+	REPO_HOST=$(cat ${dir}/REPO_HOST);
+    fi;
     if [ -f ${dir}/REPO_URL ]; then
 	REPO_URL=$(cat ${dir}/REPO_URL);
     fi;
