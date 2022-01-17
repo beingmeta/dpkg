@@ -192,7 +192,11 @@ case ${ACTION} in
     push)
 	import_state;
 	PUSHED=$(cat output/${PKGNAME}/_.PUSHED 2>/dev/null||echo)
-	XVERSION="${VERSION}-${CHANNEL}"
+	if [ -n "${CHANNEL}" ]; then
+	    XVERSION="${VERSION}-${CHANNEL}";
+	elif [ -n "${VARIANT}" ]; then
+	    XVERSION="${VERSION}-${VARIANT}";
+	else XVERSION="${VERSION}";
 	if [ $# -gt 0 ] || [ "${PUSHED}" != "${XVERSION}" ]; then
 	    rpmpush $* && echo ${XVERSION} > output/${PKGNAME}/_.PUSHED;
 	else

@@ -120,7 +120,7 @@ debpackage() {
 }
 
 debcheck() {
-    local buildinfo=$(ls output/${PKGNAME}/${PKGNAME}_${VERSION}-${DISTRO}*.buildinfo 2>/dev/null);
+    local buildinfo=$(ls output/${PKGNAME}/${PKGNAME}_${VERSION}*.buildinfo 2>/dev/null);
     if [ -z "${buildinfo}" ]; then
 	logmsg "No buildinfo found for output/${PKGNAME}/${PKGNAME}_${VERSION}-${DISTRO}...";
 	return 1;
@@ -266,7 +266,11 @@ case ${ACTION} in
 	;;
     push)
 	PUSHED=$(cat output/${PKGNAME}/_.PUSHED 2>/dev/null||echo)
-	XVERSION="${VERSION}-${CHANNEL}"
+	if [ -n "${CHANNEL}" ]; then
+	    XVERSION="${VERSION}-${CHANNEL}";
+	elif [ -n "${VARIANT}" ]; then
+	    XVERSION="${VERSION}-${VARIANT}";
+	else XVERSION="${VERSION}";
 	if [ $# -gt 0 ] || [ "${PUSHED}" != "${XVERSION}" ]; then
 	    debpush $* && echo ${XVERSION} > output/${PKGNAME}/_.PUSHED;
 	else
