@@ -160,7 +160,7 @@ case ${ACTION} in
 	import_state;
 	rpmprep $*;
 	;;
-    package|pkg|mkpkg|makepkg|build)
+    package|pkg|mkpkg|makepkg|build|rebuild)
 	import_state;
 	if [ "${LOGFILE}" = none ]; then
 	    rpmpackage $@;

@@ -246,6 +246,18 @@ case ${ACTION} in
 	fi;
 	ls -l output/${PKGNAME}/
 	;;
+    rebuild)
+	import_state;
+	if [ "${LOGFILE}" = none ]; then
+	    debpackage $@;
+	elif [ -n "${LOGFILE}" ]; then
+	    debpackage $* > ${LOGFILE};
+	else
+	    rm -f output/${PKGNAME}/LOG
+	    debpackage $* > output/${PKGNAME}/LOG;
+	fi;
+	ls -l output/${PKGNAME}/
+	;;
     make)
 	if ! debcheck; then
 	    ./setsource ${PKGNAME} && import_state && debprep && debpackage;

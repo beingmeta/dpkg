@@ -48,7 +48,7 @@ handle_bundle( ) {
     local elt='';
     for elt in $*; do
 	case ${elt} in
-	    require|make|make+|make++|prep|build|install|push|update|latest|pushup)
+	    require|make|make+|make++|prep|build|install|push|update|latest|remake|rebuild|remake+|remake++|pushup)
 		pkg_op ${op} "${pkgs}"; 
 		op=${elt};
 		pkgs='';
@@ -280,7 +280,7 @@ case ${ACTION} in
 	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
 	pkg_done PREP;
 	;;
-    build|pkg|package)
+    build|pkg|package|rebuild)
 	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
 	pkg_done BUILD;
 	;;
@@ -314,12 +314,20 @@ case ${ACTION} in
 	${PKGTOOL} prep && ${PKGTOOL} package && SUCCESS=yes;
 	pkg_done BUILD;
 	;;
-    make+|make+install|remake+)
-	${PKGTOOL} prep && ${PKGTOOL} package && ${PKGTOOL} install && SUCCESS=yes;
+    make+|make+install)
+	${PKGTOOL} prep && ${PKGTOOL} build && ${PKGTOOL} install && SUCCESS=yes;
 	pkg_done BUILD;
 	;;
-    make++|make+install+push|remake++)
-	${PKGTOOL} prep && ${PKGTOOL} package && ${PKGTOOL} install && ${PKGTOOL} push && SUCCESS=yes;
+    remake+|remake+install)
+	${PKGTOOL} prep && ${PKGTOOL} rebuild && ${PKGTOOL} install && SUCCESS=yes;
+	pkg_done BUILD;
+	;;
+    make++|make+install+push)
+	${PKGTOOL} prep && ${PKGTOOL} build && ${PKGTOOL} install && ${PKGTOOL} push && SUCCESS=yes;
+	pkg_done BUILD;
+	;;
+    remake++|remake+install+push)
+	${PKGTOOL} prep && ${PKGTOOL} rebuild && ${PKGTOOL} install && ${PKGTOOL} push && SUCCESS=yes;
 	pkg_done BUILD;
 	;;
 esac
