@@ -197,6 +197,7 @@ case ${ACTION} in
 	elif [ -n "${VARIANT}" ]; then
 	    XVERSION="${VERSION}-${VARIANT}";
 	else XVERSION="${VERSION}";
+	fi;
 	if [ $# -gt 0 ] || [ "${PUSHED}" != "${XVERSION}" ]; then
 	    rpmpush $* && echo ${XVERSION} > output/${PKGNAME}/_.PUSHED;
 	else

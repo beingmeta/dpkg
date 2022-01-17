@@ -271,6 +271,7 @@ case ${ACTION} in
 	elif [ -n "${VARIANT}" ]; then
 	    XVERSION="${VERSION}-${VARIANT}";
 	else XVERSION="${VERSION}";
+	fi;
 	if [ $# -gt 0 ] || [ "${PUSHED}" != "${XVERSION}" ]; then
 	    debpush $* && echo ${XVERSION} > output/${PKGNAME}/_.PUSHED;
 	else
