@@ -136,6 +136,7 @@ if [ -z "${REPO_LOGIN}" ] && [ -f repos/default-login ]; then
 fi;
 
 echo ${REPO_URL} > state/REPO_URL;
+echo ${REPO_HOST} > state/REPO_HOST;
 echo ${REPO_LOGIN} > state/REPO_LOGIN;
 echo ${REPOMAN} > state/REPOMAN;
 
