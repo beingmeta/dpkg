@@ -85,7 +85,7 @@ debprep() {
 		logmsg "Using custom file ${custom} as ${base} in ${workdir}/debian/";
 		mv ${custom} ${workdir}/debian/${base};
 		# Remove other custom entries
-		rm ${workdir}/debian/${base}.*;
+		rm -f ${workdir}/debian/${base}.*;
 	    fi;
 	done;
     done;
@@ -197,7 +197,7 @@ debchangelog() {
 #    echo ${PKGNAME} \(${VERSION}-${DPKG_REVISION}-${CODENAME}\) ${codename} ${STATUS}\; urgency=${URGENCY}
 #    echo ${PKGNAME} \(${VERSION}-${CODENAME}\) ${codename} ${STATUS}\; urgency=${URGENCY}
 #    echo ${DPKGNAME} \(${VERSION}-${CODENAME}\) ${CODENAME} ${STATUS}\; urgency=${URGENCY}
-    echo ${DPKGNAME} \(${VERSION}\) ${CODENAME} ${STATUS}\; urgency=${URGENCY}
+    echo ${DPKGNAME} \(${VERSION}\) ${CODENAME} ${STATUS}\; urgency=${URGENCY};
     echo
     echo "  * ${GITID} ${STATUSADJ} point release of ${PKGNAME} (branch '${BRANCH}') for ${CODENAME} (${FULL_VERSION})"
     echo
