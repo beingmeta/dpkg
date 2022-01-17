@@ -39,6 +39,7 @@ rpmprep() {
     local workdir=work/${PKGNAME}
     local tarball="${PKGNAME}-${VERSION}.tar.gz"
     local rpm_root="${PKGNAME}-${VERSION}";
+    local spec_file="";
     (if [ -d ${workdir} ]; then
 	 logmsg "Removing existing build directory ${workdir}";
 	 rm -rf ${workdir};
@@ -48,26 +49,35 @@ rpmprep() {
 	 "cd" work/${rpm_root};
 	 tar xf ../${PKGNAME}.tar;
 	 find . -name "*.spec" -exec rm '{}' \;) &&
-	(if [ -f ${RPMINFO}/${PKGNAME}/${PKGNAME}.spec.in ]; then
-	     ${TOOLS}/u8_xsubst ${RPMINFO}/${PKGNAME}/${PKGNAME}.spec.in work/${rpm_root}/${PKGNAME}.spec \
-		       "PKGNAME" "${PKGNAME}" \
-		       "LIBNAME" "${LIBNAME}" \
-		       "VERSION" "${VERSION}" \
-		       "MAJOR_VERSION" "${MAJOR_VERSION}" \
-		       "MINOR_VERSION" "${MINOR_VERSION}" \
-     		       "RELEASE_VERSION" "${RELEASE_VERSION}";
+	(for suffix in ${DISTRO}.${CHANNEL}.${VARIANT} \
+				${DISTRO}.${CHANNEL} ${DISTRO}.${VARIANT} \
+				${DISTRO} ${CHANNEL} ${VARIANT}; do
+	     if [ -n "${spec_file}" ]; then
+		 :;
+	     elif [ -f ${RPMINFO}/${PKGNAME}/${PKGNAME}.spec.in.${suffix} ]; then
+		 spec_file=${RPMINFO}/${PKGNAME}/${PKGNAME}.spec.in.${suffix};
+	     elif [ -f ${RPMINFO}/${PKGNAME}.spec.in.${suffix} ]; then
+		 spec_file=${RPMINFO}/${PKGNAME}/${PKGNAME}.spec.in.${suffix};
+	     fi;
+	 done;
+	 if [ -n "${spec_file}" ]; then
+	     :;
+	 elif [ -f ${RPMINFO}/${PKGNAME}/${PKGNAME}.spec.in ]; then
+	     spec_file=${RPMINFO}/${PKGNAME}/${PKGNAME}.spec.in;
 	 elif [ -f ${RPMINFO}/${PKGNAME}.spec.in ]; then
-	     ${TOOLS}/u8_xsubst ${RPMINFO}/${PKGNAME}.spec.in work/${rpm_root}/${PKGNAME}.spec \
-		       "PKGNAME" "${PKGNAME}" \
-		       "LIBNAME" "${LIBNAME}" \
-		       "VERSION" "${VERSION}" \
-		       "MAJOR_VERSION" "${MAJOR_VERSION}" \
-		       "MINOR_VERSION" "${MINOR_VERSION}" \
-     		       "RELEASE_VERSION" "${RELEASE_VERSION}";
+	     spec_file=${RPMINFO}/${PKGNAME}/${PKGNAME}.spec.in;
 	 else
 	     echo "No RPM info for ${PKGNAME}";
 	     exit;
-	 fi) &&
+	 fi;
+	 logmsg "Using spec file ${spec_file}";
+	 ${TOOLS}/u8_xsubst ${spec_file} work/${rpm_root}/${PKGNAME}.spec \
+		 "PKGNAME" "${PKGNAME}" \
+		 "LIBNAME" "${LIBNAME}" \
+		 "VERSION" "${VERSION}" \
+		 "MAJOR_VERSION" "${MAJOR_VERSION}" \
+		 "MINOR_VERSION" "${MINOR_VERSION}" \
+     		 "RELEASE_VERSION" "${RELEASE_VERSION}") &&
 	("cd" work; tar cf ${tarball} ${rpm_root}) &&
 	(logmsg "Establishing workdir ${workdir}") &&
 	(mv work/${rpm_root} ${workdir}); 

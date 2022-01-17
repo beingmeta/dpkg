@@ -76,12 +76,13 @@ debprep() {
 		       "MAJOR_VERSION" "${MAJOR_VERSION}";
 	 fi;
      done);
-    for suffix in ${DISTRO}.${CHANNEL}.${VARIANT} ${DISTRO}.${CHANNEL} ${DISTRO}.${VARIANT} ${DISTRO} ${CHANNEL} ${VARIANT}; do
+    for suffix in ${DISTRO}.${CHANNEL}.${VARIANT} ${DISTRO}.${CHANNEL} ${DISTRO}.${VARIANT} \
+			   ${DISTRO} ${CHANNEL} ${VARIANT}; do
 	for custom in ${workdir}/debian/*.${suffix}; do
 	    if [ -f ${custom} ]; then
 		base=$(basename ${custom});
 		base=${base%.${suffix}};
-		dbgmsg "Using custom file ${custom} as ${base} in ${workdir}/debian/";
+		logmsg "Using custom file ${custom} as ${base} in ${workdir}/debian/";
 		mv ${custom} ${workdir}/debian/${base};
 		# Remove other custom entries
 		rm ${workdir}/debian/${base}.*;
