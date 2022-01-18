@@ -1,0 +1,111 @@
+#!/bin/sh
+
+UPDATE_CURRENT=false
+
+forpkg=$1;
+ACTION=$2;
+
+. ./packaging.sh
+
+if [ -f state/PKGNAME ]; then
+    curpkg=$(cat state/PKGNAME);
+fi;
+
+if [ -z "${forpkg}" ]; then forpkg=${curpkg}; fi
+
+if [ -z "${ACTION}" ]; then
+    ./setsource ${forpkg};
+    exit;
+elif [ "${curpkg}" != "${forpkg}" ] || ${UPDATE_CURRENT}; then
+    ./setsource ${forpkg};
+fi;
+
+import_state
+
+export SUCCESS
+
+pkg_done() {
+    local op=$1;
+    if [ -z "${SUCCESS}" ]; then
+	echo "Failed '${ACTION}' for ${PKGNAME}";
+	if [ -n "${op}" ]; then
+	    touch ${PACKAGING_ROOT}/output/${PKGNAME}/_failed.${op};
+	    rm -f ${PACKAGING_ROOT}/output/${PKGNAME}/_.${op};
+	fi;
+    else
+	echo "Success with '${ACTION}' for ${PKGNAME}";
+	if [ -n "${op}" ]; then
+	    touch ${PACKAGING_ROOT}/output/${PKGNAME}/_.${op};
+	    rm -f ${PACKAGING_ROOT}/output/${PKGNAME}/_failed.${op};
+
+	fi;
+    fi;
+    exit;
+}
+
+if [ -z "${PKGTOOL}" ]; then
+    echo "Couldn't determine package tool!";
+    exit;
+fi;
+
+case ${ACTION} in
+    prep|prepare)
+	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
+	pkg_done PREP;
+	;;
+    build|pkg|package|rebuild)
+	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
+	pkg_done BUILD;
+	;;
+    install|require)
+	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
+	pkg_done INSTALL;
+	;;
+    push)
+	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
+	pkg_done PUSHED;
+	;;
+    update|latest)
+	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
+	pkg_done UPDATED;
+	;;
+    check)
+	if ${PKGTOOL} check $@; then
+	    echo "Version ${VERSION} of ${PKGNAME} is up to date";
+	else
+	    echo "Version ${VERSION} of ${PKGNAME} needs to be built";
+	fi;
+	;;
+    clean)
+	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
+	("cd" output/${PKGNAME}; rm -f FILES INSTALLED PUSHED);
+	echo "# Contents of output/${PKGNAME}";
+	ls -l output/${PKGNAME}
+	;;
+    make|remake)
+	done=
+	${PKGTOOL} prep && ${PKGTOOL} package && SUCCESS=yes;
+	pkg_done BUILD;
+	;;
+    make+|make+install)
+	${PKGTOOL} prep && ${PKGTOOL} build && ${PKGTOOL} install && SUCCESS=yes;
+	pkg_done BUILD;
+	;;
+    remake+|remake+install)
+	${PKGTOOL} prep && ${PKGTOOL} rebuild && ${PKGTOOL} install && SUCCESS=yes;
+	pkg_done BUILD;
+	;;
+    make++|make+install+push)
+	${PKGTOOL} prep && ${PKGTOOL} build && ${PKGTOOL} install && ${PKGTOOL} push && SUCCESS=yes;
+	pkg_done BUILD;
+	;;
+    remake++|remake+install+push)
+	${PKGTOOL} prep && ${PKGTOOL} rebuild && ${PKGTOOL} install && ${PKGTOOL} push && SUCCESS=yes;
+	pkg_done BUILD;
+	;;
+    *)
+	echo "Unknown package op ${ACTION}!";
+	exit 2;
+	;;
+esac
+

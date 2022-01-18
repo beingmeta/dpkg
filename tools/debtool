@@ -28,7 +28,7 @@ else
 fi;
 
 logmsg "debtool ACTION=${ACTION} PKGNAME=${PKGNAME} VERSION=${VERSION} BRANCH=${BRANCH}";
-logmsg "   VARIANT=${VARIANT} REPO_HOST=${REPO_HOST}";
+logmsg "   VARIANT=${VARIANT} REPO=${REPO}";
 
 DEBINFO=${PACKAGING_ROOT}/debinfo
 DPKGNAME=${PKGNAME}
@@ -278,8 +278,8 @@ case ${ACTION} in
     push)
 	PUSHED=$(cat output/${PKGNAME}/_.PUSHED 2>/dev/null||echo)
 	if [ -n "${VARIANT}" ]; then
-	    VERSION="${VERSION}-${VARIANT}-${REPO_HOST}";
-	else XVERSION="${VERSION}-${REPO_HOST}";
+	    VERSION="${VERSION}-${VARIANT}-${REPO}";
+	else XVERSION="${VERSION}-${REPO}";
 	fi;
 	if [ $# -gt 0 ] || [ "${PUSHED}" != "${XVERSION}" ]; then
 	    debpush $* && echo ${XVERSION} > output/${PKGNAME}/_.PUSHED;

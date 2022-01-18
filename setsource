@@ -66,14 +66,18 @@ push_probe "${PKGNAME}.${DISTRO}";
 # Getting information about repos
 
 REPOMAN=
-REPO_HOST=${USE_REPO_HOST}
+REPO=${USE_REPO}
 REPO_LOGIN=${USE_REPO_LOGIN}
 REPO_URL=
 
+if [ -z "${REPO}" ] && [ -f defaults/REPO ]; then
+    REPO=$(cat defaults/REPO);
+fi;
+
 for probe in ${PROBES}; do
-    if [ -z "${REPO_HOST}" ] && [ -f repos/${probe} ]; then
-	REPO_HOST=$(cat repos/${probe});
-	echo "Found repo host ${REPO_HOST} for ${probe}";
+    if [ -z "${REPO}" ] && [ -f repos/${probe} ]; then
+	REPO=$(cat repos/${probe});
+	echo "Found repo host ${REPO} for ${probe}";
     fi;
 done;
 		   
@@ -84,30 +88,30 @@ for probe in ${PROBES}; do
     fi;
 done;
 		   
-if [ -z "${REPO_HOST}" ] && [ -f repos/default ]; then
-    REPO_HOST=$(cat repos/default);
-elif [ -z "${REPO_HOST}" ]; then
-    REPO_HOST=kno
+if [ -z "${REPO}" ] && [ -f repos/default ]; then
+    REPO=$(cat repos/default);
+elif [ -z "${REPO}" ]; then
+    REPO=kno
 fi;
 
-if [ -z "${REPO_HOST}" ]; then
-    echo "Warning: No REPO_HOST, assuming KNO";
+if [ -z "${REPO}" ]; then
+    echo "Warning: No REPO, assuming KNO";
 else
-    if [ -f repos/${REPO_HOST}-login ]; then
-	REPO_LOGIN=$(cat "repos/${REPO_HOST}-login");
+    if [ -f repos/${REPO}-login ]; then
+	REPO_LOGIN=$(cat "repos/${REPO}-login");
     fi;
-    if [ -f "repos/${REPO_HOST}.${REPO_SYSTEM}" ]; then
-	REPO_URL=$(cat "repos/${REPO_HOST}.${REPO_SYSTEM}");
-	if [ -f "repos/${REPO_HOST}.${REPO_SYSTEM}-login" ]; then
+    if [ -f "repos/${REPO}.${REPO_SYSTEM}" ]; then
+	REPO_URL=$(cat "repos/${REPO}.${REPO_SYSTEM}");
+	if [ -f "repos/${REPO}.${REPO_SYSTEM}-login" ]; then
 	    REPO_LOGIN=$(cat "repos/${REPO_URL}.${REPO_SYSTEM}-login");
 	fi;
-    elif [ -f "repos/${REPO_HOST}" ]; then
-	REPO_URL=$(cat "repos/${REPO_HOST}.${REPO_SYSTEM}");
+    elif [ -f "repos/${REPO}" ]; then
+	REPO_URL=$(cat "repos/${REPO}.${REPO_SYSTEM}");
     else
-	REPO_URL="${REPO_HOST}";
+	REPO_URL="${REPO}";
     fi;	
-    if [ -z "${REPOMAN}" ] && [ -f "${REPO_HOST}-repoman" ]; then
-	REPOMAN=$(cat ${REPO_HOST}-repoman);
+    if [ -z "${REPOMAN}" ] && [ -f "${REPO}-repoman" ]; then
+	REPOMAN=$(cat ${REPO}-repoman);
     fi
 fi;
 
@@ -136,11 +140,11 @@ if [ -z "${REPO_LOGIN}" ] && [ -f repos/default-login ]; then
 fi;
 
 echo ${REPO_URL} > state/REPO_URL;
-echo ${REPO_HOST} > state/REPO_HOST;
+echo ${REPO} > state/REPO;
 echo ${REPO_LOGIN} > state/REPO_LOGIN;
 echo ${REPOMAN} > state/REPOMAN;
 
-dbgmsg "REPO_HOST=${REPO_HOST} PROBES=${PROBES} REPO_URL=${REPO_URL} REPOMAN=${REPOMAN}";
+dbgmsg "REPO=${REPO} PROBES=${PROBES} REPO_URL=${REPO_URL} REPOMAN=${REPOMAN}";
 
 # Getting sources
 

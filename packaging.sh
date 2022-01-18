@@ -5,7 +5,7 @@ export PATH LOGFILE LIBNAME TOOLS OUTPUT
 export PKGNAME VERSION REL_VERSION BRANCH VARIANT FULL_VERSION
 export BASE_VERSION MAJOR_VERSION MINOR_VERSION RELEASE_VERSION
 export KNO_VERSION KNO_MAJOR KNO_MINOR
-export REPOMAN REPO_SYSTEM REPO_HOST REPO_URL REPO_LOGIN
+export REPOMAN REPO_SYSTEM REPO REPO_URL REPO_LOGIN
 export CODENAME DISTRO STATUS ARCH URGENCY
 
 PKGLOG=${PKGLOG:-/dev/null}
@@ -226,8 +226,8 @@ import_state() {
     fi;
     CODENAME=${DISTRO};
     # if [ -n "${VARIANT}" ]; then CODENAME=${CODENAME}-${VARIANT}; fi;
-    if [ -f ${dir}/REPO_HOST ]; then
-	REPO_HOST=$(cat ${dir}/REPO_HOST);
+    if [ -f ${dir}/REPO ]; then
+	REPO=$(cat ${dir}/REPO);
     fi;
     if [ -f ${dir}/REPO_URL ]; then
 	REPO_URL=$(cat ${dir}/REPO_URL);
@@ -307,7 +307,7 @@ fi;
 
 if [ -f ${STATE_ROOT}/OUTDIR ]; then OUTDIR=$(cat ${STATE_ROOT}/OUTDIR); fi;
 
-dbgmsg "REPO HOST=${REPO_HOST} URL=${REPO_URL} REPO_LOGIN=${REPO_LOGIN}";
+dbgmsg "REPO HOST=${REPO} URL=${REPO_URL} REPO_LOGIN=${REPO_LOGIN}";
 
 if [ -f ${STATE_ROOT}/GIT_NO_LFS ]; then
     GIT_NO_LFS=$(cat ${STATE_ROOT}/GIT_NO_LFS);

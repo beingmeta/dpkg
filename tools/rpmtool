@@ -21,7 +21,7 @@ else
 fi;
 
 #echo "rpmtool $$ $(pwd) ACTION=${ACTION} PKGNAME=${PKGNAME} VERSION=${VERSION} BRANCH=${BRANCH}";
-logmsg "rmptool ACTION=${ACTION} PKGNAME=${PKGNAME} VERSION=${VERSION} BRANCH=${BRANCH} VARIANT=${VARIANT} REPO_HOST=${REPO_HOST}";
+logmsg "rmptool ACTION=${ACTION} PKGNAME=${PKGNAME} VERSION=${VERSION} BRANCH=${BRANCH} VARIANT=${VARIANT} REPO=${REPO}";
 
 export RPMINFO=${PACKAGING_ROOT}/rpminfo
 export BUILDRPM=$(which rpmbuild)
@@ -55,7 +55,7 @@ rpmprep() {
 	     elif [ -f ${RPMINFO}/${PKGNAME}/${PKGNAME}.spec.in.${suffix} ]; then
 		 spec_file=${RPMINFO}/${PKGNAME}/${PKGNAME}.spec.in.${suffix};
 	     elif [ -f ${RPMINFO}/${PKGNAME}.spec.in.${suffix} ]; then
-		 spec_file=${RPMINFO}/${PKGNAME}/${PKGNAME}.spec.in.${suffix};
+		 spec_file=${RPMINFO}/${PKGNAME}.spec.in.${suffix};
 	     fi;
 	 done;
 	 if [ -n "${spec_file}" ]; then
@@ -63,7 +63,7 @@ rpmprep() {
 	 elif [ -f ${RPMINFO}/${PKGNAME}/${PKGNAME}.spec.in ]; then
 	     spec_file=${RPMINFO}/${PKGNAME}/${PKGNAME}.spec.in;
 	 elif [ -f ${RPMINFO}/${PKGNAME}.spec.in ]; then
-	     spec_file=${RPMINFO}/${PKGNAME}/${PKGNAME}.spec.in;
+	     spec_file=${RPMINFO}/${PKGNAME}.spec.in;
 	 else
 	     echo "No RPM info for ${PKGNAME}";
 	     exit;
@@ -104,7 +104,8 @@ rpmpackage() {
 			${arch_dir}/${PKGNAME}*-${VERSION}*.${ARCH}.rpm \
 			${noarch_dir}/${PKGNAME}*-${VERSION}*.noarch.rpm \
 			2>/dev/null);
-	 mv ${all_files} ${output_dir});
+	 mv ${all_files} ${output_dir}) &&
+	(echo ${FULL_VERSION} > ${output_dir}/FULL_VERSION);
 }
 rpminstall() {
     local instpkgs=$(cat rpminfo/${PKGNAME}.install 2>/dev/null||echo ${PKGNAME});
@@ -136,12 +137,13 @@ rpmrequire() {
     done;
     if [ -n "${files}" ]; then
 	${SUDO} rpm -Uvh --force ${files};
-    elif ${SUDO} dnf install ${instpkgs};
+    elif ${SUDO} dnf install ${instpkgs}; then
 	 echo "Installed ${PKGNAME} from repo: ${instpkgs}";
     else 
 	echo echo "#!!# (${PKGNAME} Failed to install ${instpkgs}"
 	( (./pkg prep) && (./pkg make) && (./pkg install) ) ||
 	    (echo echo "#!!# (${PKGNAME} Failed to build/install ${PKGNAME}");
+    fi;
 }
 
 rpmpush() {
@@ -175,6 +177,10 @@ case ${ACTION} in
 	    exit 2;
 	fi;
 	;;
+    require)
+	import_state;
+	rpmrequire;
+	;;
     make)
 	./setsource ${PKGNAME} && import_state && rpmprep && rpmpackage;
 	;;
@@ -191,8 +197,8 @@ case ${ACTION} in
 	import_state;
 	PUSHED=$(cat output/${PKGNAME}/_.PUSHED 2>/dev/null||echo)
 	if [ -n "${VARIANT}" ]; then
-	    XVERSION="${VERSION}-${VARIANT}-${REPO_HOST}";
-	else XVERSION="${VERSION}-${REPO_HOST}";
+	    XVERSION="${VERSION}-${VARIANT}-${REPO}";
+	else XVERSION="${VERSION}-${REPO}";
 	fi;
 	if [ $# -gt 0 ] || [ "${PUSHED}" != "${XVERSION}" ]; then
 	    rpmpush $* && echo ${XVERSION} > output/${PKGNAME}/_.PUSHED;

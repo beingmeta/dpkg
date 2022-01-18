@@ -10,71 +10,6 @@ fi;
 
 . ./packaging.sh
 
-if [ -n "${SKIP}" ]; then
-    for pkg in ${SKIP}; do 
-	if [ -f sources/${pkg} ]; then
-	    touch sources/${pkg}.skip;
-	else
-	    echo "Bad SKIP arg ${pkg}";
-	fi;
-    done;
-fi;
-
-pkg_op( ) {
-    local pkgop="$1";
-    local pkglist="$2";
-    if [ -n "${pkgop}" ] && [ -n "${pkglist}" ]; then
-	for pkg in ${pkglist}; do
-	    logmsg "Applying ${pkgop} to ${pkg}";
-	    ./setsource ${pkg} && ./pkg ${pkgop}; done; fi;
-}    
-
-get_all_pkgs( ) {
-    local all='libu8 kno';
-    local p='';
-    local nm='';
-    for p in sources/*; do
-	if  [ "${p%~}" = "${p}" ]; then
-	    nm=$(basename ${p});
-	    if ! ( [ nm = "libu8" ] || [ nm == "kno" ] ); then
-		all="${all} ${nm}"; fi;
-	fi;
-    done;
-    echo ${all};
-}
-
-handle_bundle( ) {
-    local op='';
-    local pkgs='';
-    local elt='';
-    for elt in $*; do
-	case ${elt} in
-	    require|make|make+|make++|prep|build|install|push|update|latest|remake|rebuild|remake+|remake++|pushup)
-		pkg_op ${op} "${pkgs}"; 
-		op=${elt};
-		pkgs='';
-		;;
-	    all)
-		if [ -z "${pkgs}" ]; then
-		    pkgs=$(get_all_pkgs);
-		    else pkgs="${pkgs} ${elt}"; fi;
-		shift;
-		;;
-	    *)
-		if [ -f sources/${elt} ]; then
-		    if [ -z "${pkgs}" ]; then
-			pkgs="${elt}";
-		    else pkgs="${pkgs} ${elt}"; fi;
-		else
-		    echo "#!!# Error '${elt}' for '${op}' is not a known package";
-		    exit;
-		fi;
-		;;
-	esac;
-    done;
-    pkg_op ${op} "${pkgs}"; 
-}
-
 case $1 in
     start|source)
 	if [ -n "$2" ] && [ -f sources/$2 ]; then
@@ -103,49 +38,6 @@ case $1 in
 		fi;
 	    done;
 	fi;
-	exit;
-	;;
-    forall)
-	op=$2; shift; shift;
-	if [ $# -eq 0 ]; then
-	    (echo "# Applying ${op} to libu8"; pkg ${op} libu8) &&
-		(echo "##### Applying ${op} to kno"; pkg ${op} kno) &&
-		(for src in sources/*; do
-		     name=$(basename ${src});
-		     if [ "${name}" = libu8 ] || [ "${name}" = kno ]; then
-			 :;
-		     elif [ -f "${src}.skip" ]; then
-			 echo "##### (${DISTRO}) Skipping ${op} for ${name}";
-			 :;
-		     elif [ "${name%~}" = "${name}" ]; then 
-			 echo "##### (${DISTRO}) Applying ${op} to ${name}";
-			 if pkg ${op} ${name}; then
-			     echo "##### (${DISTRO}) Successfully applied ${op} to ${name}";			     
-			 else
-			     echo "##### (${DISTRO}) Failed to apply ${op} to ${name}";			     
-			     exit 2;
-			 fi;
-		     fi;
-		 done);
-	else
-	    for src in $@; do
-		if [ -f "sources/${src}" ]; then
-		    echo "##### (${DISTRO}) Applying ${op} to ${src}";
-		    if pkg ${op} ${src}; then
-			echo "##### (${DISTRO}) Successfully applied ${op} to ${src}";
-		    else
-			echo "##### (${DISTRO}) Failed to apply ${op} to ${name}";
-			exit 2;
-		    fi;
-		else echo "#### (${DISTRO}) Not a known package: ${src}";
-		fi;
-	    done;
-	fi;	
-	exit;
-	;;
-    bundle)
-	shift;
-	handle_bundle $@;
 	exit;
 	;;
     pull|getsources|udpate_sources)
@@ -206,129 +98,103 @@ case $1 in
 	    exit;
 	fi;
 	;;
-    *=*)
-	varname=${1%=*};
-	valstring=${1#*=};
-	varname=$(echo ${varname} | tr [a-z] [A-Z]);
-	echo "Setting state ${varname} to ${valstring}";
-	echo ${valstring} > state/${varname};
-	exit;
-	;;
-    remake|remake+|remake++)
-	#rm -rf ${curpkg} ${curpkg}.tar ${curpkg}*.tar.gz;
-	#./setsource "${curpkg}";
-	UPDATE_CURRENT=true
-	;;
-    *)
-	upper=$(echo $1 | tr [a-z] [A-Z]);
-	if [ -f state/${upper} ]; then
-	    cat state/${upper};
-	    exit;
-	fi;
-	;;
 esac;
 
-if [ -f state/PKGNAME ]; then
-    curpkg=$(cat state/PKGNAME);
-fi;
-
-if [ -f "sources/$1" ]; then
-    forpkg=$1; shift; ACTION=$1;
-else
-    ACTION=$1; shift;
-    if [ -f "sources/$1" ]; then forpkg=$1; shift; fi;
-fi
-
-if [ -z "${forpkg}" ]; then forpkg=${curpkg}; fi
-
-if [ -z "${ACTION}" ]; then
-    ./setsource ${forpkg};
-    exit;
-elif [ "${curpkg}" != "${forpkg}" ] || ${UPDATE_CURRENT}; then
-    ./setsource ${forpkg};
-fi;
-
-import_state
-
-export SUCCESS
-
-pkg_done() {
-    local op=$1;
-    if [ -z "${SUCCESS}" ]; then
-	echo "Failed '${ACTION}' for ${PKGNAME}";
-	if [ -n "${op}" ]; then touch ${PACKAGING_ROOT}/output/${PKGNAME}/_-failed.${op}; fi;
+if [ $# -eq 1 ]; then
+    if [ -f sources/$1 ]; then
+	./setsource $1;
+    elif [ -z "${PKGNAME}" ]; then
+	echo "No current package";
+	exit;
     else
-	echo "Success with '${ACTION}' for ${PKGNAME}";
-	if [ -n "${op}" ]; then touch ${PACKAGING_ROOT}/output/${PKGNAME}/_.${op}; fi;
+	./do_pkgop ${PKGNAME} $1
     fi;
-    exit;
+fi;
+
+if [ -n "${SKIP}" ]; then
+    for pkg in ${SKIP}; do 
+	if [ -f sources/${pkg} ]; then
+	    touch sources/${pkg}.skip;
+	else
+	    echo "Bad SKIP arg ${pkg}";
+	fi;
+    done;
+fi;
+
+pkg_op( ) {
+    local pkgop="$1";
+    local pkglist="$2";
+    if [ -n "${pkgop}" ] && [ -n "${pkglist}" ]; then
+	for pkg in ${pkglist}; do
+	    logmsg "Applying ${pkgop} to ${pkg}";
+	    do_pkgop ${pkg} ${pkgop} 
+	done;
+    fi;
+}    
+
+get_all_pkgs( ) {
+    local all='libu8 kno';
+    local p='';
+    local nm='';
+    for p in sources/*; do
+	if  [ "${p%~}" = "${p}" ]; then
+	    nm=$(basename ${p});
+	    if ! ( [ nm = "libu8" ] || [ nm == "kno" ] ); then
+		all="${all} ${nm}"; fi;
+	fi;
+    done;
+    echo ${all};
 }
 
-if [ -z "${PKGTOOL}" ]; then
-    case ${ACTION} in
-	deb|debian|rpm|redhat)
-	;;
-	*)
-	    echo "Couldn't determine package tool!";
-	    exit;
-	    ;;
-    esac;
-fi;
+handle_bundle( ) {
+    local op='';
+    local pkgs='';
+    local elt='';
+    local varname='';
+    local valstring='';
+    for elt in $*; do
+	echo "Processing '${elt}'";
+	case ${elt} in
+	    require|make|make+|make++|prep|build|install|push|update|latest|remake|rebuild|remake|remake+|remake++|pushup)
+		pkg_op ${op} "${pkgs}"; 
+		op=${elt};
+		pkgs='';
+		;;
+	    all)
+		if [ -z "${pkgs}" ]; then
+		    pkgs=$(get_all_pkgs);
+		    else pkgs="${pkgs} ${elt}";
+		fi;
+		;;
+	    *=*)
+		pkg_op ${op} "${pkgs}"; 
+		pkgs="";
+		varname=${elt%=*};
+		valstring=${elt#*=};
+		varname=$(echo ${varname} | tr [a-z] [A-Z]);
+		echo "Setting state ${varname} to ${valstring}";
+		echo ${valstring} > defaults/${varname};
+		;;
+	    *)
+		if [ -f sources/${elt} ]; then
+		    if [ -z "${pkgs}" ]; then
+			pkgs="${elt}";
+		    else pkgs="${pkgs} ${elt}"; fi;
+		else
+		    pkg_op ${op} "${pkgs}"; 
+		    pkgs="";
+		    upper=$(echo $1 | tr [a-z] [A-Z]);
+		    if [ -f state/${upper} ]; then
+			cat state/${upper};
+			exit;
+		    else
+			echo "Unknown state parameter ${upper}";
+		    fi;
+		fi;
+		;;
+	esac;
+    done;
+    pkg_op ${op} "${pkgs}"; 
+}
 
-case ${ACTION} in
-    prep|prepare)
-	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
-	pkg_done PREP;
-	;;
-    build|pkg|package|rebuild)
-	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
-	pkg_done BUILD;
-	;;
-    install|require)
-	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
-	pkg_done INSTALL;
-	;;
-    push)
-	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
-	pkg_done PUSHED;
-	;;
-    update|latest)
-	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
-	pkg_done UPDATED;
-	;;
-    check)
-	if ${PKGTOOL} check $@; then
-	    echo "Version ${VERSION} of ${PKGNAME} is up to date";
-	else
-	    echo "Version ${VERSION} of ${PKGNAME} needs to be built";
-	fi;
-	;;
-    clean)
-	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
-	("cd" output/${PKGNAME}; rm -f FILES INSTALLED PUSHED);
-	echo "# Contents of output/${PKGNAME}";
-	ls -l output/${PKGNAME}
-	;;
-    make|remake)
-	done=
-	${PKGTOOL} prep && ${PKGTOOL} package && SUCCESS=yes;
-	pkg_done BUILD;
-	;;
-    make+|make+install)
-	${PKGTOOL} prep && ${PKGTOOL} build && ${PKGTOOL} install && SUCCESS=yes;
-	pkg_done BUILD;
-	;;
-    remake+|remake+install)
-	${PKGTOOL} prep && ${PKGTOOL} rebuild && ${PKGTOOL} install && SUCCESS=yes;
-	pkg_done BUILD;
-	;;
-    make++|make+install+push)
-	${PKGTOOL} prep && ${PKGTOOL} build && ${PKGTOOL} install && ${PKGTOOL} push && SUCCESS=yes;
-	pkg_done BUILD;
-	;;
-    remake++|remake+install+push)
-	${PKGTOOL} prep && ${PKGTOOL} rebuild && ${PKGTOOL} install && ${PKGTOOL} push && SUCCESS=yes;
-	pkg_done BUILD;
-	;;
-esac
-   
+handle_bundle $@
