@@ -127,7 +127,7 @@ pkg_op( ) {
     if [ -n "${pkgop}" ] && [ -n "${pkglist}" ]; then
 	for pkg in ${pkglist}; do
 	    logmsg "Applying ${pkgop} to ${pkg}";
-	    do_pkgop ${pkg} ${pkgop} 
+	    ./do_pkgop ${pkg} ${pkgop} 
 	done;
     fi;
 }    
