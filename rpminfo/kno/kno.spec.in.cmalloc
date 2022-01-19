@@ -9,7 +9,7 @@ URL:            http://www.beingmeta.com/
 Source0:        kno-@VERSION@.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:  libu8-devel curl-devel libldns-devel libffi-devel jemalloc-devel csnappy-devel libzstd-devel python3-devel
+BuildRequires:  libu8-devel curl-devel libldns-devel libffi-devel csnappy-devel libzstd-devel python3-devel
 Requires:       libu8 >= 3.1 curl >= 7.15.1 ldns csnappy libffi libzstd
 
 %description
@@ -47,7 +47,10 @@ You probably don\'t need it.
 %setup -q
 
 %build
-%configure --prefix=/usr --libdir=%{_libdir} --without-sudo --with-bootsystem=systemd --with-systemd=/etc/systemd/system --with-admin-group=none --with-daemonid=none --with-parseltongue=3
+%configure --prefix=/usr --libdir=%{_libdir} --without-sudo \
+	   --with-bootsystem=systemd --with-systemd=/etc/systemd/system \
+	   --with-admin-group=none --with-daemonid=none --with-parseltongue=3 \
+	   --with-libscm=zipped
 make %{?_smp_mflags}
 
 %pre

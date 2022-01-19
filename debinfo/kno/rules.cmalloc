@@ -17,7 +17,7 @@ override_dh_auto_configure:
 		--without-sudo --with-bootsystem=allboot 	\
 		--with-default-target=packaged		 	\
 		--with-parseltongue=3				\
-		--with-malloc=jemalloc				\
+		--with-malloc=builtin				\
 		--with-libscm=zipped
 
 override_dh_make:
