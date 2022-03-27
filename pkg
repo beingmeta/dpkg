@@ -139,7 +139,7 @@ get_all_pkgs( ) {
     for p in sources/*; do
 	if  [ "${p%~}" = "${p}" ]; then
 	    nm=$(basename ${p});
-	    if ! ( [ $nm = "libu8" ] || [ $nm == "kno" ] ); then
+	    if ! ( [ "$nm" = "libu8" ] || [ "$nm" = "kno" ] ); then
 		all="${all} ${nm}"; fi;
 	fi;
     done;
