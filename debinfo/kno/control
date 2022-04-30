@@ -24,7 +24,7 @@ Description: Scalable knowledge base development and application platform
 Package: kno-core
 Architecture: any
 Suggests: kno-docs
-Depends: ${misc:Depends}, libu8 (>= 3.1), libzip5 | libzip4 | libzip2, libarchive13, libsnappy1v5, libzstd1, libssl1.1 | libssl1.0 | libssl1.0.0, libcurl4 | libcurl3, libedit2, adduser, libldns4 | libldns3 | libldns2 | libldns1, libjemalloc4 | libjemalloc3 | libjemalloc2 | libjemalloc1
+Depends: ${misc:Depends}, libu8 (>= 3.1), libzip5 | libzip4 | libzip2, libarchive13, libsnappy1v5, libzstd1, libssl3 | libssl1 | libssl1.1 | libssl1.0 | libssl1.0.0, libcurl4 | libcurl3, libedit2, adduser, libldns4 | libldns3 | libldns2 | libldns1, libjemalloc4 | libjemalloc3 | libjemalloc2 | libjemalloc1
 Description: This package provides the core libraries, executables, and 
   configuration files for Kno applications
 
@@ -37,7 +37,7 @@ Depends:
     libu8-dbg,
     ${misc:Depends}
 Suggests:
-    libssl1.1-dbg | libssl1.0-dbg | libssl1.0.0-dbg,
+    libssl3-dbg | libssl1.1-dbg | libssl1.0-dbg | libssl1.0.0-dbg,
     libcurl4-dbg | libcurl3-dbg
 Description: This package contains the debugging symbols for kno-core
 
@@ -49,7 +49,7 @@ Depends:
     libu8-dbg,
     ${misc:Depends}
 Suggests:
-    libssl1.1-dbg | libssl1.0-dbg | libssl1.0.0-dbg,
+    libssl3-dbg | libssl1.1-dbg | libssl1.0-dbg | libssl1.0.0-dbg,
     libcurl4-dbg | libcurl3-dbg
 Description: This package contains the debugging symbols for kno-core
 
