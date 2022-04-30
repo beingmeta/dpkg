@@ -40,7 +40,7 @@ case $1 in
 	fi;
 	exit;
 	;;
-    pull|getsources|udpate_sources)
+    pull|getsources|update_sources)
 	if [ $# -eq 1 ]; then
 	    for src in sources/*; do
 		name=$(basename ${src});
