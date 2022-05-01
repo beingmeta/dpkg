@@ -2,6 +2,35 @@
 
 UPDATE_CURRENT=false
 
+pkg_usage() {
+    echo "Usage: pkg *command* [*pkgname*]";
+    echo "       Applies *command* to *pkgname* or the most recently specified *pkgname* if not provided";
+    echo "       *command* can be: build, prep, require, install, or push";
+    echo "          + build creates an OS package (e.g. rpm, deb, apk)"
+    echo "          + prep sets up work/*pkgname* for building the OS package"
+    echo "          + require installs the latest *pkgname*, building it if needed"
+    echo "          + install the latest *pkgname*, it if has been built"
+    echo "Usage: pkg bundle (*command* [*pkgname*]+)*";
+    echo "       Applies a series of commands to a series of packages, in command line order";
+    echo "Usage: pkg *update*|*start*|*setup* [*pkgname*]";
+    echo "       Checks out or updates sources for *pkgname*, or all packages if not specified";
+    echo "Usage: pkg *param*";
+    echo "       outputs the build config parameter *param*";
+    echo "Usage: pkg *param*=*value*";
+    echo "       sets the build config parameter *param* to *value*";
+}
+
+if [ $# -eq 0 ]; then
+    pkg_usage;
+    exit;
+else case $1 in
+	 help|usage)
+	     pkg_usage;
+	     exit;
+	     ;;
+     esac;
+fi;
+
 # Update the packaging directory at least once
 if [ ! -f .updated ]; then
     git pull && touch .updated;
