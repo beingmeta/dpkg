@@ -1,7 +1,7 @@
 Source: kno-odbc
 Priority: optional
 Maintainer: Ken Haase <kh@beingmeta.com>
-Build-Depends: debhelper (>= 8.0.0), autotools-dev, debsigs, devscripts, libu8-dev, unixodbc-dev, kno-dev (>= @KNO_MAJOR@.0.0)
+Build-Depends: debhelper (>= 8.0.0), autotools-dev, debsigs, devscripts, libu8-dev, unixodbc-dev, unixodbc, kno-dev (>= @KNO_MAJOR@.0.0)
 Standards-Version: 3.9.4
 Section: libs
 Homepage: http://www.beingmeta.com/
@@ -9,6 +9,6 @@ Homepage: http://www.beingmeta.com/
 Package: kno-odbc
 Section: libdevel
 Architecture: any
-Depends: libodbc1, kno-core (>= @KNO_MAJOR@.0.0)
+Depends: unixodbc | libodbc1, kno-core (>= @KNO_MAJOR@.0.0)
 Description: ODBC module for KNO
 
