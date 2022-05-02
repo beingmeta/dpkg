@@ -35,6 +35,7 @@ rm -rf $RPM_BUILD_ROOT
 %postun -p /sbin/ldconfig
 
 %files
-%{_libdir}/kno/nng.so*
+%{_libdir}/kno/creadstat.so*
+%{_datadir}/kno/modules/installed/readstat/*
 %doc
 
