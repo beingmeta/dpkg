@@ -43,6 +43,10 @@ debprep() {
 	rm -rf ${workdir};
     fi
     logmsg "Creating build directory at '${workdir}'"
+    if [ ! -f work/${PKGNAME}.tar ]; then
+       echo "No source tarfile work/${PKGNAME}.tar";
+       return 1;
+    fi;
     mkdir ${workdir}; ("cd" ${workdir}; tar xf ../${PKGNAME}.tar);
     if [ ! -f state/NOSOURCE ]; then
 	srctar=${PKGNAME}_${VERSION}.orig.tar.gz;
@@ -95,7 +99,7 @@ debpackage() {
     local output_dir="output/${PKGNAME}/";
     local buildopt=
     if [ -f state/NOSOURCE ]; then buildopt=-b; fi
-    local workdir="${1:-work/${PKGNAME}}"
+    local workdir="work/${PKGNAME}"
     ("cd" ${workdir};
      dpkg-buildpackage ${buildopt} -us -uc -sa -rfakeroot)
     if [ ! -z "${GPGID}" ]; then
@@ -275,7 +279,7 @@ case ${ACTION} in
 	import_state;
 	debrequire;
 	;;
-    push)
+    push|publish)
 	PUSHED=$(cat output/${PKGNAME}/_.PUSHED 2>/dev/null||echo)
 	if [ -n "${VARIANT}" ]; then
 	    VERSION="${VERSION}-${VARIANT}-${REPO}";

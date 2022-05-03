@@ -16,7 +16,7 @@ if [ -z "${forpkg}" ]; then forpkg=${curpkg}; fi
 if [ -z "${ACTION}" ]; then
     ./setsource ${forpkg};
     exit;
-elif [ "${curpkg}" != "${forpkg}" ] || ${UPDATE_CURRENT}; then
+elif [ "${curpkg}" != "${forpkg}" ] || ${UPDATE_CURRENT} || [ ! -f work/${forpkg}.tar ] ; then
     ./setsource ${forpkg};
 fi;
 

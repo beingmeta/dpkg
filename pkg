@@ -152,6 +152,7 @@ handle_bundle( ) {
     local elt='';
     local varname='';
     local valstring='';
+    echo "Handle bundle $@";
     for elt in $*; do
 	echo "Processing '${elt}'";
 	case ${elt} in
@@ -194,6 +195,7 @@ handle_bundle( ) {
 		;;
 	esac;
     done;
+    echo "pkg_op ${op} ${pkgs}";
     pkg_op ${op} "${pkgs}"; 
 }
 
