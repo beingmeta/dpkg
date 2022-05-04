@@ -232,7 +232,7 @@ case ${ACTION} in
 	./setsource $*;
 	;;
     prep)
-	debprep $*;
+	debprep*;
 	;;
     package|pkg|mkpkg|makepkg|build)
 	import_state;
@@ -240,24 +240,24 @@ case ${ACTION} in
 	    echo "Nothing to do";
 	    exit;
 	elif [ "${LOGFILE}" = none ]; then
-	    debpackage $@;
+	    debpackage;
 	elif [ -n "${LOGFILE}" ]; then
-	    debpackage $* > ${LOGFILE};
+	    debpackage > ${LOGFILE};
 	else
 	    rm -f output/${PKGNAME}/LOG
-	    debpackage $* > output/${PKGNAME}/LOG;
+	    debpackage > output/${PKGNAME}/LOG;
 	fi;
 	ls -l output/${PKGNAME}/
 	;;
     rebuild)
 	import_state;
 	if [ "${LOGFILE}" = none ]; then
-	    debpackage $@;
+	    debpackage;
 	elif [ -n "${LOGFILE}" ]; then
-	    debpackage $* > ${LOGFILE};
+	    debpackage > ${LOGFILE};
 	else
 	    rm -f output/${PKGNAME}/LOG
-	    debpackage $* > output/${PKGNAME}/LOG;
+	    debpackage > output/${PKGNAME}/LOG;
 	fi;
 	ls -l output/${PKGNAME}/
 	;;

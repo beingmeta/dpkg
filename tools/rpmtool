@@ -82,14 +82,15 @@ rpmprep() {
 }
 
 rpmpackage() {
-    local workdir=${1:-work/${PKGNAME}};
+    local workdir=work/${PKGNAME};
     local staging_dir="${RPMDIR}";
     local arch_dir=$(mkpath "${staging_dir}" "${ARCH}");
     local noarch_dir=$(mkpath "${staging_dir}" "noarch");
     local output_dir=$(mkpath "output" "${PKGNAME}");
     local all_files=;
-    ("cd" ${workdir}; # --noclean
-     ${BUILDRPM} ${RPMFLAGS}  \
+    ("cd" ${workdir}; 
+     echo "Dir is $(pwd)";
+     ${BUILDRPM} ${RPMFLAGS} --noclean \
 		 --define="_rpmdir ${RPMDIR}" \
 		 --define="_srcrpmdir ${RPMDIR}" \
 		 --nodeps -ta ../${PKGNAME}-${VERSION}.tar.gz) &&
@@ -158,17 +159,17 @@ case ${ACTION} in
 	;;
     prep)
 	import_state;
-	rpmprep $*;
+	rpmprep;
 	;;
     package|pkg|mkpkg|makepkg|build|rebuild)
 	import_state;
 	if [ "${LOGFILE}" = none ]; then
-	    rpmpackage $@;
+	    rpmpackage;
 	elif [ -n "${LOGFILE}" ]; then
-	    rpmpackage $* > ${LOGFILE};
+	    rpmpackage > ${LOGFILE};
 	else
 	    rm -f output/${PKGNAME}/LOG
-	    rpmpackage $* 1> output/${PKGNAME}/LOG 2> output/${PKGNAME}/LOG;
+	    rpmpackage 1> output/${PKGNAME}/LOG 2> output/${PKGNAME}/LOG;
 	fi;
 	if [ -f output/${PKGNAME}/rpm.done ]; then
 	    ls -l output/${PKGNAME}/
