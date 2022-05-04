@@ -12,7 +12,7 @@ if [ "${stripped}" != "${pkgname}" ]; then
     branch="${pkgname#*#}";
     pkgname=${stripped}
 fi;
-if [ ! -f "sources/${pkgname}" ]; then
+if [ ! -d "sources/${pkgname}" ]; then
     echo "setsource: ${pkgname} is not a known package name";
     exit;
 fi;
@@ -153,7 +153,7 @@ srcurl=$(cat sources/${PKGNAME})
 srcdir=src/${PKGNAME}
 
 if [ ! -d "${srcdir}" ]; then
-    git clone $(cat sources/${PKGNAME}) ${srcdir};
+    git clone $(cat sources/${PKGNAME}/srcloc) ${srcdir};
     ("cd" ${srcdir};
      if [ -n "${BRANCH}" ]; then git checkout ${BRANCH}; fi;
      git submodule init;

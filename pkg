@@ -41,7 +41,7 @@ fi;
 
 case $1 in
     start|source)
-	if [ -n "$2" ] && [ -f sources/$2 ]; then
+	if [ -n "$2" ] && [ -f sources/$2/srcloc ]; then
 	    ./setsource $2;
 	    rm -rf work/$2;
 	    exit;
@@ -53,15 +53,14 @@ case $1 in
     setup)
 	if [ $# -eq 1 ]; then
 	    for src in sources/*; do
-		if [ -f ${src} ] && [ "${src%~}" = "${src}" ]; then
-		    # Skip versioned files
+		if [ -d ${src} ]; then
 		    name=$(basename ${src});
 		    ./setsource ${name};
 		fi;
 	    done;
 	else
 	    for src in $@; do
-		if [ -f "sources/${src}" ]; then
+		if [ -f "sources/${src}/srcloc" ]; then
 		    ./setsource ${src};
 		else echo "Not a known package: ${src}";
 		fi;
@@ -72,12 +71,14 @@ case $1 in
     pull|getsources|update_sources)
 	if [ $# -eq 1 ]; then
 	    for src in sources/*; do
-		name=$(basename ${src});
-		if [ "${name%~}" = "${name}" ]; then ./setsource ${name}; fi;
+		if [ -d ${src} ]; then
+		    name=$(basename ${src});
+		    ./setsource ${name};
+		fi;
 	    done;
 	else
 	    for src in $@; do
-		if [ -f "sources/${src}" ]; then
+		if [ -f "sources/${src}/srcloc" ]; then
 		    ./setsource ${src};
 		else echo "Not a known package: ${src}";
 		fi;
@@ -88,9 +89,9 @@ case $1 in
     cleanup)
 	if [ $# -eq 1 ]; then
 	    for src in sources/*; do
-		name=$(basename ${src});
-		if [ "${name%~}" = "${name}" ]; then
-		    files=$(ls ${name}*.tar ${name}*.tar.gz 2>/dev/null);
+		if [ -d "${src}" ]; then
+		    name=$(basename ${src});
+		    files=$(ls work/${name}*.tar work/${name}*.tar.gz 2>/dev/null);
 		    if [ -n "${files}" ]; then 
 			echo "Removing ${files}"; 
 			rm ${files};
@@ -99,8 +100,8 @@ case $1 in
 	    done;
 	else
 	    for name in $@; do
-		if [ -f "sources/${name}" ]; then
-		    files=$(ls ${name}*.tar ${name}*.tar.gz 2>/dev/null);
+		if [ -d "sources/${name}" ]; then
+		    files=$(ls work/${name}*.tar work/${name}*.tar.gz 2>/dev/null);
 		    if [ -n "${files}" ]; then 
 			echo "Removing ${files}"; 
 			rm ${files};
@@ -130,7 +131,7 @@ case $1 in
 esac;
 
 if [ $# -eq 1 ]; then
-    if [ -f sources/$1 ]; then
+    if [ -d sources/$1 ]; then
 	./setsource $1;
     elif [ -z "${PKGNAME}" ]; then
 	echo "No current package";
@@ -142,8 +143,8 @@ fi;
 
 if [ -n "${SKIP}" ]; then
     for pkg in ${SKIP}; do 
-	if [ -f sources/${pkg} ]; then
-	    touch sources/${pkg}.skip;
+	if [ -d sources/${pkg} ]; then
+	    touch sources/${pkg}/skip;
 	else
 	    echo "Bad SKIP arg ${pkg}";
 	fi;
@@ -166,7 +167,7 @@ get_all_pkgs( ) {
     local p='';
     local nm='';
     for p in sources/*; do
-	if  [ "${p%~}" = "${p}" ]; then
+	if  [ -d "$p" ]; then
 	    nm=$(basename ${p});
 	    if ! ( [ "$nm" = "libu8" ] || [ "$nm" = "kno" ] ); then
 		all="${all} ${nm}"; fi;
@@ -185,7 +186,12 @@ handle_bundle( ) {
     for elt in $*; do
 	echo "Processing '${elt}'";
 	case ${elt} in
-	    require|make|make+|make++|prep|build|install|push|update|latest|remake|rebuild|remake|remake+|remake++|pushup)
+	    require|make|prep|package|create|build|install|push|latest|pushup)
+		pkg_op ${op} "${pkgs}"; 
+		op=${elt};
+		pkgs='';
+		;;
+	    make+|make++|remake|remake+|remake++|rebuild|remake|pushup)
 		pkg_op ${op} "${pkgs}"; 
 		op=${elt};
 		pkgs='';
@@ -206,7 +212,7 @@ handle_bundle( ) {
 		echo ${valstring} > defaults/${varname};
 		;;
 	    *)
-		if [ -f sources/${elt} ]; then
+		if [ -d sources/${elt} ]; then
 		    if [ -z "${pkgs}" ]; then
 			pkgs="${elt}";
 		    else pkgs="${pkgs} ${elt}"; fi;

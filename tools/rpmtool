@@ -157,11 +157,11 @@ case ${ACTION} in
     start|getsource|source|setsource)
 	./setsource $*;
 	;;
-    prep)
+    prep|prepare)
 	import_state;
 	rpmprep;
 	;;
-    package|pkg|mkpkg|makepkg|build|rebuild)
+    package|create)
 	import_state;
 	if [ "${LOGFILE}" = none ]; then
 	    rpmpackage;
@@ -194,7 +194,7 @@ case ${ACTION} in
 	    echo "The currently built version of ${PKGNAME} is already installed!";
 	fi;
 	;;
-    push)
+    push|publish)
 	import_state;
 	PUSHED=$(cat output/${PKGNAME}/_.PUSHED 2>/dev/null||echo)
 	if [ -n "${VARIANT}" ]; then
@@ -211,7 +211,7 @@ case ${ACTION} in
 	echo Restoring to pre-prep state
 	rm -rf "work/${PKGNAME}-${VERSION}.tar.gz" "work/${PKGNAME}"
 	;;
-    update|latest|pushup)
+    latest|pushup)
 	import_state;
 	if [ -f output/${PKGNAME}/FULL_VERSION ] &&
 	       [ "${FULL_VERSION}" = "$(cat output/${PKGNAME}/FULL_VERSION)" ]; then

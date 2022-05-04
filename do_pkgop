@@ -53,7 +53,7 @@ case ${ACTION} in
 	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
 	pkg_done PREP;
 	;;
-    build|pkg|package|rebuild)
+    package|create)
 	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
 	pkg_done BUILD;
 	;;
@@ -65,7 +65,7 @@ case ${ACTION} in
 	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
 	pkg_done PUSHED;
 	;;
-    update|latest)
+    latest|pushup)
 	${PKGTOOL} ${ACTION} $@ && SUCCESS=yes;
 	pkg_done UPDATED;
 	;;
@@ -88,7 +88,7 @@ case ${ACTION} in
 	pkg_done BUILD;
 	;;
     make+|make+install)
-	${PKGTOOL} prep && ${PKGTOOL} build && ${PKGTOOL} install && SUCCESS=yes;
+	${PKGTOOL} prep && ${PKGTOOL} create && ${PKGTOOL} install && SUCCESS=yes;
 	pkg_done BUILD;
 	;;
     remake+|remake+install)
@@ -96,7 +96,7 @@ case ${ACTION} in
 	pkg_done BUILD;
 	;;
     make++|make+install+push)
-	${PKGTOOL} prep && ${PKGTOOL} build && ${PKGTOOL} install && ${PKGTOOL} push && SUCCESS=yes;
+	${PKGTOOL} prep && ${PKGTOOL} create && ${PKGTOOL} install && ${PKGTOOL} push && SUCCESS=yes;
 	pkg_done BUILD;
 	;;
     remake++|remake+install+push)
