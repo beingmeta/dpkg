@@ -197,9 +197,11 @@ handle_bundle( ) {
 		pkgs='';
 		;;
 	    all|forall)
-		if [ -z "${pkgs}" ]; then
-		    pkgs=$(get_all_pkgs);
-		    else pkgs="${pkgs} ${elt}";
+		if [ -n "${op}" ]; then
+                    pkg_op ${op} "$(get_all_pkgs)"
+		    pkgs=''
+		    op=''
+		else pkgs=$(get_all_pkgs);
 		fi;
 		;;
 	    *=*)
