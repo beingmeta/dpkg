@@ -232,7 +232,7 @@ case ${ACTION} in
 	./setsource $*;
 	;;
     prep)
-	debprep*;
+	debprep $*;
 	;;
     package|pkg|mkpkg|makepkg|build)
 	import_state;
