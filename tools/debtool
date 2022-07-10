@@ -234,7 +234,7 @@ case ${ACTION} in
     prep)
 	debprep $*;
 	;;
-    package|pkg|mkpkg|makepkg|build)
+    package|create)
 	import_state;
 	if debcheck; then
 	    echo "Nothing to do";
@@ -249,17 +249,9 @@ case ${ACTION} in
 	fi;
 	ls -l output/${PKGNAME}/
 	;;
-    rebuild)
+    require)
 	import_state;
-	if [ "${LOGFILE}" = none ]; then
-	    debpackage;
-	elif [ -n "${LOGFILE}" ]; then
-	    debpackage > ${LOGFILE};
-	else
-	    rm -f output/${PKGNAME}/LOG
-	    debpackage > output/${PKGNAME}/LOG;
-	fi;
-	ls -l output/${PKGNAME}/
+	debrequire;
 	;;
     make)
 	if ! debcheck; then
@@ -275,10 +267,6 @@ case ${ACTION} in
 	    echo "The currently built version of ${PKGNAME} is already installed!";
 	fi;
 	;;
-    require)
-	import_state;
-	debrequire;
-	;;
     push|publish)
 	PUSHED=$(cat output/${PKGNAME}/_.PUSHED 2>/dev/null||echo)
 	if [ -n "${VARIANT}" ]; then
@@ -291,7 +279,19 @@ case ${ACTION} in
 	    echo "Already pushed ${PKGNAME} version ${XVERSION}";
 	fi;
 	;;
-    update|latest|pushup)
+    rebuild)
+	import_state;
+	if [ "${LOGFILE}" = none ]; then
+	    debpackage;
+	elif [ -n "${LOGFILE}" ]; then
+	    debpackage > ${LOGFILE};
+	else
+	    rm -f output/${PKGNAME}/LOG
+	    debpackage > output/${PKGNAME}/LOG;
+	fi;
+	ls -l output/${PKGNAME}/
+	;;
+    latest|pushup)
 	import_state;
 	if [ -f output/${PKGNAME}/FULL_VERSION ] &&
 	       [ "${FULL_VERSION}" = "$(cat output/${PKGNAME}/FULL_VERSION)" ]; then
