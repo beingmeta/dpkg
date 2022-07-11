@@ -1,0 +1,16 @@
+Source: s3scripts
+Priority: optional
+Maintainer: Ken Haase <kh@beingmeta.com>
+Build-Depends: debhelper (>= 8.0.0), autotools-dev, debsigs, devscripts
+Standards-Version: 3.9.4
+Section: admin
+Homepage: http://www.libu8.org/
+
+Package: s3scripts
+Section: admin
+Architecture: all
+Depends: awscli, ${misc:Depends}
+Description: Provides command line scripts for using Amazon S3 as a file and data repository.
+  This uses the awscli command line interface to interact with S3 and 
+  provides simple commands for checkout, import, update, and commit.
+  

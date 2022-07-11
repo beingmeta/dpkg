@@ -1,0 +1,8 @@
+usr/bin/s3checkout
+usr/bin/s3update
+usr/bin/s3commit
+usr/bin/s3setroot
+usr/bin/s3setopts
+usr/bin/s3import
+usr/bin/s3root
+usr/bin/s3src

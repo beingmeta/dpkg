@@ -1,0 +1,29 @@
+s3scripts (0.8-5) beingmeta; urgency=medium
+
+  * Moved into automatic build process
+
+ -- Ken Haase <kh@beingmeta.com>  Mon, 11 Jul 2022 06:05:01 -0500
+
+s3scripts (0.8-4) beingmeta; urgency=medium
+
+  * Move into 'beingmeta' distribution
+
+ -- Ken Haase <kh@beingmeta.com>  Wed, 07 Nov 2018 14:05:01 -0500
+
+s3scripts (0.8-3) stable; urgency=medium
+
+  * Fix some typos in header.sh
+
+ -- Ken Haase <kh@beingmeta.com>  Wed, 08 Nov 2017 13:50:01 -0500
+
+s3scripts (0.8-2) stable; urgency=medium
+
+  * Fix some edge cases for determining the s3root
+
+ -- Ken Haase <kh@beingmeta.com>  Tue, 17 Jan 2017 12:31:57 +0000
+
+s3scripts (0.8-1) stable; urgency=low
+
+  * First debian packaging
+
+ -- Ken Haase <kh@beingmeta.com>  Sun, 09 Oct 2016 17:50:05 -0400
