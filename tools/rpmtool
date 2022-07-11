@@ -150,7 +150,12 @@ rpmrequire() {
 rpmpush() {
     local head_package="output/${PKGNAME}/${PKGNAME}-${VERSION}*.rpm";
     local sub_packages="$(ls output/${PKGNAME}/${PKGNAME}-*-${VERSION}*.rpm 2>/dev/null)";
-    ./tools/curlput ${head_package} ${sub_packages};
+    if [ -z "${REPO}" ]; then
+	${TOOLS}/curlput ${head_package} ${sub_packages};
+    else
+	${TOOLS}/curlput repo=${REPO} ${head_package} ${sub_packages};
+    fi;
+    ./tools/curlput 
 }
 
 case ${ACTION} in

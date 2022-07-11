@@ -27,14 +27,18 @@ for arg in $*; do
 	    PUSH_LOGIN=${arg};
 	    ;;
 	repo=*)
-	    repo=${arg%repo=};
-	    if [ -f repos/${repo} ]; then
+	    repo=${arg#repo=};
+	    if [ -f repos/${repo}.${REPO_SYSTEM} ]; then
+		PUSH_URL=$(cat repos/${repo}.${REPO_SYSTEM});
+	    elif [ -f repos/${repo} ]; then
 		PUSH_URL=$(cat repos/${repo});
-		if [ -f repos/${repo}.login ]; then
-		    PUSH_LOGIN=$(cat repos/${repo}.login);
-		fi;
 	    else
 		PUSH_URL=${repo};
+	    fi;
+	    if [ -f repos/${repo}.${REPO_SYSTEM}.login ]; then
+		PUSH_LOGIN=$(cat repos/${repo}.${REPO_SYSTEM}.login);
+	    elif [ -f repos/${repo}.login ]; then
+		PUSH_LOGIN=$(cat repos/${repo}.login);
 	    fi;
 	    ;;
 	login=*)

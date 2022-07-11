@@ -189,7 +189,7 @@ debpush() {
     if [ -z "${REPO}" ]; then
 	${TOOLS}/curlpush ${install_packages};
     else
-	${TOOLS}/curlpush ${install_packages} repo=${REPO};
+	${TOOLS}/curlpush repo=${REPO} ${install_packages};
     fi;
 }
 
