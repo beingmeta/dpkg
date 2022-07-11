@@ -29,9 +29,9 @@ for arg in $*; do
 	repo=*)
 	    repo=${arg#repo=};
 	    if [ -f repos/${repo}.${REPO_SYSTEM} ]; then
-		PUSH_URL=$(cat repos/${repo}.${REPO_SYSTEM});
+		PUSH_URL=$(cat repos/${repo}.${REPO_SYSTEM} | sed -e "s/@DISTRO@/${DISTRO}/" -e "s/@CHANNEL@/${CHANNEL:-main}/");
 	    elif [ -f repos/${repo} ]; then
-		PUSH_URL=$(cat repos/${repo});
+		PUSH_URL=$(cat repos/${repo} | sed -e "s/@DISTRO@/${DISTRO}/" -e "s/@CHANNEL@/${CHANNEL:-main}/");
 	    else
 		PUSH_URL=${repo};
 	    fi;
@@ -53,6 +53,11 @@ for arg in $*; do
 	    ;;
     esac
 done;
+
+if [ -z "${PUSH_URL}" ]; then
+    echo "Warning! No repository address to push to";
+    exit 2;
+fi;
 
 if [ -z "${PUSH_LOGIN}" ]; then
     echo "Warning! No login info";
