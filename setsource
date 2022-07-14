@@ -153,13 +153,21 @@ srcurl=$(cat sources/${PKGNAME}/srcloc)
 srcdir=src/${PKGNAME}
 
 if [ "${GIT_PROTOCOL}" = "ssh" ]; then
-    srcurl=$(echo ${srcurl} | sed -e 's|^https://|git@' | sed 's|/|:|')
+    newurl=$(echo ${srcurl} | sed -e 's|^https://|git@|' | sed 's|/|:|')
+    if [ "${newurl}" != "${srcurl}" ]; then
+        echo "Using ${newurl}";
+        srcurl="${newurl}";
+    fi;
 elif [ "${GIT_PROTOCOL}" = "https" ]; then
-    srcurl=$(echo ${srcurl} | sed 's|/|:|' | sed -e 's|^git@|https://')
+    newurl=$(echo ${srcurl} | sed 's|:|/|' | sed -e 's|^git@|https://|')
+    if [ "${newurl}" != "${srcurl}" ]; then
+        echo "Using ${newurl}";
+        srcurl="${newurl}";
+    fi;
 fi
 
 if [ ! -d "${srcdir}" ]; then
-    git clone $(cat sources/${PKGNAME}/srcloc) ${srcdir};
+    git clone ${srcurl} ${srcdir};
     ("cd" ${srcdir};
      if [ -n "${BRANCH}" ]; then git checkout ${BRANCH}; fi;
      git submodule init;

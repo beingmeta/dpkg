@@ -4,7 +4,7 @@ export PACKAGING_ROOT STATE_ROOT SOURCE_ROOT WORK_ROOT
 export PATH LOGFILE LIBNAME TOOLS OUTPUT
 export PKGNAME VERSION REL_VERSION BRANCH VARIANT FULL_VERSION
 export BASE_VERSION MAJOR_VERSION MINOR_VERSION RELEASE_VERSION
-export KNO_VERSION KNO_MAJOR KNO_MINOR
+export KNO_VERSION KNO_MAJOR KNO_MINOR GIT_PROTOCOL
 export REPOMAN REPO_SYSTEM REPO REPO_URL REPO_LOGIN
 export CODENAME DISTRO STATUS ARCH URGENCY
 
@@ -142,6 +142,8 @@ fi;
 
 DISTRIBUTOR=$(lsb_release -i -s | sed - -e 's|Distributor ID:\t||g');
 
+echo DISTRIBUTOR=${DISTRIBUTOR};
+
 if [ -n "${REPO_SYSTEM}" ]; then
     :;
 elif [ -f ${STATE_ROOT}/REPO_SYSTEM ]; then
@@ -149,7 +151,7 @@ elif [ -f ${STATE_ROOT}/REPO_SYSTEM ]; then
 elif [ -f defaults/REPO_SYSTEM ]; then
     REPO_SYSTEM=$(cat defaults/REPO_SYSTEM);
 else case "${DISTRIBUTOR}" in
-	 Fedora|Centos)
+	 Fedora|Centos|RedHat|RedHatEnterprise)
 	     REPO_SYSTEM="yum";
 	     ;;
 	 Debian|Mint|Ubuntu)
@@ -297,7 +299,7 @@ else
 	    Ubuntu|Debian)
 		PKGTOOL=${PACKAGING_ROOT}/tools/debtool;
 		;;
-	    Fedora|RHEL|CENTOS)
+	    Fedora|RHEL|CENTOS|RedHat|RedHatEnterprise)
 		PKGTOOL=${PACKAGING_ROOT}/tools/rpmtool;
 		;;
 	    Alpine)
