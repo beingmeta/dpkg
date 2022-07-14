@@ -35,6 +35,7 @@ rm -rf $RPM_BUILD_ROOT
 %postun -p /sbin/ldconfig
 
 %files
-%{_libdir}/kno/postgres.so*
+%{_libdir}/kno/pqprims.so*
+%{_datadir}/kno/modules/installed/postgres.scm
 %doc
 
