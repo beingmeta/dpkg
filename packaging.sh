@@ -164,6 +164,14 @@ else case "${DISTRIBUTOR}" in
      esac;
 fi;
 
+if [ -n "${GIT_PROTOCOL}" ]; then
+    :;
+elif [ -f ${STATE_ROOT}/GIT_PROTOCOL ]; then
+    GIT_PROTOCOL=$(cat ${STATE_ROOT}/GIT_PROTOCOL);
+elif [ -f defaults/GIT_PROTOCOL ]; then
+    GIT_PROTOCOL=$(cat defaults/GIT_PROTOCOL);
+fi;
+
 if [ -n "${DEFAULT_BRANCH}" ]; then
     echo ${DEFAULT_BRANCH} > defaults/BRANCH;
 fi;

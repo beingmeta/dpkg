@@ -152,6 +152,12 @@ tarfile=${PKGNAME}.tar
 srcurl=$(cat sources/${PKGNAME}/srcloc)
 srcdir=src/${PKGNAME}
 
+if [ "${GIT_PROTOCOL}" = "ssh" ]; then
+    srcurl=$(echo ${srcurl} | sed -e 's|^https://|git@' | sed 's|/|:|')
+elif [ "${GIT_PROTOCOL}" = "https" ]; then
+    srcurl=$(echo ${srcurl} | sed 's|/|:|' | sed -e 's|^git@|https://')
+fi
+
 if [ ! -d "${srcdir}" ]; then
     git clone $(cat sources/${PKGNAME}/srcloc) ${srcdir};
     ("cd" ${srcdir};
