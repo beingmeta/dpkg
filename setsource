@@ -158,7 +158,7 @@ if [ "${GIT_PROTOCOL}" = "ssh" ] && [ "${srcurl#https:}" != "${srcurl}" ]; then
         echo "Rewrote ${srcurl} as ${newurl}";
         srcurl="${newurl}";
     fi;
-elif [ "${GIT_PROTOCOL}" = "https" ] && [ "${srcurl#git@github.}" != "${srcurl}" ]]; then
+elif [ "${GIT_PROTOCOL}" = "https" ] && [ "${srcurl#git@github.}" != "${srcurl}" ]; then
     newurl=$(echo ${srcurl} | sed 's|:|/|' | sed -e 's|^git@|https://|')
     if [ "${newurl}" != "${srcurl}" ]; then
         echo "Rewrote ${srcurl} as ${newurl}";
