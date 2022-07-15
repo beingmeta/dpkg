@@ -23,7 +23,6 @@ fi;
 #echo "rpmtool $$ $(pwd) ACTION=${ACTION} PKGNAME=${PKGNAME} VERSION=${VERSION} BRANCH=${BRANCH}";
 logmsg "rmptool ACTION=${ACTION} PKGNAME=${PKGNAME} VERSION=${VERSION} BRANCH=${BRANCH} VARIANT=${VARIANT} REPO=${REPO}";
 
-export RPMINFO=${PACKAGING_ROOT}/rpminfo
 export BUILDRPM=$(which rpmbuild)
 export RPMDIR=${PACKAGING_ROOT}/staging/
 export RPMFLAGS=
@@ -52,18 +51,14 @@ rpmprep() {
 	(for suffix in ${DISTRO}.${VARIANT} ${DISTRO} ${VARIANT}; do
 	     if [ -n "${spec_file}" ]; then
 		 :;
-	     elif [ -f ${RPMINFO}/${PKGNAME}/${PKGNAME}.spec.in.${suffix} ]; then
-		 spec_file=${RPMINFO}/${PKGNAME}/${PKGNAME}.spec.in.${suffix};
-	     elif [ -f ${RPMINFO}/${PKGNAME}.spec.in.${suffix} ]; then
-		 spec_file=${RPMINFO}/${PKGNAME}.spec.in.${suffix};
+	     elif [ -f ${CONFIG_ROOT}/${PKGNAME}/rpminfo/${PKGNAME}.spec.in.${suffix} ]; then
+		 spec_file=${CONFIG_ROOT}/${PKGNAME}/rpminfo/${PKGNAME}.spec.in.${suffix};
 	     fi;
 	 done;
 	 if [ -n "${spec_file}" ]; then
 	     :;
-	 elif [ -f ${RPMINFO}/${PKGNAME}/${PKGNAME}.spec.in ]; then
-	     spec_file=${RPMINFO}/${PKGNAME}/${PKGNAME}.spec.in;
-	 elif [ -f ${RPMINFO}/${PKGNAME}.spec.in ]; then
-	     spec_file=${RPMINFO}/${PKGNAME}.spec.in;
+	 elif [ -f ${CONFIG_ROOT}/${PKGNAME}/rpminfo/${PKGNAME}.spec.in ]; then
+	     spec_file=${CONFIG_ROOT}/${PKGNAME}/rpminfo/${PKGNAME}.spec.in;
 	 else
 	     echo "No RPM info for ${PKGNAME}";
 	     exit;
@@ -109,7 +104,7 @@ rpmpackage() {
 	(echo ${FULL_VERSION} > ${output_dir}/FULL_VERSION);
 }
 rpminstall() {
-    local instpkgs=$(cat rpminfo/${PKGNAME}.install 2>/dev/null||echo ${PKGNAME});
+    local instpkgs=$(cat ${CONFIG_ROOT}/${PKGNAME}/rpminfo/install.prop 2>/dev/null||echo ${PKGNAME});
     local packages=;
     local matches=;
     for pkgname in ${instpkgs}; do
@@ -127,7 +122,7 @@ rpminstallsrc() {
 }
 
 rpmrequire() {
-    local instpkgs=$(cat rpminfo/${PKGNAME}.install 2>/dev/null||echo ${PKGNAME});
+    local instpkgs=$(cat ${CONFIG_ROOT}/${PKGNAME}/rpminfo/install.prop 2>/dev/null||echo ${PKGNAME});
     local files=;
     local matches=;
     for pkgname in ${instpkgs}; do
@@ -226,7 +221,7 @@ case ${ACTION} in
 		rpminstall $* && echo ${XVERSION} > run/INSTALLED.${PKGNAME};
 	    fi;
 	fi;
-	instpkgs=$(cat rpminfo/${PKGNAME}.install 2>/dev/null||echo ${PKGNAME});
+	instpkgs=$(cat ${CONFIG_ROOT}/${PKGNAME}/rpminfo/install.prop 2>/dev/null||echo ${PKGNAME});
 	(${SUDO} dnf -yq upgrade ${instpkgs}) || (echo "Upgrade of ${instpkgs} failed");
 	YUMVERSION=$(yum_version ${PKGNAME});
 	# Check whether we need to build the package, then do it

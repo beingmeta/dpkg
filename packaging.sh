@@ -1,7 +1,7 @@
 #!/bin/sh
 
 export PACKAGING_ROOT STATE_ROOT SOURCE_ROOT WORK_ROOT
-export PATH LOGFILE LIBNAME TOOLS OUTPUT
+export PATH LOGFILE LIBNAME TOOLS OUTPUT CONFIG_ROOT
 export PKGNAME VERSION REL_VERSION BRANCH VARIANT FULL_VERSION
 export BASE_VERSION MAJOR_VERSION MINOR_VERSION RELEASE_VERSION
 export KNO_VERSION KNO_MAJOR KNO_MINOR GIT_PROTOCOL
@@ -104,12 +104,12 @@ if [ -z "${PACKAGING_ROOT}" ]; then
 	echo "Couldn't find packaging root directory";
 	exit;
     else
-	fallback=${PACKAGING_ROOT}/fallback;
-	PATH="${PATH}:${fallback}";
+	TOOLS=${PACKAGING_ROOT}/tools;
+	PATH="${PATH}:${TOOLS}";
 	STATE_ROOT=${PACKAGING_ROOT}/state;
+	CONFIG_ROOT=${PACKAGING_ROOT}/sources;
 	SOURCE_ROOT=${PACKAGING_ROOT}/src;
 	WORK_ROOT=${PACKAGING_ROOT}/work;
-	TOOLS=${PACKAGING_ROOT}/tools;
 	OUTPUT=${PACKAGING_ROOT}/output;
     fi;
 fi;
@@ -141,8 +141,6 @@ else
 fi;
 
 DISTRIBUTOR=$(lsb_release -i -s | sed - -e 's|Distributor ID:\t||g');
-
-echo DISTRIBUTOR=${DISTRIBUTOR};
 
 if [ -n "${REPO_SYSTEM}" ]; then
     :;

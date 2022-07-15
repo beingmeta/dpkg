@@ -30,10 +30,9 @@ fi;
 logmsg "debtool ACTION=${ACTION} PKGNAME=${PKGNAME} VERSION=${VERSION} BRANCH=${BRANCH}";
 logmsg "   VARIANT=${VARIANT} REPO=${REPO}";
 
-DEBINFO=${PACKAGING_ROOT}/debinfo
 DPKGNAME=${PKGNAME}
-if [ -f ${DEBINFO}/${PKGNAME}/dpkgname.prop ]; then
-    DPKGNAME=$(cat ${DEBINFO}/${PKGNAME}/dpkgname.prop);
+if [ -f ${CONFIG_ROOT}/${PKGNAME}/dpkgname.prop ]; then
+    DPKGNAME=$(cat ${CONFIG_ROOT}/${PKGNAME}/dpkgname.prop);
 fi
 
 debprep() {
@@ -56,18 +55,18 @@ debprep() {
     if [ -d ${workdir}/debian ]; then rm -rf ${workdir}/debian; fi
     mkdir ${workdir}/debian
     logmsg "Setting up ${workdir}/debian";
-    ("cd" ${DEBINFO}/${PKGNAME};
+    ("cd" ${CONFIG_ROOT}/${PKGNAME}/debinfo;
      for file in *; do
 	 if [ ${file} != ${file%.ex} ]; then
 	     # skip .ex files
 	     :
 	 elif [ -d ${file} ]; then
-	     cp -r ${file} ../../${workdir}/debian;
+	     cp -r ${file} ../../../${workdir}/debian;
 	 elif [ "${file%.prop}" != "${file}" ]; then
 	     :;
 	 else
-	     echo "Generating ../../${workdir}/debian/${file} from ${file}" > ../../output/${PKGNAME}/LOG;
-	     ${TOOLS}/u8_xsubst -q ${file} ../../${workdir}/debian/${file} \
+	     echo "Generating ../../../${workdir}/debian/${file} from ${file}" >> ../../../output/${PKGNAME}/LOG;
+	     ${TOOLS}/u8_xsubst -q ${file} ../../../${workdir}/debian/${file} \
 		       "VERSION" "${VERSION}"              \
 		       "BRANCH" "${BRANCH}"                    \
 		       "DISTRO" "${DISTRO}"                    \
@@ -137,7 +136,7 @@ debcheck() {
 }
 
 debinstall() {
-    local decl_packages="$(cat debinfo/${PKGNAME}/install.prop 2>/dev/null)";
+    local decl_packages="$(cat ${CONFIG_ROOT}/${PKGNAME}/debinfo/install.prop 2>/dev/null)";
     local head_package=""
     local install_packages=""
     if [ -z "${decl_packages}" ]; then 
@@ -155,7 +154,7 @@ debinstall() {
 }
 
 debrequire() {
-    local decl_packages="$(cat debinfo/${PKGNAME}/install.prop 2>/dev/null)";
+    local decl_packages="$(cat ${CONFIG_FOOT}/${PKGNAME}/debinfo/install.prop 2>/dev/null)";
     local head_package=""
     local install_files=""
     local install_packages=""
@@ -301,7 +300,7 @@ case ${ACTION} in
 		debinstall $* && echo ${FULL_VERSION} > run/INSTALLED.${PKGNAME};
 	    fi;
 	fi;
-	instpkgs="$(cat debinfo/${PKGNAME}/install.prop 2>/dev/null||echo ${PKGNAME})";
+	instpkgs="$(cat ${CONFIG_ROOT/${PKGNAME}/debinfo/install.prop 2>/dev/null||echo ${PKGNAME})";
 	(${SUDO} apt-get -yq install ${instpkgs}) || (echo "Upgrade of ${instpkgs} failed");
 	APTVERSION=$(u8_aptversion ${PKGNAME});
 	if [ "${APTVERSION}" != "${VERSION}" ]; then

@@ -167,7 +167,7 @@ get_all_pkgs( ) {
     local p='';
     local nm='';
     for p in sources/*; do
-	if  [ -d "$p" ]; then
+	if  [ -d "$p" ] && [ ! -f "$p/skip" ]; then
 	    nm=$(basename ${p});
 	    if ! ( [ "$nm" = "libu8" ] || [ "$nm" = "kno" ] ); then
 		all="${all} ${nm}"; fi;
