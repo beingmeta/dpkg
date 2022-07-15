@@ -29,7 +29,6 @@ fi;
 
 logmsg "apktool ACTION=${ACTION} PKGNAME=${PKGNAME} VERSION=${VERSION} BRANCH=${BRANCH}";
 
-export APKINFO=${PACKAGING_ROOT}/apkinfo/
 export BUILDRPM=abuild
 export REPOROOT=${PACKAGING_ROOT}/staging/
 
@@ -46,16 +45,16 @@ apkprep() {
 	(logmsg "Creating tarball ${tarball} for ${workdir}") &&
 	(rm -rf ${workdir}; mkdir ${workdir}; "cd" ${workdir}; tar xf ../${PKGNAME}.tar) &&
 	("cd" work; tar czf ../${build_root}/${tarball} ${PKGNAME} ) &&
-	(if [ -f ${APKINFO}/${PKGNAME}/APKBUILD.in ]; then
-	     ${TOOLS}/u8_xsubst ${APKINFO}/${PKGNAME}/APKBUILD.in ${build_root}/APKBUILD \
+	(if [ -f ${CONFIG_ROOT}/${PKGNAME}/apkinfo/${PKGNAME}.APKBUILD.in ]; then
+	     ${TOOLS}/u8_xsubst ${CONFIG_ROOT}/${PKGNAME}/apkinfo/${PKGNAME}.APKBUILD.in ${build_root}/APKBUILD \
 		       "PKGNAME" "${PKGNAME}" \
 		       "LIBNAME" "${LIBNAME}" \
 		       "VERSION" "${VERSION}" \
 		       "MAJOR_VERSION" "${MAJOR_VERSION}" \
 		       "MINOR_VERSION" "${MINOR_VERSION}" \
      		       "RELEASE_VERSION" "${RELEASE_VERSION}";
-	 elif [ -f ${APKINFO}/${PKGNAME}.APKBUILD.in ]; then
-	     ${TOOLS}/u8_xsubst ${APKINFO}/${PKGNAME}.APKBUILD.in ${build_root}/APKBUILD \
+	 elif [ -f ${CONFIG_ROOT}/${PKGNAME}/apkinfo/${PKGNAME}.APKBUILD.in ]; then
+	     ${TOOLS}/u8_xsubst ${CONFIG_ROOT}/${PKGNAME}/apkinfo/${PKGNAME}.APKBUILD.in ${build_root}/APKBUILD \
 		     "PKGNAME" "${PKGNAME}" \
 		     "LIBNAME" "${LIBNAME}" \
 		     "VERSION" "${VERSION}" \
