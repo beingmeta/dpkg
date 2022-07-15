@@ -104,13 +104,12 @@ if [ -z "${PACKAGING_ROOT}" ]; then
 	echo "Couldn't find packaging root directory";
 	exit;
     else
-	fallback=${PACKAGING_ROOT}/fallback;
-	PATH="${PATH}:${fallback}";
+	TOOLS=${PACKAGING_ROOT}/tools;
+	PATH="${PATH}:${TOOLS}";
 	STATE_ROOT=${PACKAGING_ROOT}/state;
 	CONFIG_ROOT=${PACKAGING_ROOT}/sources;
 	SOURCE_ROOT=${PACKAGING_ROOT}/src;
 	WORK_ROOT=${PACKAGING_ROOT}/work;
-	TOOLS=${PACKAGING_ROOT}/tools;
 	OUTPUT=${PACKAGING_ROOT}/output;
     fi;
 fi;
