@@ -154,7 +154,7 @@ debinstall() {
 }
 
 debrequire() {
-    local decl_packages="$(cat ${CONFIG_FOOT}/${PKGNAME}/debinfo/install.prop 2>/dev/null)";
+    local decl_packages="$(cat ${CONFIG_ROOT}/${PKGNAME}/debinfo/install.prop 2>/dev/null)";
     local head_package=""
     local install_files=""
     local install_packages=""
@@ -300,7 +300,7 @@ case ${ACTION} in
 		debinstall $* && echo ${FULL_VERSION} > run/INSTALLED.${PKGNAME};
 	    fi;
 	fi;
-	instpkgs="$(cat ${CONFIG_ROOT/${PKGNAME}/debinfo/install.prop 2>/dev/null||echo ${PKGNAME})";
+	instpkgs="$(cat ${CONFIG_ROOT}/${PKGNAME}/debinfo/install.prop 2>/dev/null||echo ${PKGNAME})";
 	(${SUDO} apt-get -yq install ${instpkgs}) || (echo "Upgrade of ${instpkgs} failed");
 	APTVERSION=$(u8_aptversion ${PKGNAME});
 	if [ "${APTVERSION}" != "${VERSION}" ]; then
