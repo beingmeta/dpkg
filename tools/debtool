@@ -30,10 +30,9 @@ fi;
 logmsg "debtool ACTION=${ACTION} PKGNAME=${PKGNAME} VERSION=${VERSION} BRANCH=${BRANCH}";
 logmsg "   VARIANT=${VARIANT} REPO=${REPO}";
 
-DEBINFO=${PACKAGING_ROOT}/debinfo
 DPKGNAME=${PKGNAME}
-if [ -f ${DEBINFO}/${PKGNAME}/dpkgname.prop ]; then
-    DPKGNAME=$(cat ${DEBINFO}/${PKGNAME}/dpkgname.prop);
+if [ -f ${CONFIG_ROOT}/${PKGNAME}/dpkgname.prop ]; then
+    DPKGNAME=$(cat ${CONFIG_ROOT}/${PKGNAME}/dpkgname.prop);
 fi
 
 debprep() {
@@ -56,18 +55,18 @@ debprep() {
     if [ -d ${workdir}/debian ]; then rm -rf ${workdir}/debian; fi
     mkdir ${workdir}/debian
     logmsg "Setting up ${workdir}/debian";
-    ("cd" ${DEBINFO}/${PKGNAME};
+    ("cd" ${CONFIG_ROOT}/${PKGNAME}/debinfo;
      for file in *; do
 	 if [ ${file} != ${file%.ex} ]; then
 	     # skip .ex files
 	     :
 	 elif [ -d ${file} ]; then
-	     cp -r ${file} ../../${workdir}/debian;
+	     cp -r ${file} ../../../${workdir}/debian;
 	 elif [ "${file%.prop}" != "${file}" ]; then
 	     :;
 	 else
-	     echo "Generating ../../${workdir}/debian/${file} from ${file}" > ../../output/${PKGNAME}/LOG;
-	     ${TOOLS}/u8_xsubst -q ${file} ../../${workdir}/debian/${file} \
+	     echo "Generating ../../../${workdir}/debian/${file} from ${file}" >> ../../../output/${PKGNAME}/LOG;
+	     ${TOOLS}/u8_xsubst -q ${file} ../../../${workdir}/debian/${file} \
 		       "VERSION" "${VERSION}"              \
 		       "BRANCH" "${BRANCH}"                    \
 		       "DISTRO" "${DISTRO}"                    \
