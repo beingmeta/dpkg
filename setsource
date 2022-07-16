@@ -16,7 +16,11 @@ if [ ! -d "sources/${pkgname}" ]; then
     echo "setsource: ${pkgname} is not a known package name";
     exit;
 fi;
-if [ ! -f ${STATE_ROOT}/PKGNAME ]; then curpkg=$(cat ${STATE_ROOT}/PKGNAME); else curpkg=; fi
+if [ -f ${STATE_ROOT}/PKGNAME ]; then
+    curpkg=$(cat ${STATE_ROOT}/PKGNAME);
+else
+    curpkg=;
+fi
 if [ "${curpkg}" = "${pkgname}" ] && ! ${UPDATE_CURRENT}; then
     exit;
 fi
