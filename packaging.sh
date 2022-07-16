@@ -7,6 +7,7 @@ export BASE_VERSION MAJOR_VERSION MINOR_VERSION RELEASE_VERSION
 export KNO_VERSION KNO_MAJOR KNO_MINOR GIT_PROTOCOL
 export REPOMAN REPO_SYSTEM REPO REPO_URL REPO_LOGIN
 export CODENAME DISTRO STATUS ARCH URGENCY
+export PKGTOOL PKGINFO
 
 PKGLOG=${PKGLOG:-/dev/null}
 
@@ -313,6 +314,17 @@ else
     fi;
 fi;
 
+if [ -z "${PKGTOOL}" ]; then
+    echo "No PKGTOOL";
+elif [ "${PKGTOOL}" = "debtool" ]; then
+    PKGINFO=debinfo
+elif [ "${PKGTOOL}" = "rpmtool" ]; then
+    PKGINFO=rpminfo
+elif [ "${PKGTOOL}" = "apktool" ]; then
+    PKGINFO=apkinfo
+else
+    PKGINFO=none
+fi;
 if [ -f ${STATE_ROOT}/OUTDIR ]; then OUTDIR=$(cat ${STATE_ROOT}/OUTDIR); fi;
 
 dbgmsg "REPO HOST=${REPO} URL=${REPO_URL} REPO_LOGIN=${REPO_LOGIN}";
