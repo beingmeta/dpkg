@@ -10,6 +10,7 @@ usr/share/man/man8
 usr/share/kno/config
 usr/share/kno/modules/installed
 usr/share/kno/modules/local
+usr/share/kno/modules/source
 usr/share/kno/libscm
 usr/share/kno/libscm/bench
 usr/share/kno/libscm/bugjar
@@ -34,6 +35,7 @@ etc/kno/config
 etc/kno/config_files
 etc/kno/daemons
 etc/kno/servlets
+etc/kno/modules
 etc/kno/boot
 var/run/kno
 var/run/kno/servlets

@@ -86,21 +86,27 @@ Provides: kno-doc
 Architecture: any
 Description: documentation for kno
 
+Package: kno-jobs
+Architecture: any
+Suggests: kno-docs
+Depends: kno-core
+Description: Legacy job control scripts for KNO daemons and servlets
+
 # Package: upstart-kno
 # Architecture: any
-# Depends: kno-core
+# Depends: kno-core, kno-jobs
 # Conflicts: kno-sysv, kno-systemd
 # Description: Upstart configuration for Kno
 
 Package: sysv-kno
 Architecture: any
-Depends: kno-core
+Depends: kno-core, kno-jobs
 Conflicts: kno-upstart, kno-systemd
 Description: SYSV init.d configuration for Kno
 
 Package: systemd-kno
 Architecture: any
-Depends: kno-core
+Depends: kno-core, kno-jobs
 Conflicts: kno-upstart, kno-sysv
 Description: systemd init configuration for Kno
 
