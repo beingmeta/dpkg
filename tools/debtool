@@ -100,7 +100,7 @@ debpackage() {
     if [ -f state/NOSOURCE ]; then buildopt=-b; fi
     local workdir="work/${PKGNAME}"
     ("cd" ${workdir};
-     dpkg-buildpackage ${buildopt} -us -uc -sa -rfakeroot > ${PKGLOG} 2> ${PKGLOG}) &&
+     dpkg-buildpackage ${buildopt} -us -uc -sa -rfakeroot) &&
         logmsg "dpkg-buildpackage was successful for ${PKGNAME}";
     if [ ! -z "${GPGID}" ]; then
 	#    debsign -p${GPG} --re-sign -k${GPGID} dist/kno_@KNO_VERSION@*.changes && touch $@;
@@ -118,7 +118,7 @@ debpackage() {
 	return 0;
     else
 	echo "No changes file for ${DPKG_NAME} (${VERSION})";
-	return -1
+	return 1
     fi;
 }
 

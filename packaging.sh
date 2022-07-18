@@ -17,7 +17,7 @@ logmsg () {
 
 infomsg () {
     if [ -n "${PKGLOG}" ] && [ -w "${PKGLOG}" ]; then
-        echo "pkg ($$@$(pwd):${DISTRO}) $1" >${PKGLOG};
+        echo "pkg ($$@$(pwd):${DISTRO}) $1" >>${PKGLOG};
     else
         echo "pkg ($$@$(pwd):${DISTRO}) $1" >&2;
     fi;
@@ -97,7 +97,7 @@ if [ "$(basename $0)" = "packaging.sh" ]; then
     echo "This file should be loaded (sourced) rather than run by itself";
     exit;
 else
-    echo "Loading packaging.sh into $$, arg1=$1" >${PKGLOG}
+    echo "Loading packaging.sh into $$, arg1=$1" >>${PKGLOG}
 fi;
 
 if [ -z "${PACKAGING_ROOT}" ]; then

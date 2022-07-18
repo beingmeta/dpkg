@@ -4,8 +4,9 @@ usr/lib/libknotexttools.so*
 usr/lib/kno/crypto.so*
 usr/lib/kno/sqlite.so*
 usr/bin/knoc
-usr/bin/knox
 usr/bin/knocgi
+usr/bin/knox
+usr/bin/knapp
 usr/bin/knodb
 usr/bin/knocall
 usr/bin/knoserver
