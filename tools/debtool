@@ -27,8 +27,8 @@ else
     fi;
 fi;
 
-logmsg "debtool ACTION=${ACTION} PKGNAME=${PKGNAME} VERSION=${VERSION} BRANCH=${BRANCH}";
-logmsg "   VARIANT=${VARIANT} REPO=${REPO}";
+infomsg "debtool ACTION=${ACTION} PKGNAME=${PKGNAME} VERSION=${VERSION} BRANCH=${BRANCH}";
+infomsg "   VARIANT=${VARIANT} REPO=${REPO}";
 
 DPKGNAME=${PKGNAME}
 if [ -f ${CONFIG_ROOT}/${PKGNAME}/dpkgname.prop ]; then
@@ -38,10 +38,10 @@ fi
 debprep() {
     local workdir=work/${PKGNAME}
     if [ -d ${workdir} ]; then
-	logmsg "Removing existing build directory ${workdir}";
+	infomsg "Removing existing build directory ${workdir}";
 	rm -rf ${workdir};
     fi
-    logmsg "Creating build directory at '${workdir}'"
+    infomsg "Creating build directory at '${workdir}'"
     if [ ! -f work/${PKGNAME}.tar ]; then
        echo "No source tarfile work/${PKGNAME}.tar";
        return 1;
@@ -49,12 +49,12 @@ debprep() {
     mkdir ${workdir}; ("cd" ${workdir}; tar xf ../${PKGNAME}.tar);
     if [ ! -f state/NOSOURCE ]; then
 	srctar=${PKGNAME}_${VERSION}.orig.tar.gz;
-	logmsg "Creating source tarball at work/${srctar}";
+	infomsg "Creating source tarball at work/${srctar}";
 	("cd" work; tar -czf ${srctar} ${PKGNAME});
     fi;
     if [ -d ${workdir}/debian ]; then rm -rf ${workdir}/debian; fi
     mkdir ${workdir}/debian
-    logmsg "Setting up ${workdir}/debian";
+    infomsg "Setting up ${workdir}/debian";
     ("cd" ${CONFIG_ROOT}/${PKGNAME}/debinfo;
      for file in *; do
 	 if [ ${file} != ${file%.ex} ]; then
@@ -100,7 +100,8 @@ debpackage() {
     if [ -f state/NOSOURCE ]; then buildopt=-b; fi
     local workdir="work/${PKGNAME}"
     ("cd" ${workdir};
-     dpkg-buildpackage ${buildopt} -us -uc -sa -rfakeroot)
+     dpkg-buildpackage ${buildopt} -us -uc -sa -rfakeroot > ${PKGLOG} 2> ${PKGLOG}) &&
+        logmsg "dpkg-buildpackage was successful for ${PKGNAME}";
     if [ ! -z "${GPGID}" ]; then
 	#    debsign -p${GPG} --re-sign -k${GPGID} dist/kno_@KNO_VERSION@*.changes && touch $@;
 	debsign --re-sign -k${GPGID} work/${PKGNAME}_${VERSION}*.changes
@@ -124,13 +125,13 @@ debpackage() {
 debcheck() {
     local buildinfo=$(ls output/${PKGNAME}/${PKGNAME}_${VERSION}*.buildinfo 2>/dev/null);
     if [ -z "${buildinfo}" ]; then
-	logmsg "No buildinfo found for output/${PKGNAME}/${PKGNAME}_${VERSION}-${DISTRO}...";
+	infomsg "No buildinfo found for output/${PKGNAME}/${PKGNAME}_${VERSION}-${DISTRO}...";
 	return 1;
     elif [ -f "${buildinfo}" ]; then
-	dbgmsg "File ${buildinfo} found";
+	infomsg "File ${buildinfo} found";
 	return 0;
     else
-	logmsg "File ${buildinfo} not found";
+	infomsg "File ${buildinfo} not found";
 	return 1;
     fi;
 }
@@ -159,8 +160,10 @@ debrequire() {
     local install_files=""
     local install_packages=""
     if [ -z "${decl_packages}" ]; then 
-	head_package="output/${PKGNAME}/${DPKGNAME}_${VERSION}*.deb";
-	install_files="${head_package} $(ls output/${PKGNAME}/*-*_${VERSION}*.deb 2>/dev/null)";
+	head_package=$(ls output/${PKGNAME}/${DPKGNAME}_${VERSION}*.deb 2>/dev/null);
+        if [ -n "${head_package}" ]; then
+	    install_files="${head_package} $(ls output/${PKGNAME}/*-*_${VERSION}*.deb 2>/dev/null)";
+        fi;
 	install_packages=${DPKGNAME:-${PKGNAME}}
     else
 	for package in ${decl_packages}; do
@@ -174,11 +177,11 @@ debrequire() {
     if [ -n "${install_files}" ]; then
 	${SUDO} dpkg -i ${install_files};
     elif ${SUDO} apt-get install ${install_packages}; then
-	echo "#### (${PKGNAME} Installed ${install_packages}";
+	echo "#### (${PKGNAME}) Installed ${install_packages}";
     else
-	echo echo "#!!# (${PKGNAME} Failed to install ${install_packages}"
+	echo echo "#!!# (${PKGNAME}) Failed to install ${install_packages}"
 	( (./pkg prep) && (./pkg make) && (./pkg install) ) ||
-	    (echo echo "#!!# (${PKGNAME} Failed to build/install ${PKGNAME}");
+	    (echo echo "#!!# (${PKGNAME}) Failed to build/install ${PKGNAME}");
     fi;
 }
 

@@ -167,7 +167,7 @@ get_all_pkgs( ) {
     local p='';
     local nm='';
     for p in sources/*; do
-	if  [ -d "$p" ] && [ ! -f "$p/skip" ] && [ -d $p/${PKGINFO} ]; then
+	if [ -d "$p" ] && [ ! -f "$p/skip" ] && [ -d "$p/${PKGINFO}" ]; then
 	    nm=$(basename ${p});
 	    if ! ( [ "$nm" = "libu8" ] || [ "$nm" = "kno" ] ); then
 		all="${all} ${nm}"; fi;
@@ -182,9 +182,9 @@ handle_bundle( ) {
     local elt='';
     local varname='';
     local valstring='';
-    echo "Handle bundle $@";
+    dbgmsg "Handle bundle $@";
     for elt in $*; do
-	echo "Processing '${elt}'";
+	dbgmsg "Processing '${elt}' op=${op} pkgs=${pkgs}";
 	case ${elt} in
 	    require|make|prep|package|create|build|install|push|latest|pushup)
 		pkg_op ${op} "${pkgs}"; 

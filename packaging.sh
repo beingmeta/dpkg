@@ -15,6 +15,14 @@ logmsg () {
     echo "pkg ($$@$(pwd):${DISTRO}) $1" >&2;
 }
 
+infomsg () {
+    if [ -n "${PKGLOG}" ] && [ -w "${PKGLOG}" ]; then
+        echo "pkg ($$@$(pwd):${DISTRO}) $1" >${PKGLOG};
+    else
+        echo "pkg ($$@$(pwd):${DISTRO}) $1" >&2;
+    fi;
+}
+
 dbgmsg () {
     if [ -n "${DEBUGGING}" ]; then
 	echo "pkgdebug ($$@$(pwd):${DISTRO}) $1" >&2;
@@ -284,7 +292,7 @@ fi;
 # Find the package tool
 
 if [ -n "${PKGTOOL}" ]; then
-    echo "PKGTOOL=${PKGTOOL}";
+    dbgmsg "PKGTOOL=${PKGTOOL}"
 elif [ -f "${STATE_ROOT}/PKGTOOL" ]; then
     PKGTOOL=$(cat "${STATE_ROOT}/PKGTOOL");
 else
@@ -314,17 +322,20 @@ else
     fi;
 fi;
 
-if [ -z "${PKGTOOL}" ]; then
-    echo "No PKGTOOL";
-elif [ "${PKGTOOL}" = "debtool" ]; then
+TOOLNAME=${PKGTOOL##*/}
+
+if [ -z "${TOOLNAME}" ]; then
+    echo "No TOOLNAME";
+elif [ "${TOOLNAME}" = "debtool" ]; then
     PKGINFO=debinfo
-elif [ "${PKGTOOL}" = "rpmtool" ]; then
+elif [ "${TOOLNAME}" = "rpmtool" ]; then
     PKGINFO=rpminfo
-elif [ "${PKGTOOL}" = "apktool" ]; then
+elif [ "${TOOLNAME}" = "apktool" ]; then
     PKGINFO=apkinfo
 else
     PKGINFO=none
 fi;
+
 if [ -f ${STATE_ROOT}/OUTDIR ]; then OUTDIR=$(cat ${STATE_ROOT}/OUTDIR); fi;
 
 dbgmsg "REPO HOST=${REPO} URL=${REPO_URL} REPO_LOGIN=${REPO_LOGIN}";
