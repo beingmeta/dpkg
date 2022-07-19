@@ -39,108 +39,6 @@ fi;
 
 . ./packaging.sh
 
-case $1 in
-    start|source)
-	if [ -n "$2" ] && [ -f sources/$2/srcloc ]; then
-	    ./setsource $2;
-	    rm -rf work/$2;
-	    exit;
-	else
-	    echo "Usage: pkg start *pkgname*";
-	    exit;
-	fi;
-	;;
-    setup)
-	if [ $# -eq 1 ]; then
-	    for src in sources/*; do
-		if [ -d ${src} ]; then
-		    name=$(basename ${src});
-		    ./setsource ${name};
-		fi;
-	    done;
-	else
-	    for src in $@; do
-		if [ -f "sources/${src}/srcloc" ]; then
-		    ./setsource ${src};
-		else echo "Not a known package: ${src}";
-		fi;
-	    done;
-	fi;
-	exit;
-	;;
-    pull|getsources|update_sources)
-	if [ $# -eq 1 ]; then
-	    for src in sources/*; do
-		if [ -d ${src} ]; then
-		    name=$(basename ${src});
-		    ./setsource ${name};
-		fi;
-	    done;
-	else
-	    for src in $@; do
-		if [ -f "sources/${src}/srcloc" ]; then
-		    ./setsource ${src};
-		else echo "Not a known package: ${src}";
-		fi;
-	    done;
-	fi;	
-	exit;
-	;;
-    cleanup)
-	if [ $# -eq 1 ]; then
-	    for src in sources/*; do
-		if [ -d "${src}" ]; then
-		    name=$(basename ${src});
-		    files=$(ls work/${name}*.tar work/${name}*.tar.gz 2>/dev/null);
-		    if [ -n "${files}" ]; then 
-			echo "Removing ${files}"; 
-			rm ${files};
-		    fi;
-		fi;
-	    done;
-	else
-	    for name in $@; do
-		if [ -d "sources/${name}" ]; then
-		    files=$(ls work/${name}*.tar work/${name}*.tar.gz 2>/dev/null);
-		    if [ -n "${files}" ]; then 
-			echo "Removing ${files}"; 
-			rm ${files};
-		    fi;
-		else echo "Not a known package: ${name}";
-		fi;
-	    done;
-	fi;	
-	exit;
-	;;
-    default)
-	arg=$2
-	if [ "${arg%=*}" = "${arg}" ]; then
-	    arg=$(echo ${arg} | tr [a-z] [A-Z]);
-	    if [ -f defaults/${arg} ]; then
-		cat defaults/${arg};
-	    fi;
-	else
-	    varname=${2%=*};
-	    valstring=${2#*=};
-	    varname=$(echo ${varname} | tr [a-z] [A-Z]);
-	    echo "Setting default for ${varname} to ${valstring}";
-	    echo ${valstring} > state/${varname};
-	    exit;
-	fi;
-	;;
-esac;
-
-if [ $# -eq 1 ]; then
-    if [ -d sources/$1 ]; then
-	./setsource $1;
-    elif [ -z "${PKGNAME}" ]; then
-	echo "No current package";
-	exit;
-    else
-	./do_pkgop ${PKGNAME} $1
-    fi;
-fi;
-
 if [ -n "${SKIP}" ]; then
     for pkg in ${SKIP}; do 
 	if [ -d sources/${pkg} ]; then
@@ -235,5 +133,99 @@ handle_bundle( ) {
     echo "pkg_op ${op} ${pkgs}";
     pkg_op ${op} "${pkgs}"; 
 }
+
+case $1 in
+    start|source)
+	if [ -n "$2" ] && [ -f sources/$2/srcloc ]; then
+	    UPDATE_CURRENT=yes ./setsource $2;
+	    rm -rf work/$2;
+	    exit;
+	else
+	    echo "Usage: pkg start *pkgname*";
+	    exit;
+	fi;
+	;;
+    setup)
+	if [ $# -eq 1 ]; then
+	    for pkg in $(get_all_pkgs); do
+		./setsource ${pkg};
+	    done;
+	else
+	    for pkg in $@; do
+		if [ -f "sources/${pkg}/srcloc" ]; then
+		    ./setsource ${pkg};
+		else echo "Not a known package: ${pkg}";
+		fi;
+	    done;
+	fi;
+	exit;
+	;;
+    pull)
+	if [ $# -eq 1 ]; then
+	    for pkg in $(get_all_pkgs); do
+		./setsource ${pkg};
+		fi;
+	    done;
+	else
+	    for pkg in $@; do
+		if [ -f "sources/${pkg}/srcloc" ]; then
+		    ./setsource ${pkg};
+		else echo "Not a known package: ${pkg}";
+		fi;
+	    done;
+	fi;	
+	exit;
+	;;
+    cleanup)
+	if [ $# -eq 1 ]; then
+	    for pkg in $(get_all_packages); do
+		files=$(ls work/${pkg}*.tar work/${pkg}*.tar.gz 2>/dev/null);
+		if [ -n "${files}" ]; then 
+		    echo "Removing ${files}"; 
+		    rm ${files};
+		fi;
+	    done;
+	else
+	    for pkg in $@; do
+		if [ -f "sources/${pkg}/srcloc" ]; then
+		    files=$(ls work/${pkg}*.tar work/${name}*.tar.gz 2>/dev/null);
+		    if [ -n "${files}" ]; then 
+			echo "Removing ${files}"; 
+			rm ${files};
+		    fi;
+		else echo "Not a known package: ${pkg}";
+		fi;
+	    done;
+	fi;	
+	exit;
+	;;
+    default)
+	arg=$2
+	if [ "${arg%=*}" = "${arg}" ]; then
+	    arg=$(echo ${arg} | tr [a-z] [A-Z]);
+	    if [ -f defaults/${arg} ]; then
+		cat defaults/${arg};
+	    fi;
+	else
+	    varname=${2%=*};
+	    valstring=${2#*=};
+	    varname=$(echo ${varname} | tr [a-z] [A-Z]);
+	    echo "Setting default for ${varname} to ${valstring}";
+	    echo ${valstring} > state/${varname};
+	    exit;
+	fi;
+	;;
+esac;
+
+if [ $# -eq 1 ]; then
+    if [ -d sources/$1 ]; then
+	./setsource $1;
+    elif [ -z "${PKGNAME}" ]; then
+	echo "No current package";
+	exit;
+    else
+	./do_pkgop ${PKGNAME} $1
+    fi;
+fi;
 
 handle_bundle $@
