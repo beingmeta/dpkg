@@ -164,7 +164,6 @@ case $1 in
 	if [ $# -eq 1 ]; then
 	    for pkg in $(get_all_pkgs); do
 		./setsource ${pkg};
-		fi;
 	    done;
 	else
 	    for pkg in $@; do
