@@ -137,7 +137,7 @@ handle_bundle( ) {
 case $1 in
     start|source)
 	if [ -n "$2" ] && [ -f sources/$2/srcloc ]; then
-	    UPDATE_CURRENT=yes ./setsource $2;
+	    ./setsource $2;
 	    rm -rf work/$2;
 	    exit;
 	else

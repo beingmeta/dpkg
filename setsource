@@ -21,6 +21,10 @@ if [ -f ${STATE_ROOT}/PKGNAME ]; then
 else
     curpkg=;
 fi
+if ! ([ -n "${curpkg}" ] && [ -d "src/${curpkg}" ] && [ -f "src/${curpkg}.tar" ]); then
+    UPDATE_CURRENT=yes
+fi;
+
 if [ "${curpkg}" = "${pkgname}" ] && ! ${UPDATE_CURRENT}; then
     exit;
 fi
