@@ -9,7 +9,7 @@ URL:            http://www.beingmeta.com/
 Source0:        kno-@VERSION@.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:  libu8-devel curl-devel libldns-devel libffi-devel csnappy-devel libzstd-devel python3-devel
+BuildRequires:  libu8-devel curl-devel libldns-devel libffi-devel jemalloc-devel csnappy-devel libzstd-devel python3-devel autoconf autoconf-archive
 Requires:       libu8 >= 3.1 curl >= 7.15.1 ldns csnappy libffi libzstd
 
 %description
@@ -27,7 +27,7 @@ accessing Python modules, classes, handlers, and functions from KNO.
 %package        devel
 Summary:        Development files for %{name}
 Group:          Development/Libraries
-Requires:       %{name} = %{version}-%{release}
+Requires:       %{name} = %{version}-%{release} libu8-devel autoconf autoconf-archive cmake ninja-make automake
 
 %description    devel
 The %{name}-devel package contains libraries and header files for

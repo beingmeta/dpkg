@@ -9,7 +9,7 @@ URL:            http://www.beingmeta.com/
 Source0:        @PKGNAME@-@VERSION@.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:  libu8-devel kno-devel
+BuildRequires:  libu8-devel kno-devel cmake
 Requires:       libu8 >= 3.0 kno >= 2111.0.0
 
 %description

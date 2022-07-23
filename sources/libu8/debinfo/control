@@ -1,7 +1,7 @@
 Source: libu8
 Priority: optional
 Maintainer: Ken Haase <kh@beingmeta.com>
-Build-Depends: debhelper (>= 8.0.0), autotools-dev, debsigs, devscripts, libssl-dev, uuid-dev, libldns-dev, libc-dev
+Build-Depends: debhelper (>= 8.0.0), autotools-dev, debsigs, devscripts, libssl-dev, uuid-dev, libldns-dev, libc-dev, gettext-devel
 Standards-Version: 3.9.4
 Section: libs
 Homepage: http://www.libu8.org/
@@ -11,7 +11,7 @@ Homepage: http://www.libu8.org/
 Package: libu8-dev
 Section: libdevel
 Architecture: any
-Depends: libu8 (= ${binary:Version})
+Depends: libu8 (= ${binary:Version}) gettext-devel
 Description: Dev package for libu8 compatability and i18n library
   Development package for libu8, which provides utility functions
   of various sorts, especially for dealing with UTF-8 text, but
@@ -28,7 +28,7 @@ Description:
 Package: libu8
 Section: libs
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, gettext, libssl
 Description:
  Provides utility functions of various sorts, especially for
  dealing with UTF-8 text, but also common layers to libraries
