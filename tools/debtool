@@ -33,6 +33,8 @@ infomsg "   VARIANT=${VARIANT} REPO=${REPO}";
 DPKGNAME=${PKGNAME}
 if [ -f ${CONFIG_ROOT}/${PKGNAME}/dpkgname.prop ]; then
     DPKGNAME=$(cat ${CONFIG_ROOT}/${PKGNAME}/dpkgname.prop);
+elif [ -f ${CONFIG_ROOT}/${PKGNAME}/debinfo/pkgname.prop ]; then
+    DPKGNAME=$(cat ${CONFIG_ROOT}/${PKGNAME}/debinfo/pkgname.prop);
 fi
 
 debprep() {
