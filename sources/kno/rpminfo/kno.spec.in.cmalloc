@@ -27,7 +27,7 @@ accessing Python modules, classes, handlers, and functions from KNO.
 %package        devel
 Summary:        Development files for %{name}
 Group:          Development/Libraries
-Requires:       %{name} = %{version}-%{release} libu8-devel autoconf autoconf-archive cmake ninja-make automake
+Requires:       %{name} = %{version}-%{release} libu8-devel autoconf autoconf-archive
 
 %description    devel
 The %{name}-devel package contains libraries and header files for
