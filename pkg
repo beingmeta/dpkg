@@ -146,7 +146,7 @@ case $1 in
 	fi;
 	;;
     setup)
-	if [ $# -eq 1 ]; then
+	if [ $# -eq 1 ] || [ "$2" = "all" ]; then
 	    for pkg in $(get_all_pkgs); do
 		./setsource ${pkg};
 	    done;
@@ -161,7 +161,7 @@ case $1 in
 	exit;
 	;;
     pull)
-	if [ $# -eq 1 ]; then
+	if [ $# -eq 1 ] || [ "$2" = "all" ]; then
 	    for pkg in $(get_all_pkgs); do
 		./setsource ${pkg};
 	    done;
@@ -176,7 +176,7 @@ case $1 in
 	exit;
 	;;
     cleanup)
-	if [ $# -eq 1 ]; then
+	if [ $# -eq 1 ] || [ "$2" = "all" ]; then
 	    for pkg in $(get_all_packages); do
 		files=$(ls work/${pkg}*.tar work/${pkg}*.tar.gz 2>/dev/null);
 		if [ -n "${files}" ]; then 
@@ -199,7 +199,7 @@ case $1 in
 	exit;
 	;;
     cleanout)
-	if [ $# -eq 1 ]; then
+	if [ $# -eq 1 ] || [ "$2" = "all" ]; then
 	    for pkg in $(get_all_pkgs); do
                 if [ -d "${PACKAGING_ROOT}/output/${pkg}" ]; then
                     echo "Removing contents of output/${pkg}";
