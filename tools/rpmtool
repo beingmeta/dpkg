@@ -103,6 +103,21 @@ rpmpackage() {
 	 mv ${all_files} ${output_dir}) &&
 	(echo ${FULL_VERSION} > ${output_dir}/FULL_VERSION);
 }
+
+rpmcheck() {
+    local buildinfo=$(ls output/${PKGNAME}/${PKGNAME}_${VERSION}*.src.rpm 2>/dev/null);
+    if [ -z "${buildinfo}" ]; then
+	infomsg "No source RPM found for output/${PKGNAME}/${PKGNAME}_${VERSION}-${DISTRO}...";
+	return 1;
+    elif [ -f "${buildinfo}" ]; then
+	infomsg "File ${buildinfo} found";
+	return 0;
+    else
+	infomsg "File ${buildinfo} not found";
+	return 1;
+    fi;
+}
+
 rpminstall() {
     local instpkgs=$(cat ${CONFIG_ROOT}/${PKGNAME}/rpminfo/install.prop 2>/dev/null||echo ${PKGNAME});
     local packages=;
@@ -115,9 +130,8 @@ rpminstall() {
     done;
     ${SUDO} rpm -Uvh --force ${packages};
 }
+
 rpminstallsrc() {
-    local packages="$(ls output/${PKGNAME}/${PKGNAME}-*-${VERSION}*.${ARCH}.rpm \
-    	  		 2>/dev/null)";
     ${SUDO} rpm -Uvh output/${PKGNAME}/${PKGNAME}-${VERSION}*.src.rpm
 }
 
@@ -163,7 +177,10 @@ case ${ACTION} in
 	;;
     package|create)
 	import_state;
-	if [ "${LOGFILE}" = none ]; then
+        if rpmcheck; then
+            echo "Nothing to do";
+	    exit;
+	elif [ "${LOGFILE}" = none ]; then
 	    rpmpackage;
 	elif [ -n "${LOGFILE}" ]; then
 	    rpmpackage > ${LOGFILE};
@@ -183,7 +200,9 @@ case ${ACTION} in
 	rpmrequire;
 	;;
     make)
-	./setsource ${PKGNAME} && import_state && rpmprep && rpmpackage;
+	if ! rpmcheck; then
+	    ./setsource ${PKGNAME} && import_state && rpmprep && rpmpackage;
+        fi;
 	;;
     install)
 	import_state;
@@ -205,6 +224,13 @@ case ${ACTION} in
 	    rpmpush $* && echo ${XVERSION} > output/${PKGNAME}/_.PUSHED;
 	else
 	    echo "Already pushed ${PKGNAME} version ${XVERSION}";
+	fi;
+	;;
+    check)
+	if rpmcheck; then
+	    return 1;
+	else
+	    return 0;
 	fi;
 	;;
     clean)

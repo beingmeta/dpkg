@@ -21,7 +21,7 @@ Description: Dev package for libu8 compatability and i18n library
 Package: libu8-encodings
 Section: libs
 Architecture: any
-Depends: libu8 (= ${binary:Version})
+Depends: libu8
 Description:
   Additional character encodings for libu8
 

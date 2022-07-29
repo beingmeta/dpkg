@@ -30,7 +30,7 @@ developing applications that use %{name}.
 %package        encodings
 Summary:        Extra character set encodings for %{name}
 Group:          Development/Libraries
-Requires:       %{name} = %{version}-%{release}
+Requires:       %{name}
 
 %description    encodings
 The %{name}-encodings package contains data files for handling
