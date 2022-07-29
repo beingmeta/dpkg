@@ -164,7 +164,6 @@ rpmpush() {
     else
 	${TOOLS}/curlput repo=${REPO} ${head_package} ${sub_packages};
     fi;
-    ./tools/curlput 
 }
 
 case ${ACTION} in
