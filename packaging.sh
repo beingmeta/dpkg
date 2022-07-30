@@ -274,11 +274,16 @@ resolve_repo() {
         REPO_URL=$(cat "${dir}/${REPO}.${REPO_SYSTEM}");
     elif [ -f "${dir}/${REPO}" ]; then
         REPO_URL=$(cat "${dir}/${REPO}");
+    elif [ -n "${USE_REPO_URL}" ]; then
+        REPO_URL="${USE_REPO_URL}";
     fi;
+
     if [ -f "${dir}/${REPO}.${REPO_SYSTEM}.login" ]; then
         REPO_LOGIN=$(cat "${dir}/${REPO}.${REPO_SYSTEM}.login");
     elif [ -f "${dir}/${REPO}.login" ]; then
         REPO_LOGIN=$(cat "${dir}/${REPO}.login");
+    elif [ -n "${USE_REPO_LOGIN}" ]; then
+        REPO_LOGIN="${USE_REPO_LOGIN}";
     fi;
 
     if [ -n "${DISTRO}" ]; then
