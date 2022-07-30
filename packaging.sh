@@ -127,8 +127,8 @@ if [ ! -d "${PACKAGING_ROOT}/output" ]; then
     mkdir "${PACKAGING_ROOT}/output";
 fi;
 
-if [ -f state/PKGNAME ]; then
-    curpkg=$(cat state/PKGNAME);
+if [ -f ${STATE_ROOT}/PKGNAME ]; then
+    curpkg=$(cat ${STATE_ROOT}/PKGNAME);
 fi;
 
 # Handle defaults from the environment

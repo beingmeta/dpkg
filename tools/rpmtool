@@ -149,8 +149,8 @@ rpmrequire() {
 	${SUDO} rpm -Uvh --force ${files};
     elif ${SUDO} dnf install ${instpkgs}; then
 	 echo "Installed ${PKGNAME} from repo: ${instpkgs}";
-    else 
-	echo echo "#!!# (${PKGNAME} Failed to install ${instpkgs}"
+    else
+	echo "#!!# (${PKGNAME} Failed to install ${instpkgs}"
 	( (./pkg prep) && (./pkg make) && (./pkg install) ) ||
 	    (echo echo "#!!# (${PKGNAME} Failed to build/install ${PKGNAME}");
     fi;
