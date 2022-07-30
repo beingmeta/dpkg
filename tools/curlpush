@@ -5,54 +5,16 @@
 #  http://nex.beingmeta.com/repository/kno/
 #  http://packager:password@nex.beingmeta.com/repository/kno/
 
-export NO_PKGNAME=yes
-
-. ./packaging.sh
-
-FILES=
-PUSH_URL=${REPO_URL}
-PUSH_LOGIN=${REPO_LOGIN}
+PUSH_URL=$1;
+PUSH_LOGIN=$2;
+shift; shift;
+FILES=$*
 CURL=$(which curl 2>/dev/null)
 if [ -z "${CURL}" ]; then
     echo "Usage: curlpush [http..] [user:pass] [files...]";
     echo " No curl executable found!!";
     exit;
 fi;
-for arg in $*; do
-    case ${arg} in
-	http:*|https:*)
-	    PUSH_URL=${arg};
-	    ;;
-	*:*)
-	    PUSH_LOGIN=${arg};
-	    ;;
-	repo=*)
-	    repo=${arg#repo=};
-	    if [ -f repos/${repo}.${REPO_SYSTEM} ]; then
-		PUSH_URL=$(cat repos/${repo}.${REPO_SYSTEM} | sed -e "s/@DISTRO@/${DISTRO}/" -e "s/@CHANNEL@/${CHANNEL:-main}/");
-	    elif [ -f repos/${repo} ]; then
-		PUSH_URL=$(cat repos/${repo} | sed -e "s/@DISTRO@/${DISTRO}/" -e "s/@CHANNEL@/${CHANNEL:-main}/");
-	    else
-		PUSH_URL=${repo};
-	    fi;
-	    if [ -f repos/${repo}.${REPO_SYSTEM}.login ]; then
-		PUSH_LOGIN=$(cat repos/${repo}.${REPO_SYSTEM}.login);
-	    elif [ -f repos/${repo}.login ]; then
-		PUSH_LOGIN=$(cat repos/${repo}.login);
-	    fi;
-	    ;;
-	login=*)
-	    PUSH_LOGIN=${arg%repo=};
-	    ;;
-	*)
-	    if [ -z "${FILES}" ]; then
-		FILES="${arg}";
-	    else 
-		FILES="${FILES} ${arg}";
-	    fi;
-	    ;;
-    esac
-done;
 
 if [ -z "${PUSH_URL}" ]; then
     echo "Warning! No repository address to push to";
@@ -66,11 +28,7 @@ fi;
 
 for file in ${FILES}; do \
     done=no
-    (if [ -z "${PUSH_LOGIN}" ]; then
-	 ${DEBUG_CURLPUSH} ${CURL} -f ${CURLOPTS} -H "Content-Type: multipart/form-data" --data-binary "@${file}" ${PUSH_URL};
-     else
-	 ${DEBUG_CURLPUSH} ${CURL} -f -u "${PUSH_LOGIN}" ${CURLOPTS} -H "Content-Type: multipart/form-data" --data-binary "@${file}" ${PUSH_URL};
-     fi) && done='yes';
+    (${DEBUG_CURLPUSH} ${CURL} -f -u "${PUSH_LOGIN}" ${CURLOPTS} -H "Content-Type: multipart/form-data" --data-binary "@${file}" ${PUSH_URL}) && done='yes';
     if [ "${done}" = yes ]; then
 	echo "## Successfully pushed ${file} to ${PUSH_URL}" >&2;
     else

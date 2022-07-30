@@ -190,11 +190,10 @@ debrequire() {
 debpush() {
     local head_package="output/${PKGNAME}/${DPKGNAME}_${VERSION}*.deb";
     local install_packages="${head_package} $(ls output/${PKGNAME}/*-*_${VERSION}*.deb 2>/dev/null)";
-    if [ -z "${REPO}" ]; then
-	${TOOLS}/curlpush ${install_packages};
-    else
-	${TOOLS}/curlpush repo=${REPO} ${install_packages};
+    if [ -n "${DEBUG}" ]; then
+        echo ${TOOLS}/curlpush "${REPO_URL}" "${REPO_LOGIN}" ${install_packages};
     fi;
+    ${TOOLS}/curlpush "${REPO_URL}" "${REPO_LOGIN}" ${install_packages};
 }
 
 debchangelog() {

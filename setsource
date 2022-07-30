@@ -7,12 +7,13 @@ UPDATE_CURRENT=${UPDATE_CURRENT:-false};
 branch=
 curpkg=
 pkgname=$1;
+
 stripped="${pkgname%#*}"
 if [ "${stripped}" != "${pkgname}" ]; then
     branch="${pkgname#*#}";
     pkgname=${stripped}
 fi;
-if [ ! -d "sources/${pkgname}" ]; then
+if [ ! -d "${CONFIG_ROOT}/${pkgname}" ]; then
     echo "setsource: ${pkgname} is not a known package name";
     exit;
 fi;
@@ -21,16 +22,18 @@ if [ -f ${STATE_ROOT}/PKGNAME ]; then
 else
     curpkg=;
 fi
+
 if ! ([ -n "${curpkg}" ] && [ -d "src/${curpkg}" ] && [ -f "src/${curpkg}.tar" ]); then
     UPDATE_CURRENT=yes
 fi;
 
-if [ "${curpkg}" = "${pkgname}" ] && ! ${UPDATE_CURRENT}; then
+if [ "${curpkg}" = "${pkgname}" ] && [ -n "${UPDATE_CURRENT}" ]; then
     exit;
-fi
+fi;
 if [ -n "${curpkg}" ]; then echo "Switching from ${curpkg} to ${pkgname}"; fi;
 PKGNAME=${pkgname};
 rm -f ${STATE_ROOT}/*;
+
 echo "${pkgname}" > ${STATE_ROOT}/PKGNAME;
 if [ -n "${branch}" ]; then echo "${branch}" > ${STATE_ROOT}/BRANCH; fi;
 cp ${PACKAGING_ROOT}/defaults/* ${STATE_ROOT} 2> /dev/null;
@@ -55,109 +58,33 @@ fi;
 
 # Getting repo information
 
-# These are used to probe for specific settings
-PROBES=
-push_probe() {
-    local probe=$1
-    if [ -n "${probe}" ] &&
-	   [ "${probe}" = "${probe%.}" ] &&
-	   [ "${probe}" = "${probe%..*}" ]; then
-	if [ -z "${PROBES}" ]; then
-	    PROBES="${probe}";
-	else PROBES="${probe} ${PROBES}";
-	fi;
-    fi;
-}
-push_probe "${PKGNAME}";
-push_probe "${PKGNAME}.${DISTRO}";
-
-# Getting information about repos
-
-REPOMAN=
-REPO=${USE_REPO}
-REPO_LOGIN=${USE_REPO_LOGIN}
-REPO_URL=
-
-if [ -z "${REPO}" ] && [ -f defaults/REPO ]; then
-    REPO=$(cat defaults/REPO);
+if [ -n "${REPO}" ]; then
+    :;
+elif [ -f "${CONFIG_ROOT}/${PKGNAME}/repo" ]; then
+    REPO=$(cat "${CONFIG_ROOT}/${PKGNAME}/repo");
+    echo "${REPO}" > state/REPO;
 fi;
 
-for probe in ${PROBES}; do
-    if [ -z "${REPO}" ] && [ -f repos/${probe} ]; then
-	REPO=$(cat repos/${probe});
-	echo "Found repo host ${REPO} for ${probe}";
-    fi;
-done;
-		   
-for probe in ${PROBES}; do
-    if [ -z "${REPOMAN}" ] && [ -f repos/${probe}-repoman ]; then
-	REPOMAN=$(cat repos/${probe}-repoman);
-	echo "Found repo manager ${REPOMAN} for ${probe}";
-    fi;
-done;
-		   
-if [ -z "${REPO}" ] && [ -f repos/default ]; then
-    REPO=$(cat repos/default);
-elif [ -z "${REPO}" ]; then
-    REPO=kno
-fi;
-
-if [ -z "${REPO}" ]; then
-    echo "Warning: No REPO, assuming KNO";
+if [ -n "${REPOMAN}" ]; then
+    :;
+elif [ -f "${CONFIG_ROOT}/${PKGNAME}/repoman" ]; then
+    REPOMAN=$(cat "${CONFIG_ROOT}/${PKGNAME}/repoman");
+    echo "${REPOMAN}" > state/REPOMAN;
 else
-    if [ -f repos/${REPO}-login ]; then
-	REPO_LOGIN=$(cat "repos/${REPO}-login");
-    fi;
-    if [ -f "repos/${REPO}.${REPO_SYSTEM}" ]; then
-	REPO_URL=$(cat "repos/${REPO}.${REPO_SYSTEM}");
-	if [ -f "repos/${REPO}.${REPO_SYSTEM}-login" ]; then
-	    REPO_LOGIN=$(cat "repos/${REPO_URL}.${REPO_SYSTEM}-login");
-	fi;
-    elif [ -f "repos/${REPO}" ]; then
-	REPO_URL=$(cat "repos/${REPO}.${REPO_SYSTEM}");
-    else
-	REPO_URL="${REPO}";
-    fi;	
-    if [ -z "${REPOMAN}" ] && [ -f "${REPO}-repoman" ]; then
-	REPOMAN=$(cat ${REPO}-repoman);
-    fi
-fi;
-
-if [ -n "${DISTRO}" ]; then
-    REPO_URL=$(echo ${REPO_URL} | sed - -e "s/-@DISTRO@/-${DISTRO}/");
-    REPO_URL=$(echo ${REPO_URL} | sed - -e "s|/@DISTRO@|/${DISTRO}|");
-else
-    REPO_URL=$(echo ${REPO_URL} | sed - -e "s/-@DISTRO@/-universal/");
-    REPO_URL=$(echo ${REPO_URL} | sed - -e "s|/@DISTRO@|/universal|");
-fi;
-
-if [ -n "${VARIANT}" ]; then
-    REPO_URL=$(echo ${REPO_URL} | sed - -e "s/-@VARIANT@/-${VARIANT}/");
-    REPO_URL=$(echo ${REPO_URL} | sed - -e "s|/@VARIANT@|/${VARIANT}|");
-else
-    REPO_URL=$(echo ${REPO_URL} | sed - -e "s/-@VARIANT@//");
-    REPO_URL=$(echo ${REPO_URL} | sed - -e "s|/@VARIANT@|/stable|");
-fi;
-
-if [ -z "${REPOMAN}" ]; then
     REPOMAN="Repository Manager <repoman@beingmeta.com>";
 fi;
 
-if [ -z "${REPO_LOGIN}" ] && [ -f repos/default-login ]; then
-    REPO_LOGIN=$(cat repos/default-login);
+if [ -n "${REPO}" ]; then
+    echo ${REPO} > state/REPO;
 fi;
-
-echo ${REPO_URL} > state/REPO_URL;
-echo ${REPO} > state/REPO;
-echo ${REPO_LOGIN} > state/REPO_LOGIN;
-echo ${REPOMAN} > state/REPOMAN;
-
-dbgmsg "REPO=${REPO} PROBES=${PROBES} REPO_URL=${REPO_URL} REPOMAN=${REPOMAN}";
+if [ -n "${REPOMAN}" ]; then
+    echo ${REPOMAN} > state/REPOMAN;
+fi;
 
 # Getting sources
 
 tarfile=${PKGNAME}.tar
-srcurl=$(cat sources/${PKGNAME}/srcloc)
+srcurl=$(cat ${CONFIG_ROOT}/${PKGNAME}/srcloc)
 srcdir=src/${PKGNAME}
 
 if [ "${GIT_PROTOCOL}" = "ssh" ] && [ "${srcurl#https:}" != "${srcurl}" ]; then
@@ -184,7 +111,7 @@ if [ ! -d "${srcdir}" ]; then
 else ("cd" ${srcdir};
       if [ -n "${BRANCH}" ]; then git checkout ${BRANCH}; fi;
       git pull;
-      git submodule init; 
+      git submodule init;
       git submodule update;
       if [ -z "${GIT_NO_LFS}" ]; then
 	  git lfs fetch;
@@ -224,7 +151,7 @@ logmsg "Creating source tarball ${tarfile} with version info";
 
 if [ -x ${srcdir}/make_source_tar ]; then
     ("cd" ${srcdir}; ./make_source_tar ../../work/${tarfile});
-else 
+else
     ("cd" ${srcdir}; git archive -o ../../work/${tarfile} HEAD );
     ("cd" state; tar -rf ../work/${tarfile} \
         VERSION BASE_VERSION FULL_VERSION VERSION);

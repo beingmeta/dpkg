@@ -105,7 +105,7 @@ rpmpackage() {
 }
 
 rpmcheck() {
-    local buildinfo=$(ls output/${PKGNAME}/${PKGNAME}_${VERSION}*.src.rpm 2>/dev/null);
+    local buildinfo=$(ls output/${PKGNAME}/${PKGNAME}-${VERSION}*.src.rpm 2>/dev/null);
     if [ -z "${buildinfo}" ]; then
 	infomsg "No source RPM found for output/${PKGNAME}/${PKGNAME}_${VERSION}-${DISTRO}...";
 	return 1;
@@ -159,11 +159,18 @@ rpmrequire() {
 rpmpush() {
     local head_package="output/${PKGNAME}/${PKGNAME}-${VERSION}*.rpm";
     local sub_packages="$(ls output/${PKGNAME}/${PKGNAME}-*-${VERSION}*.rpm 2>/dev/null)";
-    if [ -z "${REPO}" ]; then
-	${TOOLS}/curlput ${head_package} ${sub_packages};
-    else
-	${TOOLS}/curlput repo=${REPO} ${head_package} ${sub_packages};
+    if [ -z "${REPO_URL}" ]; then
+        echo "No repo URL for pushing ${PKGNAME}";
+        exit 1;
     fi;
+    if [ -z "${REPO_LOGIN}" ]; then
+        echo "No repo login information for pushing ${PKGNAME}";
+        exit 1;
+    fi;
+    if [ -n "${DEBUG}" ]; then
+        echo ${TOOLS}/curlput "${REPO_URL}" "${REPO_LOGIN}" ${head_package} ${sub_packages};
+    fi;
+    ${TOOLS}/curlput "${REPO_URL}" "${REPO_LOGIN}" ${head_package} ${sub_packages};
 }
 
 case ${ACTION} in

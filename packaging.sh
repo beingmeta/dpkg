@@ -149,7 +149,13 @@ else
     ARCH=$(uname -p || echo x86_64);
 fi;
 
-DISTRIBUTOR=$(lsb_release -i -s | sed - -e 's|Distributor ID:\t||g');
+if [ -n "${DISTRIBUTOR}" ]; then
+    :;
+elif which lsb_release 1>/dev/null 2>/dev/null; then
+    DISTRIBUTOR=$(lsb_release -i -s | sed - -e 's|Distributor ID:\t||g');
+else
+    DISTRIBUTOR=any
+fi;
 
 if [ -n "${REPO_SYSTEM}" ]; then
     :;
@@ -224,40 +230,73 @@ import_state() {
     MAJOR_VERSION=$(echo $VERSION | cut -d. -f 1);
     MINOR_VERSION=$(echo $VERSION | cut -d. -f 2);
     RELEASE_VERSION=$(echo $VERSION | cut -d. -f 3);
+
     if [ -f ${STATE_ROOT}/VARIANT ]; then
 	VARIANT=$(cat ${STATE_ROOT}/VARIANT);
     elif [ -f defaults/VARIANT ]; then
 	VARIANT=$(cat defaults/VARIANT);
     else VARIANT=;
     fi;
+
     if [ -f ${dir}/LIBNAME ]; then
 	LIBNAME=$(cat ${dir}/LIBNAME);
     fi;
+
     if [ -f ${dir}/STATUS ]; then
 	STATUS=$(cat ${dir}/STATUS);
     else STATUS=stable;
     fi;
+
     if [ -f ${dir}/URGENCY ]; then
 	URGENCY=$(cat ${dir}/URGENCY);
     else URGENCY=normal;
     fi;
+
     CODENAME=${DISTRO};
-    # if [ -n "${VARIANT}" ]; then CODENAME=${CODENAME}-${VARIANT}; fi;
-    if [ -f ${dir}/REPO ]; then
-	REPO=$(cat ${dir}/REPO);
+
+    if [ -n "${REPO}" ]; then
+        :;
+    elif [ -f "${dir}/REPO" ]; then
+	REPO=$(cat "${dir}/REPO");
     fi;
-    if [ -f ${dir}/REPO_URL ]; then
-	REPO_URL=$(cat ${dir}/REPO_URL);
-    fi;
-    if [ -f ${dir}/REPO_LOGIN ]; then
-	REPO_LOGIN=$(cat ${dir}/REPO_LOGIN);
-    fi;
-    if [ -f "${STATE_ROOT}/REPOMAN" ]; then
-	REPOMAN=$(cat "${STATE_ROOT}/REPOMAN");
+
+    if [ -f "${dir}/REPOMAN" ]; then
+	REPOMAN=$(cat "${dir}/REPOMAN");
     fi;
 }
 import_state;
 
+# More repo information
+
+resolve_repo() {
+    local dir=${1:-${PACKAGING_ROOT}/repos};
+    if [ -f "${dir}/${REPO}.${REPO_SYSTEM}" ]; then
+        REPO_URL=$(cat "${dir}/${REPO}.${REPO_SYSTEM}");
+    elif [ -f "${dir}/${REPO}" ]; then
+        REPO_URL=$(cat "${dir}/${REPO}");
+    fi;
+    if [ -f "${dir}/${REPO}.${REPO_SYSTEM}.login" ]; then
+        REPO_LOGIN=$(cat "${dir}/${REPO}.${REPO_SYSTEM}.login");
+    elif [ -f "${dir}/${REPO}.login" ]; then
+        REPO_LOGIN=$(cat "${dir}/${REPO}.login");
+    fi;
+
+    if [ -n "${DISTRO}" ]; then
+        REPO_URL=$(echo ${REPO_URL} | sed - -e "s/-@DISTRO@/-${DISTRO}/");
+        REPO_URL=$(echo ${REPO_URL} | sed - -e "s|/@DISTRO@|/${DISTRO}|");
+    else
+        REPO_URL=$(echo ${REPO_URL} | sed - -e "s/-@DISTRO@/-universal/");
+        REPO_URL=$(echo ${REPO_URL} | sed - -e "s|/@DISTRO@|/universal|");
+    fi;
+    if [ -n "${VARIANT}" ]; then
+        REPO_URL=$(echo ${REPO_URL} | sed - -e "s/-@VARIANT@/-${VARIANT}/");
+        REPO_URL=$(echo ${REPO_URL} | sed - -e "s|/@VARIANT@|/${VARIANT}|");
+    else
+        REPO_URL=$(echo ${REPO_URL} | sed - -e "s/-@VARIANT@//");
+        REPO_URL=$(echo ${REPO_URL} | sed - -e "s|/@VARIANT@|/stable|");
+    fi;
+}
+resolve_repo;
 
 # Log files
 
@@ -301,7 +340,7 @@ else
 	    PKGTOOL=$(cat "${probe}");
 	fi;
     done;
-    if [ -z "${PKGTOOL}" ] && which lsb_release 1>/dev/null 2>/dev/null; then
+    if [ -z "${PKGTOOL}" ] && [ -n "${DISTRIBUTOR}" ]; then
 	case ${DISTRIBUTOR} in
 	    Ubuntu|Debian)
 		PKGTOOL=${PACKAGING_ROOT}/tools/debtool;
@@ -348,3 +387,4 @@ elif ! git lfs status 2>/dev/null 1>/dev/null; then
 else
     unset GIT_NO_LFS
 fi;
+
