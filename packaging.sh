@@ -258,9 +258,15 @@ import_state() {
         :;
     elif [ -f "${dir}/REPO" ]; then
 	REPO=$(cat "${dir}/REPO");
+    elif [ -f "${CONFIG_ROOT}/repo" ]; then
+	REPO=$(cat "${CONFIG_ROOT}/repo");
+    else
+	REPO=kno;
     fi;
 
-    if [ -f "${dir}/REPOMAN" ]; then
+    if [ -n "${REPOMAN}" ]; then
+	:;
+    elif [ -f "${dir}/REPOMAN" ]; then
 	REPOMAN=$(cat "${dir}/REPOMAN");
     fi;
 }
