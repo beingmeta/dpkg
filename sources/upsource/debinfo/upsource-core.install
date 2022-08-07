@@ -5,4 +5,5 @@ usr/lib/upsource/handlers/pre.sh
 usr/lib/upsource/handlers/post.sh
 usr/lib/upsource/handlers/git.upsource
 usr/lib/upsource/handlers/s3.upsource
+usr/lib/upsource/handlers/rsync.upsource
 etc/upsource.d/config

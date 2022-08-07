@@ -21,6 +21,13 @@ Depends: upsource-core, git
 Description:
   Provides the upsource handler for git
 
+Package: upsource-rsync
+Section: admin
+Architecture: all
+Depends: upsource-core, rsync
+Description:
+  Provides the upsource handler for rsync
+
 Package: upsource-subversion
 Section: admin
 Architecture: all

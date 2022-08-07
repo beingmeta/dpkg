@@ -40,6 +40,14 @@ Requires:       %{name} = %{version}-%{release}, awscli
 %description    s3
 Provides support for S3-based sources
 
+%package        rsync
+Summary:        RSYNC handlers/support for upsource
+Group:          Development/Libraries
+Requires:       %{name} = %{version}-%{release}, rsync
+
+%description    rsyunc
+Provides support for rsync-based sources
+
 %package        sysv
 Summary:        Upsource control files for sysv init
 Group:          Development/Libraries
@@ -93,6 +101,9 @@ rm -rf $RPM_BUILD_ROOT
 
 %files s3
 /usr/lib/upsource/handlers/s3.upsource
+
+%files rsync
+/usr/lib/upsource/handlers/rsync.upsource
 
 %files sysv
 /etc/init.d/upsource
