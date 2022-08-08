@@ -138,8 +138,24 @@ if [ -n "${DISTRO}" ]; then
     :;
 elif [ -f ${STATE_ROOT}/DISTRO ]; then
     DISTRO=$(cat ${STATE_ROOT}/DISTRO);
+elif which lsb_release 2>/dev/null 1>/dev/null; then
+    distributor=$(lsb_release -si);
+    case ${distributor} in
+        Ubuntu|Debian|Mint)
+            DISTRO=$(lsb_release -sc);
+            ;;
+        RedHatEnterprise)
+            DISTRO="rhel$(lsb_release -sv)";
+            ;;
+        Fedora*)
+            DISTRO="fc$(lsb_release -sv)";
+            ;;
+        *)
+            DISTRO="${distributor}$(lsb_release -sv)";
+            ;;
+    esac
 else
-    DISTRO=$(lsb_release -s -c || echo release);
+    DISTRO=$(uname -o | tr '/' '_');
 fi;
 
 if [ -n "${ARCH}" ]; then
