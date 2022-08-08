@@ -177,21 +177,13 @@ case $1 in
 	;;
     cleanup)
 	if [ $# -eq 1 ] || [ "$2" = "all" ]; then
-	    for pkg in $(get_all_packages); do
-		files=$(ls work/${pkg}*.tar work/${pkg}*.tar.gz 2>/dev/null);
-		if [ -n "${files}" ]; then 
-		    echo "Removing ${files}"; 
-		    rm ${files};
-		fi;
+	    for pkg in $(get_all_pkgs); do
+                rm -rvf work/${pkg} work/${pkg}.*;
 	    done;
 	else shift;
              for pkg in $@; do
 		 if [ -f "sources/${pkg}/srcloc" ]; then
-		     files=$(ls work/${pkg}*.tar work/${pkg}*.tar.gz 2>/dev/null);
-		     if [ -n "${files}" ]; then 
-			 echo "Removing ${files}"; 
-			 rm ${files};
-		     fi;
+                     rm -rvf work/${pkg} work/${pkg}.*;
 		 else echo "Not a known package: ${pkg}";
 		 fi;
 	     done;
@@ -201,6 +193,8 @@ case $1 in
     cleanout)
 	if [ $# -eq 1 ] || [ "$2" = "all" ]; then
 	    for pkg in $(get_all_pkgs); do
+                echo "Removing work/${pkg}, etc";
+                rm -rf work/${pkg} work/${pkg}.*;
                 if [ -d "${PACKAGING_ROOT}/output/${pkg}" ]; then
                     echo "Removing contents of output/${pkg}";
                     ( cd ${PACKAGING_ROOT}; ls -l output/${pkg}; rm -rf output/${pkg}/* );
@@ -209,6 +203,9 @@ case $1 in
 	else shift; 
              for pkg in $@; do
 		 if [ -f "sources/${pkg}/srcloc" ]; then
+                     echo "Removing work/${pkg}, etc";
+                     rm -rf work/${pkg} work/${pkg}.*;
+                     echo "Removing contents of output/${pkg}";
                      if [ -d "${PACKAGING_ROOT}/output/${pkg}" ]; then
                          ( cd ${PACKAGING_ROOT}; ls -l output/${pkg}; rm -rf output/${pkg}/* );
                      fi;

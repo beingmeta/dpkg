@@ -2,7 +2,7 @@
 
 export PACKAGING_ROOT STATE_ROOT SOURCE_ROOT WORK_ROOT
 export PATH LOGFILE LIBNAME TOOLS OUTPUT CONFIG_ROOT
-export PKGNAME VERSION REL_VERSION BRANCH VARIANT FULL_VERSION
+export PKGNAME VERSION REL_VERSION BRANCH CHANNEL FULL_VERSION
 export BASE_VERSION MAJOR_VERSION MINOR_VERSION RELEASE_VERSION
 export KNO_VERSION KNO_MAJOR KNO_MINOR GIT_PROTOCOL
 export REPOMAN REPO_SYSTEM REPO REPO_URL REPO_LOGIN
@@ -116,6 +116,7 @@ if [ -z "${PACKAGING_ROOT}" ]; then
 	TOOLS=${PACKAGING_ROOT}/tools;
 	PATH="${PATH}:${TOOLS}";
 	STATE_ROOT=${PACKAGING_ROOT}/state;
+	DEFAULTS_ROOT=${PACKAGING_ROOT}/defaults;
 	CONFIG_ROOT=${PACKAGING_ROOT}/sources;
 	SOURCE_ROOT=${PACKAGING_ROOT}/src;
 	WORK_ROOT=${PACKAGING_ROOT}/work;
@@ -161,8 +162,8 @@ if [ -n "${REPO_SYSTEM}" ]; then
     :;
 elif [ -f ${STATE_ROOT}/REPO_SYSTEM ]; then
     REPO_SYSTEM=$(cat ${STATE_ROOT}/REPO_SYSTEM);
-elif [ -f defaults/REPO_SYSTEM ]; then
-    REPO_SYSTEM=$(cat defaults/REPO_SYSTEM);
+elif [ -f ${DEFAULTS_ROOT}/REPO_SYSTEM ]; then
+    REPO_SYSTEM=$(cat ${DEFAULTS_ROOT}/REPO_SYSTEM);
 else case "${DISTRIBUTOR}" in
 	 Fedora|Centos|RedHat|RedHatEnterprise)
 	     REPO_SYSTEM="yum";
@@ -183,16 +184,16 @@ if [ -n "${GIT_PROTOCOL}" ]; then
     :;
 elif [ -f ${STATE_ROOT}/GIT_PROTOCOL ]; then
     GIT_PROTOCOL=$(cat ${STATE_ROOT}/GIT_PROTOCOL);
-elif [ -f defaults/GIT_PROTOCOL ]; then
-    GIT_PROTOCOL=$(cat defaults/GIT_PROTOCOL);
+elif [ -f ${DEFAULTS_ROOT}/GIT_PROTOCOL ]; then
+    GIT_PROTOCOL=$(cat ${DEFAULTS_ROOT}/GIT_PROTOCOL);
 fi;
 
 if [ -n "${DEFAULT_BRANCH}" ]; then
-    echo ${DEFAULT_BRANCH} > defaults/BRANCH;
+    echo ${DEFAULT_BRANCH} > ${DEFAULTS_ROOT}/BRANCH;
 fi;
 
-if [ -n "${DEFAULT_VARIANT}" ]; then
-    echo ${DEFAULT_VARIANT} > defaults/VARIANT;
+if [ -n "${DEFAULT_CHANNEL}" ]; then
+    echo ${DEFAULT_CHANNEL} > ${DEFAULTS_ROOT}/CHANNEL;
 fi;
 
 # This is all information which should come from getsource
@@ -231,11 +232,11 @@ import_state() {
     MINOR_VERSION=$(echo $VERSION | cut -d. -f 2);
     RELEASE_VERSION=$(echo $VERSION | cut -d. -f 3);
 
-    if [ -f ${STATE_ROOT}/VARIANT ]; then
-	VARIANT=$(cat ${STATE_ROOT}/VARIANT);
-    elif [ -f defaults/VARIANT ]; then
-	VARIANT=$(cat defaults/VARIANT);
-    else VARIANT=;
+    if [ -f ${STATE_ROOT}/CHANNEL ]; then
+	CHANNEL=$(cat ${STATE_ROOT}/CHANNEL);
+    elif [ -f defaults/CHANNEL ]; then
+	CHANNEL=$(cat defaults/CHANNEL);
+    else CHANNEL=;
     fi;
 
     if [ -f ${dir}/LIBNAME ]; then
@@ -257,39 +258,39 @@ import_state() {
     if [ -n "${REPO}" ]; then
         :;
     elif [ -f "${dir}/REPO" ]; then
+        # Get repo from state
 	REPO=$(cat "${dir}/REPO");
-    elif [ -f "${CONFIG_ROOT}/repo" ]; then
-	REPO=$(cat "${CONFIG_ROOT}/repo");
+    elif [ -f "${DEFAULTS}/REPO" ]; then
+	REPO=$(cat "${DEFAULTS}/REPO");
     else
-	REPO=kno;
+	REPO=beingmeta;
     fi;
 
-    if [ -n "${REPOMAN}" ]; then
-	:;
-    elif [ -f "${dir}/REPOMAN" ]; then
-	REPOMAN=$(cat "${dir}/REPOMAN");
-    fi;
 }
 import_state;
 
 # More repo information
 
 resolve_repo() {
-    local dir=${1:-${PACKAGING_ROOT}/repos};
-    if [ -f "${dir}/${REPO}.${REPO_SYSTEM}" ]; then
-        REPO_URL=$(cat "${dir}/${REPO}.${REPO_SYSTEM}");
-    elif [ -f "${dir}/${REPO}" ]; then
-        REPO_URL=$(cat "${dir}/${REPO}");
-    elif [ -n "${USE_REPO_URL}" ]; then
+    local dir=${1:-${PACKAGING_ROOT}/repos/${REPO}};
+    if [ -n "${USE_REPO_URL}" ]; then
         REPO_URL="${USE_REPO_URL}";
+    elif [ -f "${dir}/${PKGNAME}.${REPO_SYSTEM}" ]; then
+        REPO_URL=$(cat "${dir}/${PKGNAME}.${REPO_SYSTEM}");
+    elif [ -n "${CHANNEL}" ] && [ -f "${dir}/${CHANNEL}.${REPO_SYSTEM}" ]; then
+        REPO_URL=$(cat "${dir}/${CHANNEL}.${REPO_SYSTEM}");
+    elif [ -f "${dir}/default.${REPO_SYSTEM}" ]; then
+        REPO_URL=$(cat "${dir}/default.${REPO_SYSTEM}");
     fi;
 
-    if [ -f "${dir}/${REPO}.${REPO_SYSTEM}.login" ]; then
-        REPO_LOGIN=$(cat "${dir}/${REPO}.${REPO_SYSTEM}.login");
-    elif [ -f "${dir}/${REPO}.login" ]; then
-        REPO_LOGIN=$(cat "${dir}/${REPO}.login");
-    elif [ -n "${USE_REPO_LOGIN}" ]; then
+    if [ -n "${USE_REPO_LOGIN}" ]; then
         REPO_LOGIN="${USE_REPO_LOGIN}";
+    elif [ -f "${dir}/${PKGNAME}.${REPO_SYSTEM}.login" ]; then
+        REPO_LOGIN=$(cat "${dir}/${PKGNAME}.${REPO_SYSTEM}.login");
+    elif [ -n "${CHANNEL}" ] && [ -f "${dir}/${CHANNEL}.${REPO_SYSTEM}.login" ]; then
+        REPO_URL=$(cat "${dir}/${CHANNEL}.${REPO_SYSTEM}.login");
+    elif [ -f "${dir}/default.${REPO_SYSTEM}.login" ]; then
+        REPO_LOGIN=$(cat "${dir}/default.${REPO_SYSTEM}.login");
     fi;
 
     if [ -n "${DISTRO}" ]; then
@@ -299,12 +300,24 @@ resolve_repo() {
         REPO_URL=$(echo ${REPO_URL} | sed - -e "s/-@DISTRO@/-universal/");
         REPO_URL=$(echo ${REPO_URL} | sed - -e "s|/@DISTRO@|/universal|");
     fi;
-    if [ -n "${VARIANT}" ]; then
-        REPO_URL=$(echo ${REPO_URL} | sed - -e "s/-@VARIANT@/-${VARIANT}/");
-        REPO_URL=$(echo ${REPO_URL} | sed - -e "s|/@VARIANT@|/${VARIANT}|");
+    if [ -n "${CHANNEL}" ]; then
+        REPO_URL=$(echo ${REPO_URL} | sed - -e "s/-@CHANNEL@/-${CHANNEL}/");
+        REPO_URL=$(echo ${REPO_URL} | sed - -e "s|/@CHANNEL@|/${CHANNEL}|");
     else
-        REPO_URL=$(echo ${REPO_URL} | sed - -e "s/-@VARIANT@//");
-        REPO_URL=$(echo ${REPO_URL} | sed - -e "s|/@VARIANT@|/stable|");
+        REPO_URL=$(echo ${REPO_URL} | sed - -e "s/-@CHANNEL@//");
+        REPO_URL=$(echo ${REPO_URL} | sed - -e "s|/@CHANNEL@|/stable|");
+    fi;
+
+    if [ -n "${REPOMAN}" ]; then
+	:;
+    elif [ -f "${dir}/${PKGNAME}.repoman" ]; then
+	REPOMAN=$(cat "${dir}/${PKGNAME}.repoman");
+    elif [ -n "${CHANNEL}" ] && [ -f "${dir}/${CHANNEL}.repoman" ]; then
+	REPOMAN=$(cat "${dir}/${CHANNEL}.repoman");
+    elif [ -f "${dir}/default.repoman" ]; then
+	REPOMAN=$(cat "${dir}/default.repoman");
+    else
+        REPOMAN="Repository Manager <repoman@beingmeta.com>";
     fi;
 }
 resolve_repo;

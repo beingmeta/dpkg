@@ -23,11 +23,11 @@ else
     curpkg=;
 fi
 
-if ! ([ -n "${curpkg}" ] && [ -d "src/${curpkg}" ] && [ -f "src/${curpkg}.tar" ]); then
+if ! ([ -n "${curpkg}" ] && [ -d "src/${curpkg}" ] && [ -f "work/${curpkg}.tar" ]); then
     UPDATE_CURRENT=yes
 fi;
 
-if [ "${curpkg}" = "${pkgname}" ] && [ -n "${UPDATE_CURRENT}" ]; then
+if [ "${curpkg}" = "${pkgname}" ] && [ ! -n "${UPDATE_CURRENT}" ]; then
     exit;
 fi;
 if [ -n "${curpkg}" ]; then echo "Switching from ${curpkg} to ${pkgname}"; fi;

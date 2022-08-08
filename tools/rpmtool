@@ -254,6 +254,7 @@ case ${ACTION} in
 	    fi;
 	fi;
 	instpkgs=$(cat ${CONFIG_ROOT}/${PKGNAME}/rpminfo/install.prop 2>/dev/null||echo ${PKGNAME});
+        echo "Installing latest versions of ${instpkgs}";
 	(${SUDO} dnf -yq upgrade ${instpkgs}) || (echo "Upgrade of ${instpkgs} failed");
 	YUMVERSION=$(yum_version ${PKGNAME});
 	# Check whether we need to build the package, then do it

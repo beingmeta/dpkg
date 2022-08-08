@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# WARNING: This doesn't completely work yet
+
 ACTION=$1; shift;
 
 export SUCCESS;

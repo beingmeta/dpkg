@@ -27,15 +27,17 @@ else
     fi;
 fi;
 
-infomsg "debtool ACTION=${ACTION} PKGNAME=${PKGNAME} VERSION=${VERSION} BRANCH=${BRANCH}";
-infomsg "   VARIANT=${VARIANT} REPO=${REPO}";
-
 DPKGNAME=${PKGNAME}
-if [ -f ${CONFIG_ROOT}/${PKGNAME}/dpkgname.prop ]; then
-    DPKGNAME=$(cat ${CONFIG_ROOT}/${PKGNAME}/dpkgname.prop);
-elif [ -f ${CONFIG_ROOT}/${PKGNAME}/debinfo/pkgname.prop ]; then
+if [ -f ${CONFIG_ROOT}/${PKGNAME}/debinfo/dpkgname.prop ]; then
+    DPKGNAME=$(cat ${CONFIG_ROOT}/${PKGNAME}/debinfo/dpkgname.prop);
+elif [ -f ${CONFIG_ROOT}/${PKGNAME}/debinfo/debinfo/pkgname.prop ]; then
     DPKGNAME=$(cat ${CONFIG_ROOT}/${PKGNAME}/debinfo/pkgname.prop);
 fi
+
+echo "dpkgname=${DPKGNAME}";
+
+infomsg "debtool ACTION=${ACTION} PKGNAME=${PKGNAME} VERSION=${VERSION} BRANCH=${BRANCH}";
+infomsg "   VARIANT=${VARIANT} REPO=${REPO} DPKGNAME=${DPKGNAME}";
 
 debprep() {
     local workdir=work/${PKGNAME}
@@ -200,9 +202,6 @@ debchangelog() {
     local date="$(date -R)";
     local status_adj="${STATUS}";
     if [ -z "${status_adj}" ]; then status_adj=normal; fi
-#    echo ${PKGNAME} \(${VERSION}-${DPKG_REVISION}-${CODENAME}\) ${codename} ${STATUS}\; urgency=${URGENCY}
-#    echo ${PKGNAME} \(${VERSION}-${CODENAME}\) ${codename} ${STATUS}\; urgency=${URGENCY}
-#    echo ${DPKGNAME} \(${VERSION}-${CODENAME}\) ${CODENAME} ${STATUS}\; urgency=${URGENCY}
     echo ${DPKGNAME} \(${VERSION}\) ${CODENAME} ${STATUS}\; urgency=${URGENCY};
     echo
     echo "  * ${GITID} ${STATUSADJ} point release of ${PKGNAME} (branch '${BRANCH}') for ${CODENAME} (${FULL_VERSION})"
@@ -305,6 +304,7 @@ case ${ACTION} in
 	    fi;
 	fi;
 	instpkgs="$(cat ${CONFIG_ROOT}/${PKGNAME}/debinfo/install.prop 2>/dev/null||echo ${PKGNAME})";
+        echo "Getting the latest versions of ${instpkgs}";
 	(${SUDO} apt-get -yq install ${instpkgs}) || (echo "Upgrade of ${instpkgs} failed");
 	APTVERSION=$(u8_aptversion ${PKGNAME});
 	if [ "${APTVERSION}" != "${VERSION}" ]; then
