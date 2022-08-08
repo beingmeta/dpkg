@@ -45,7 +45,7 @@ Summary:        RSYNC handlers/support for upsource
 Group:          Development/Libraries
 Requires:       %{name} = %{version}-%{release}, rsync
 
-%description    rsyunc
+%description    rsync
 Provides support for rsync-based sources
 
 %package        sysv
