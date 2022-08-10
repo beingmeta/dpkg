@@ -145,13 +145,13 @@ elif which lsb_release 2>/dev/null 1>/dev/null; then
             DISTRO=$(lsb_release -sc);
             ;;
         RedHatEnterprise)
-            DISTRO="rhel$(lsb_release -sv)";
+            DISTRO="el$(lsb_release -sr)";
             ;;
         Fedora*)
-            DISTRO="fc$(lsb_release -sv)";
+            DISTRO="fc$(lsb_release -sr)";
             ;;
         *)
-            DISTRO="${distributor}$(lsb_release -sv)";
+            DISTRO="${distributor}$(lsb_release -sr)";
             ;;
     esac
 else
@@ -276,8 +276,8 @@ import_state() {
     elif [ -f "${dir}/REPO" ]; then
         # Get repo from state
 	REPO=$(cat "${dir}/REPO");
-    elif [ -f "${DEFAULTS}/REPO" ]; then
-	REPO=$(cat "${DEFAULTS}/REPO");
+    elif [ -f "${DEFAULTS_ROOT}/REPO" ]; then
+	REPO=$(cat "${DEFAULTS_ROOT}/REPO");
     else
 	REPO=beingmeta;
     fi;
@@ -304,9 +304,13 @@ resolve_repo() {
     elif [ -f "${dir}/${PKGNAME}.${REPO_SYSTEM}.login" ]; then
         REPO_LOGIN=$(cat "${dir}/${PKGNAME}.${REPO_SYSTEM}.login");
     elif [ -n "${CHANNEL}" ] && [ -f "${dir}/${CHANNEL}.${REPO_SYSTEM}.login" ]; then
-        REPO_URL=$(cat "${dir}/${CHANNEL}.${REPO_SYSTEM}.login");
+        REPO_LOGIN=$(cat "${dir}/${CHANNEL}.${REPO_SYSTEM}.login");
+    elif [ -n "${CHANNEL}" ] && [ -f "${dir}/${CHANNEL}.login" ]; then
+        REPO_LOGIN=$(cat "${dir}/${CHANNEL}.login");
     elif [ -f "${dir}/default.${REPO_SYSTEM}.login" ]; then
         REPO_LOGIN=$(cat "${dir}/default.${REPO_SYSTEM}.login");
+    elif [ -f "${dir}/default.login" ]; then
+        REPO_LOGIN=$(cat "${dir}/default.login");
     fi;
 
     if [ -n "${DISTRO}" ]; then
